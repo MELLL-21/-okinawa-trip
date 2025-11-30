@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2C3E50">
+<meta name="description" content="沖繩旅遊行程與記帳管理應用">
+<meta name="apple-mobile-web-app-title" content="沖繩行">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect fill='%232C3E50' width='180' height='180'/><text x='50%' y='50%' font-size='100' font-weight='900' text-anchor='middle' dominant-baseline='middle' fill='white' font-family='serif'>沖</text></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect fill='%232C3E50' width='180' height='180'/><text x='50%' y='50%' font-size='100' font-weight='900' text-anchor='middle' dominant-baseline='middle' fill='white' font-family='serif'>沖</text></svg>">
+<link rel="manifest" href="data:application/json,{%22name%22:%22沖繩行%22,%22short_name%22:%22沖繩行%22,%22start_url%22:%22./%22,%22display%22:%22standalone%22,%22background_color%22:%22%23FDFBF7%22,%22theme_color%22:%22%232C3E50%22,%22orientation%22:%22portrait%22,%22icons%22:[{%22src%22:%22data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%232C3E50' width='192' height='192'/><text x='50%' y='50%' font-size='110' font-weight='900' text-anchor='middle' dominant-baseline='middle' fill='white' font-family='serif'>沖</text></svg>%22,%22sizes%22:%22192x192%22,%22type%22:%22image/svg+xml%22,%22purpose%22:%22any%22},{%22src%22:%22data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect fill='%232C3E50' width='512' height='512'/><text x='50%' y='50%' font-size='300' font-weight='900' text-anchor='middle' dominant-baseline='middle' fill='white' font-family='serif'>沖</text></svg>%22,%22sizes%22:%22512x512%22,%22type%22:%22image/svg+xml%22,%22purpose%22:%22maskable%22}]}">
+<title>沖繩行</title>
+<style>
+:root {
+--safe-top: env(safe-area-inset-top, 20px);
+--safe-bottom: env(safe-area-inset-bottom, 20px);
+--primary: #2C3E50;
+--accent: #E76F51;
+}
+* { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+body {
+margin: 0; padding: 0;
+background-color: #FDFBF7; color: var(--primary);
+font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+height: 100dvh; width: 100vw;
+overflow: hidden;
+display: flex; flex-direction: column;
+position: fixed;
+inset: 0;
+}
+button { cursor: pointer; border: none; background: none; outline: none; touch-action: manipulation; }
+header { padding: calc(1rem + var(--safe-top)) 1.5rem 0.5rem; flex-shrink: 0; background: #FDFBF7; z-index: 10; }
+h1 { margin: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 2rem; font-weight: 900; }
+.subtitle { color: #889EAF; font-size: 0.8rem; font-weight: 600; margin-top: 5px; display: flex; align-items: center; gap: 6px; }
+.badge { background: var(--primary); color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; }
+.tabs { display: flex; padding: 0 1.5rem; border-bottom: 1px solid rgba(0,0,0,0.05); background: #FDFBF7; z-index: 10; }
+.tab { padding: 1rem 0; margin-right: 1.5rem; font-weight: 700; color: #ccc; font-size: 0.9rem; position: relative; transition: 0.2s; }
+.tab.active { color: var(--primary); }
+.tab.active::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: var(--accent); border-radius: 2px; }
+main { flex: 1; overflow-y: auto; padding: 1rem 1rem calc(5rem + var(--safe-bottom)) 1rem; -webkit-overflow-scrolling: touch; }
+.day-scroll { display: flex; gap: 0.8rem; overflow-x: auto; padding: 0.5rem 0 1rem; scroll-snap-type: x mandatory; }
+.day-scroll::-webkit-scrollbar { display: none; }
+.day-card { flex: 0 0 8.5rem; height: 6.5rem; background: white; border-radius: 1rem; padding: 0.8rem; display: flex; flex-direction: column; justify-content: space-between; border: 2px solid transparent; transition: 0.2s; scroll-snap-align: start; box-shadow: 0 4px 12px rgba(0,0,0,0.03); cursor: pointer; position: relative; }
+.day-card:active { transform: scale(0.96); }
+.day-card.active { background: var(--primary); color: white; box-shadow: 0 8px 20px rgba(44,62,80,0.2); border-color: var(--primary); }
+.day-top { display: flex; justify-content: space-between; font-size: 0.7rem; font-weight: 800; opacity: 0.8; letter-spacing: 1px; }
+.day-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; }
+.day-num { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 1.8rem; font-weight: 700; line-height: 1; margin-top: auto; }
+.day-num span { font-size: 0.8rem; opacity: 0.6; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin-left: 2px; }
+.day-cost { text-align: right; font-size: 0.7rem; font-weight: 600; opacity: 0.7; }
+.day-card.active .day-cost { color: var(--accent); opacity: 1; }
+.weather { background: white; padding: 1rem 1.2rem; border-radius: 1.2rem; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+.w-txt h3 { margin: 0 0 4px 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 1rem; }
+.w-txt p { margin: 0; font-size: 0.7rem; color: #aaa; }
+.w-val { background: #FDFBF7; padding: 6px 12px; border-radius: 20px; display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 1.2rem; }
+.list-head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 0.8rem; padding: 0 4px; }
+.list-head h2 { margin: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 1.2rem; }
+.hint { font-size: 0.65rem; background: white; padding: 4px 8px; border-radius: 12px; color: #ccc; }
+.item { background: white; padding: 1rem; border-radius: 1rem; margin-bottom: 0.8rem; display: flex; gap: 1rem; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.02); cursor: pointer; transition: transform 0.1s; }
+.item:active { transform: scale(0.98); background: #fcfcfc; }
+.time { font-weight: 700; font-size: 1.1rem; min-width: 3.5rem; text-align: center; border-right: 2px solid #f5f5f5; padding-right: 0.8rem; }
+.info { flex: 1; min-width: 0; }
+.tag { display: inline-block; font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; font-weight: 700; margin-bottom: 4px; }
+.title { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-weight: 700; font-size: 1.05rem; margin-bottom: 2px; }
+.loc { font-size: 0.7rem; color: #bbb; display: flex; align-items: center; gap: 4px; }
+.icon { width: 1em; height: 1em; fill: currentColor; vertical-align: middle; }
+.bg-sight { background: #eff6ff; color: #1e40af; }
+.bg-food { background: #fff7ed; color: #9a3412; }
+.bg-shop { background: #fdf2f8; color: #be185d; }
+.bg-trans { background: #f3f4f6; color: #374151; }
+.bg-other { background: #ecfdf5; color: #047857; }
+.fab { position: fixed; bottom: calc(2rem + var(--safe-bottom)); right: 1.5rem; width: 3.5rem; height: 3.5rem; background: var(--primary); border-radius: 50%; color: white; box-shadow: 0 8px 20px rgba(44,62,80,0.4); display: flex; align-items: center; justify-content: center; z-index: 100; transition: transform 0.2s; }
+.fab:active { transform: scale(0.9); }
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(3px); z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.3s; display: flex; align-items: flex-end; }
+.overlay.open { opacity: 1; pointer-events: auto; }
+.modal { background: white; width: 100%; border-radius: 1.5rem 1.5rem 0 0; padding: 1.5rem; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); max-height: 85dvh; overflow-y: auto; padding-bottom: calc(2rem + var(--safe-bottom)); }
+.overlay.open .modal { transform: translateY(0); }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+label { display: block; font-size: 0.7rem; color: #ccc; font-weight: 700; margin-bottom: 4px; }
+input, textarea { width: 100%; padding: 0.8rem; background: #F8F9FA; border: 1px solid transparent; border-radius: 0.8rem; font-size: 1rem; color: var(--primary); outline: none; appearance: none; }
+input:focus, textarea:focus { background: white; border-color: var(--primary); }
+.cats { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+.cat-chip { padding: 8px 16px; background: #F8F9FA; border-radius: 20px; font-size: 0.8rem; color: #aaa; font-weight: 700; white-space: nowrap; border: 1px solid transparent; cursor: pointer; }
+.cat-chip.active { background: var(--primary); color: white; }
+.btn-save { width: 100%; padding: 1rem; background: var(--primary); color: white; border-radius: 1rem; font-size: 1rem; font-weight: 700; margin-top: 1rem; }
+.btn-del { width: 100%; padding: 1rem; color: #ef4444; font-weight: 700; background: transparent; margin-top: 0.5rem; }
+.exp-card { background: var(--primary); color: white; padding: 2rem; border-radius: 1.5rem; text-align: center; margin-bottom: 1.5rem; }
+.exp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.exp-item { background: white; padding: 1rem; border-radius: 1rem; }
+</style>
+</head>
+<body>
+<header>
+<h1>沖繩行</h1>
+<div class="subtitle"><span class="badge">5 Days</span> 旅遊紀錄 · 記帳</div>
+</header>
+<div class="tabs">
+<button class="tab active" onclick="switchTab(this, 'itinerary')">行程</button>
+<button class="tab" onclick="switchTab(this, 'expense')">記帳</button>
+<button class="tab" onclick="alert('日記功能即將推出')">日記</button>
+</div>
+<main id="view-itinerary">
+<div class="day-scroll" id="day-list"></div>
+<div class="weather" id="weather-card">
+<div class="w-txt"><h3>今日概況</h3><p id="weather-desc">天氣晴朗，適合去海邊</p></div>
+<div class="w-val" id="weather-temp">
+<svg class="icon" style="color:#E76F51" viewBox="0 0 24 24" width="24" height="24"><path d="M6.76 4.84l-1.8-1.79-1.41 1.41 1.79 1.79 1.42-1.41zM4 10.5H1v2h3v-2zm9-9.95h-2V3.5h2V.55zm7.45 3.91l-1.41-1.41-1.79 1.79 1.41 1.41 1.79-1.79zm-3.21 13.7l1.79 1.8 1.41-1.41-1.8-1.79-1.4 1.4zM20"></path></svg>
+<span>24°C</span>
+</div>
+</div>
+<div class="list-head">
+<h2>行程表</h2>
+<span class="hint">點擊可查看／編輯</span>
+</div>
+<div id="plan-list"></div>
+</main>
+<main id="view-expense" style="display:none">
+<div class="exp-card">
+<div style="font-size:2rem;font-weight:900;">NT$ <span id="total-exp">0</span></div>
+<div>總花費</div>
+</div>
+<div class="exp-grid" id="exp-grid"></div>
+<div class="list-head">
+<h2>記錄</h2>
+<span class="hint">長按可刪除</span>
+</div>
+<div id="expense-list"></div>
+</main>
+<button class="fab" id="btn-add" onclick="openModal()">
+<svg class="icon" style="width:2em;height:2em;" viewBox="0 0 24 24"><path d="M12 5v14m7-7H5" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+</button>
+<div class="overlay" id="modal-overlay">
+<div class="modal">
+<h2 id="modal-title">新增行程</h2>
+<form id="add-form" autocomplete="off">
+<div class="form-grid">
+<div>
+<label for="add-time">時間</label>
+<input type="time" id="add-time" required>
+</div>
+<div>
+<label for="add-title">標題</label>
+<input type="text" id="add-title" maxlength="32" required>
+</div>
+</div>
+<label for="add-loc">地點／備註</label>
+<input type="text" id="add-loc" maxlength="32">
+<div class="cats" id="cat-list"></div>
+<div id="expense-fields" style="display:none">
+<label for="add-amt">金額 (NT$)</label>
+<input type="number" id="add-amt" min="1" max="99999" step="1">
+</div>
+<button type="submit" class="btn-save">儲存</button>
+<button type="button" class="btn-del" onclick="deleteItem()">刪除紀錄</button>
+</form>
+</div>
+</div>
+<script>
+const DAYS = [
+{ num: 1, label: '11/01', cost: 4100 },
+{ num: 2, label: '11/02', cost: 3450 },
+{ num: 3, label: '11/03', cost: 2800 },
+{ num: 4, label: '11/04', cost: 3320 },
+{ num: 5, label: '11/05', cost: 4190 },
+];
+const PLAN = [
+[
+{ time: '09:00', cat: 'sight', title: '萬座毛', loc: '沖繩景點', id: 1 },
+{ time: '12:30', cat: 'food', title: '海人食堂', loc: '午餐', id: 2 },
+{ time: '14:00', cat: 'shop', title: '國際通購物', loc: '血拼', id: 3 }
+],
+[
+{ time: '10:00', cat: 'sight', title: '美ら海水族館', loc: '', id: 4 },
+{ time: '13:00', cat: 'trans', title: '單軌列車體驗', loc: '', id: 5 },
+{ time: '17:00', cat: 'food', title: '咖啡廳', loc: '悠閒下午茶', id: 6 }
+],
+[
+{ time: '10:30', cat: 'shop', title: '牧志市場', loc: '', id: 7 },
+],
+[
+{ time: '08:00', cat: 'other', title: 'Hotel早餐', loc: '', id: 8 }
+],
+[
+{ time: '07:30', cat: 'sight', title: '沙灘散步', loc: '', id: 9 }
+]
+];
+const EXPENSE = [
+[
+{ cat: 'food', title: '午餐', amt: 650, id: 'e1' },
+{ cat: 'shop', title: '紀念品', amt: 1200, id: 'e2' }
+],
+[
+{ cat: 'food', title: '咖啡', amt: 180, id: 'e3' },
+{ cat: 'trans', title: '單軌車票', amt: 1200, id: 'e4' }
+],
+[
+{ cat: 'other', title: '住宿', amt: 2800, id: 'e5' }
+],
+[
+{ cat: 'trans', title: '巴士', amt: 800, id: 'e6' }
+],
+[
+{ cat: 'food', title: '早餐', amt: 500, id: 'e7' }
+]
+];
+const CATEGORIES = [
+{ key: 'sight', label: '景點', color: 'bg-sight' },
+{ key: 'food', label: '美食', color: 'bg-food' },
+{ key: 'shop', label: '購物', color: 'bg-shop' },
+{ key: 'trans', label: '交通', color: 'bg-trans' },
+{ key: 'other', label: '其他', color: 'bg-other' }
+];
+let curTab = 'itinerary';
+let curDay = 0;
+let editingItem = null;
+let editingType = null;
+
+function switchTab(tabBtn, name) {
+document.querySelectorAll('.tab').forEach($=>$.classList.remove('active'));
+tabBtn.classList.add('active');
+document.getElementById('view-itinerary').style.display = (name==='itinerary')?'block':'none';
+document.getElementById('view-expense').style.display = (name==='expense')?'block':'none';
+curTab = name;
+}
+
+function renderDays() {
+const dayList = document.getElementById('day-list');
+dayList.innerHTML = '';
+DAYS.forEach((day, idx) => {
+const div = document.createElement('div');
+div.className = 'day-card' + (curDay===idx?' active':'');
+div.onclick = ()=>{ curDay = idx; renderDays(); renderPlan(); renderExpense(); };
+div.innerHTML = `<div class="day-top"><span>Day ${day.num}</span><span class="day-dot"></span></div><div class="day-num">${day.label}<span>日</span></div><div class="day-cost">NT$ ${day.cost}</div>`;
+dayList.appendChild(div);
+});
+}
+
+function renderPlan() {
+const list = document.getElementById('plan-list');
+list.innerHTML = '';
+const plans = PLAN[curDay] || [];
+if (plans.length===0) {
+list.innerHTML = `<div style="color:#bbb;text-align:center;margin:2rem 0;">目前沒有行程</div>`;
+return;
+}
+plans.forEach((item, idx) => {
+const cat = CATEGORIES.find(c=>c.key===item.cat) || {};
+const div = document.createElement('div');
+div.className = 'item';
+div.onclick = () => openModal('plan', item, idx);
+div.innerHTML = `<div class="time">${item.time}</div><div class="info"><span class="tag ${cat.color}">${cat.label||'-'}</span><div class="title">${item.title}</div><div class="loc"><svg class="icon" viewBox="0 0 24 24" width="16" height="16">ircle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="2" fill="none"/><path d="M12 2C7 2 4 7.2 4 10.5c0 4.7 6.1 10.8 7.4 12.1.3.3.8.3 1.1 0C13.9 21.3 20 15.2 20 10.5 20 7.2 17 2 12 2z" stroke="currentColor" stroke-width="2" fill="none"/></svg> ${item.loc||''}</div></div>`;
+list.appendChild(div);
+});
+}
+
+function renderExpense() {
+let sum = EXPENSE[curDay]?.reduce((a,b)=>a+b.amt,0) || 0;
+document.getElementById('total-exp').textContent = sum;
+const grid = document.getElementById('exp-grid');
+grid.innerHTML = '';
+let catMap = {};
+CATEGORIES.forEach(c=>catMap[c.key]=0);
+(EXPENSE[curDay]||[]).forEach(item=>{ catMap[item.cat]=(catMap[item.cat]||0)+item.amt; });
+CATEGORIES.forEach(cat=>{
+if(catMap[cat.key]){
+const d = document.createElement('div');
+d.className = 'exp-item';
+d.innerHTML = `<span class="tag ${cat.color}">${cat.label}</span> &nbsp; NT$ <b>${catMap[cat.key]}</b>`;
+grid.appendChild(d);
+}
+});
+const elist = document.getElementById('expense-list');
+elist.innerHTML = '';
+if(!(EXPENSE[curDay] && EXPENSE[curDay].length)){
+elist.innerHTML = `<div style="color:#bbb;text-align:center;margin:1.5rem 0;">尚無記帳紀錄</div>`;
+} else {
+EXPENSE[curDay].forEach((item, idx) => {
+const cat = CATEGORIES.find(c=>c.key===item.cat) || {};
+const d = document.createElement('div');
+d.className = 'item';
+d.innerHTML = `<span class="tag ${cat.color}">${cat.label||'-'}</span><div class="info"><div class="title">${item.title}</div></div><div style="min-width:4.5em;text-align:right;font-weight:800;">NT$ ${item.amt}</div>`;
+d.oncontextmenu = (e)=>{e.preventDefault(); openModal('expense', item, idx);};
+elist.appendChild(d);
+});
+}
+}
+
+function openModal(type='plan', item=null, idx=-1){
+document.getElementById('modal-overlay').classList.add('open');
+document.getElementById('add-form').reset();
+document.getElementById('expense-fields').style.display = (curTab==='expense'||type==='expense') ? 'block':'none';
+const cats = document.getElementById('cat-list');
+cats.innerHTML = '';
+CATEGORIES.forEach(c=>{
+let btn = document.createElement('div');
+btn.className = 'cat-chip'+(item&&item.cat===c.key?' active':'');
+btn.textContent = c.label;
+btn.onclick = ()=>{document.querySelectorAll('.cat-chip').forEach(x=>x.classList.remove('active'));btn.classList.add('active');};
+btn.setAttribute('data-key', c.key);
+cats.appendChild(btn);
+});
+if(item){
+document.getElementById('add-time').value = item.time||'';
+document.getElementById('add-title').value = item.title;
+document.getElementById('add-loc').value = item.loc||'';
+document.getElementById('modal-title').textContent = type==='plan'?'編輯行程':'編輯記帳';
+if(item.amt) document.getElementById('add-amt').value = item.amt;
+editingItem = idx; editingType = type;
+document.querySelector('.btn-del').style.display = 'block';
+} else {
+document.getElementById('modal-title').textContent = (curTab==='expense'||type==='expense')?'新增記帳':'新增行程';
+editingItem=null; editingType=curTab==='expense'?'expense':'plan';
+document.querySelector('.btn-del').style.display = 'none';
+}
+}
+
+function closeModal(){
+document.getElementById('modal-overlay').classList.remove('open');
+}
+
+document.getElementById('modal-overlay').addEventListener('click', e=>{
+if(e.target.id==='modal-overlay') closeModal();
+});
+
+document.getElementById('add-form').addEventListener('submit', function(e){
+e.preventDefault();
+let time = document.getElementById('add-time').value;
+let title = document.getElementById('add-title').value.trim();
+let loc = document.getElementById('add-loc').value.trim();
+let cat = document.querySelector('.cat-chip.active')?.getAttribute('data-key')||CATEGORIES[0].key;
+if((curTab==='expense'||editingType==='expense') && document.getElementById('expense-fields').style.display==='block'){
+let amt = parseInt(document.getElementById('add-amt').value)||0;
+if(!amt || amt<1){alert('請填寫金額'); return;}
+if(editingItem!==null){
+EXPENSE[curDay][editingItem] = {cat, title, amt, id: EXPENSE[curDay][editingItem].id};
+} else {
+if(!EXPENSE[curDay]) EXPENSE[curDay]=[];
+EXPENSE[curDay].push({cat, title, amt, id:'e'+Date.now()});
+}
+renderExpense(); closeModal();
+return;
+}
+if(editingItem!==null){
+PLAN[curDay][editingItem] = {time, cat, title, loc, id: PLAN[curDay][editingItem].id};
+} else {
+if(!PLAN[curDay]) PLAN[curDay]=[];
+PLAN[curDay].push({time, cat, title, loc, id: Date.now()});
+}
+renderPlan(); closeModal();
+});
+
+function deleteItem(){
+if(editingItem===null) return;
+if(editingType==='expense') {
+EXPENSE[curDay].splice(editingItem,1);
+renderExpense(); closeModal();
+} else {
+PLAN[curDay].splice(editingItem,1);
+renderPlan(); closeModal();
+}
+}
+
+function init() {
+renderDays();
+renderPlan();
+renderExpense();
+document.getElementById('cat-list').innerHTML = CATEGORIES.map(
+c=>`<div class="cat-chip" data-key="${c.key}">${c.label}</div>`
+).join('');
+}
+
+window.onload = init;
+
+if ('serviceWorker' in navigator) {
+const swCode = `const CACHE_NAME='okinawa-v1';const urlsToCache=['./'];self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(urlsToCache)).then(()=>self.skipWaiting()))});self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(names=>Promise.all(names.map(name=>name!==CACHE_NAME?caches.delete(name):null))).then(()=>self.clients.claim()))});self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(res=>res||fetch(e.request).then(r=>{caches.open(CACHE_NAME).then(c=>c.put(e.request,r.clone()));return r})))});`;
+const blob = new Blob([swCode], {type: 'application/javascript'});
+const swUrl = URL.createObjectURL(blob);
+navigator.serviceWorker.register(swUrl, {scope: './'}).catch(e => console.log('SW 註冊失敗:', e));
+}
+</script>
+</body>
+</html>
