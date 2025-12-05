@@ -1,8 +1,8 @@
-<!DOCTYPE html>  
+<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#2C3E50">
@@ -690,7 +690,8 @@ const CATEGORIES = [
 
 const MEMBERS = ['許波', '方吉', '千又', '侑焄', '家銘'];
 
-let currentUser = localStorage.getItem('tripUser') || null;
+// 測試階段：不從 localStorage 讀取，每次重新開始
+let currentUser = null;
 let curTab = 'itinerary';
 let curDay = 0;
 let editingItem = null;
@@ -700,11 +701,10 @@ let statMode = 'personal';
 // ========== 初始化 ==========
 
 function init() {
-    if (!currentUser) {
-        showWelcomeCard();
-    } else {
-        updateSubtitleWithUser();
-    }
+    // 測試階段：強制顯示歡迎卡片，不讀取 localStorage
+    currentUser = null;
+    
+    showWelcomeCard();
     renderQuickAdvanceList();
     renderDays();
     renderPlan();
@@ -740,19 +740,21 @@ function showWelcomeCard() {
 
 function selectUser(name) {
     currentUser = name;
-    localStorage.setItem('tripUser', name);
-
-    const wrapper = document.getElementById('welcome-card');
-    if (wrapper) {
-        wrapper.style.display = 'none';
-        wrapper.style.pointerEvents = 'none';
-    }
+    // 測試階段：不存到 localStorage，每次都重新選擇
+    // localStorage.setItem('tripUser', name);
 
     updateSubtitleWithUser();
     renderQuickAdvanceList();
     renderExpense();
     renderDays();
     renderPlan();
+    
+    // 隱藏歡迎卡片，允許正常使用 App
+    const wrapper = document.getElementById('welcome-card');
+    if (wrapper) {
+        wrapper.style.display = 'none';
+        wrapper.style.pointerEvents = 'none';
+    }
 }
 
 function updateSubtitleWithUser() {
@@ -1287,4 +1289,3 @@ document.getElementById('welcome-card').addEventListener('click', (e) => {
 </script>
 </body>
 </html>
-
