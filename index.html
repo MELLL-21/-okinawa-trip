@@ -1,290 +1,665 @@
+
+沖繩行
+
+
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <!-- 強化 viewport 設定以禁止縮放 -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#2C3E50">
-    <meta name="description" content="沖繩旅遊行程與記帳管理應用">
     <title>沖繩行</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --safe-top: env(safe-area-inset-top, 20px);
             --safe-bottom: env(safe-area-inset-bottom, 20px);
             --primary: #2C3E50;
             --accent: #E76F51;
-            --bg-color: #FDFBF7;
+            --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
         }
         * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
-        body {
-            margin: 0; padding: 0;
-            background-color: var(--bg-color); color: var(--primary);
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            height: 100dvh; width: 100vw;
-            overflow: hidden;
-            display: flex; flex-direction: column;
-            position: fixed;
-            inset: 0;
-            user-select: none; 
-            -webkit-user-select: none;
-        }
-        button { cursor: pointer; border: none; background: none; outline: none; touch-action: manipulation; }
         
-        /* Header & Tabs */
-        header { padding: calc(1rem + var(--safe-top)) 1.5rem 0.5rem; flex-shrink: 0; background: var(--bg-color); z-index: 10; }
-        h1 { margin: 0; font-size: 2rem; font-weight: 900; }
-        .subtitle { color: #889EAF; font-size: 0.8rem; font-weight: 600; margin-top: 5px; display: flex; align-items: center; gap: 6px; }
+        html, body {
+            margin: 0; padding: 0;
+            height: 100%; width: 100%;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--primary);
+        }
+
+        body {
+            display: flex; 
+            flex-direction: column;
+        }
+
+        header { 
+            padding: calc(1rem + var(--safe-top)) 1.5rem 0.5rem; 
+            flex-shrink: 0; 
+            z-index: 10;
+            position: relative;
+        }
+        h1 { margin: 0; font-family: 'Noto Serif TC', serif; font-size: 2rem; font-weight: 900; }
+        .subtitle { color: #607d8b; font-size: 0.8rem; font-weight: 600; margin-top: 5px; display: flex; align-items: center; gap: 6px; }
         .badge { background: var(--primary); color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; }
-        .tabs { display: flex; padding: 0 1.5rem; border-bottom: 1px solid rgba(0,0,0,0.05); background: var(--bg-color); z-index: 10; }
-        .tab { padding: 1rem 0; margin-right: 1.5rem; font-weight: 700; color: #ccc; font-size: 0.9rem; position: relative; transition: 0.2s; }
+
+        .tabs { 
+            display: flex; 
+            padding: 0 1.5rem; 
+            border-bottom: 1px solid rgba(0,0,0,0.05); 
+            background: rgba(255, 255, 255, 0.3); 
+            backdrop-filter: blur(10px);
+            z-index: 10; 
+            justify-content: space-around;
+            flex-shrink: 0;
+            position: relative;
+        }
+        .tab { 
+            padding: 1rem 0; 
+            font-weight: 700; color: #999; font-size: 0.8rem; 
+            position: relative; transition: 0.2s;
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+            cursor: pointer;
+        }
+        .tab svg { width: 24px; height: 24px; fill: currentColor; }
         .tab.active { color: var(--primary); }
         .tab.active::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: var(--accent); border-radius: 2px; }
         
-        /* Main Content */
-        main { flex: 1; overflow-y: auto; padding: 1rem 1rem calc(6rem + var(--safe-bottom)) 1rem; -webkit-overflow-scrolling: touch; }
-        
-        /* Day Scroll (Top) */
-        .day-scroll { display: flex; gap: 0.8rem; overflow-x: auto; padding: 0.5rem 0 1rem; scroll-snap-type: x mandatory; }
+        main { 
+            flex: 1; 
+            overflow-y: auto; 
+            padding: 1rem 1rem calc(6rem + var(--safe-bottom)) 1rem;
+            -webkit-overflow-scrolling: touch;
+            position: relative;
+            z-index: 1;
+        }
+
+        .day-scroll { display: flex; gap: 0.8rem; overflow-x: auto; padding: 0.5rem 0 1rem; scroll-snap-type: x mandatory; z-index: 2; position: relative;}
         .day-scroll::-webkit-scrollbar { display: none; }
-        .day-card { flex: 0 0 7rem; height: 5.5rem; background: white; border-radius: 1rem; padding: 0.8rem; display: flex; flex-direction: column; justify-content: space-between; border: 2px solid transparent; transition: 0.2s; scroll-snap-align: start; box-shadow: 0 4px 12px rgba(0,0,0,0.03); cursor: pointer; position: relative; }
+        
+        .day-card { 
+            flex: 0 0 8.5rem; height: 6.5rem; 
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(8px);
+            border-radius: 1rem; padding: 0.8rem; 
+            display: flex; flex-direction: column; justify-content: space-between;
+            border: 2px solid transparent; transition: 0.2s; scroll-snap-align: start;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            cursor: pointer; position: relative;
+        }
         .day-card:active { transform: scale(0.96); }
-        .day-card.active { background: var(--primary); color: white; box-shadow: 0 8px 20px rgba(44,62,80,0.2); border-color: var(--primary); }
+        .day-card.active { 
+            background: var(--primary); color: white; 
+            box-shadow: 0 8px 20px rgba(44,62,80,0.3); 
+            border-color: var(--primary); 
+        }
         .day-top { display: flex; justify-content: space-between; font-size: 0.7rem; font-weight: 800; opacity: 0.8; letter-spacing: 1px; }
         .day-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; }
-        .day-num { font-size: 1.6rem; font-weight: 700; line-height: 1; margin-top: auto; }
-        .day-num span { font-size: 0.8rem; opacity: 0.6; margin-left: 4px; }
+        .day-num { font-family: 'Noto Serif TC'; font-size: 1.8rem; font-weight: 700; line-height: 1; margin-top: auto; }
+        .day-num span { font-size: 0.8rem; opacity: 0.6; font-family: 'Inter'; margin-left: 2px; }
+        .day-cost { text-align: right; font-size: 0.7rem; font-weight: 600; opacity: 0.7; }
+        .day-card.active .day-cost { color: var(--accent); opacity: 1; }
 
-        /* Weather */
-        .weather { background: white; padding: 1rem 1.2rem; border-radius: 1.2rem; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
-        .w-txt h3 { margin: 0 0 4px 0; font-size: 1rem; }
-        .w-txt p { margin: 0; font-size: 0.7rem; color: #aaa; }
-        .w-val { background: var(--bg-color); padding: 6px 12px; border-radius: 20px; display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 1.2rem; }
+        .weather { 
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            padding: 1rem 1.2rem; border-radius: 1.2rem; 
+            display: flex; justify-content: space-between; align-items: center; 
+            margin-bottom: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .w-txt h3 { margin: 0 0 4px 0; font-family: 'Noto Serif TC'; font-size: 1rem; }
+        .w-txt p { margin: 0; font-size: 0.7rem; color: #666; }
+        .w-val { background: rgba(255,255,255,0.8); padding: 6px 12px; border-radius: 20px; display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 1.2rem; }
 
-        /* Lists */
         .list-head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 0.8rem; padding: 0 4px; }
-        .list-head h2 { margin: 0; font-size: 1.2rem; }
-        .hint { font-size: 0.65rem; background: white; padding: 4px 8px; border-radius: 12px; color: #ccc; }
+        .list-head h2 { margin: 0; font-family: 'Noto Serif TC'; font-size: 1.2rem; }
+        .hint { font-size: 0.65rem; background: rgba(255,255,255,0.5); padding: 4px 8px; border-radius: 12px; color: #888; }
 
-        .item { background: white; padding: 1rem; border-radius: 1rem; margin-bottom: 0.8rem; display: flex; gap: 1rem; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.02); cursor: pointer; transition: transform 0.1s; position: relative; }
-        .item:active { transform: scale(0.98); background: #fcfcfc; }
-        .time { font-weight: 700; font-size: 1.1rem; min-width: 3.5rem; text-align: center; border-right: 2px solid #f5f5f5; padding-right: 0.8rem; }
-        .info { flex: 1; min-width: 0; }
-        .tag { display: inline-block; font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; font-weight: 700; margin-bottom: 4px; }
-        .title { font-weight: 700; font-size: 1.05rem; margin-bottom: 2px; }
-        .loc { font-size: 0.7rem; color: #bbb; display: flex; align-items: center; gap: 4px; }
-        .icon { width: 1em; height: 1em; fill: currentColor; vertical-align: middle; }
+        .plan-card { 
+            background: white; 
+            padding: 1rem; 
+            border-radius: 1.2rem; 
+            margin-bottom: 1rem; 
+            display: flex; 
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            cursor: pointer; transition: transform 0.1s;
+            height: 7.5rem;
+            position: relative; z-index: 2;
+        }
+        .plan-card:active { transform: scale(0.98); }
+        .plan-left {
+            display: flex; flex-direction: column; justify-content: center; gap: 6px;
+            flex: 1; min-width: 0;
+        }
+        .plan-time { font-size: 1.4rem; font-weight: 900; color: var(--primary); line-height: 1; }
+        .plan-tag { 
+            display: inline-block; font-size: 0.7rem; padding: 3px 8px; 
+            border-radius: 12px; font-weight: 700; color: white;
+            width: fit-content; 
+        }
+        .plan-title { font-family: 'Noto Serif TC'; font-weight: 800; font-size: 1.1rem; color: var(--primary); margin-top: 2px;}
+        .plan-loc { font-size: 0.75rem; color: #888; display: flex; align-items: center; gap: 4px; font-weight: 500;}
 
-        /* Colors */
-        .bg-sight { background: #eff6ff; color: #1e40af; }
-        .bg-food { background: #fff7ed; color: #9a3412; }
-        .bg-shop { background: #fdf2f8; color: #be185d; }
-        .bg-trans { background: #f3f4f6; color: #374151; }
-        .bg-other { background: #ecfdf5; color: #047857; }
+        .plan-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 6px;
+            margin-left: 1rem;
+            flex-shrink: 0;
+        }
+        .nav-btn {
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: #2563eb;
+            color: #fff;
+            font-size: 0.75rem;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+        .nav-btn svg {
+            width: 14px;
+            height: 14px;
+        }
 
-        /* Floating Button */
-        .fab { position: fixed; bottom: calc(2rem + var(--safe-bottom)); right: 1.5rem; width: 3.5rem; height: 3.5rem; background: var(--primary); border-radius: 50%; color: white; box-shadow: 0 8px 20px rgba(44,62,80,0.4); display: flex; align-items: center; justify-content: center; z-index: 100; transition: transform 0.2s; }
+        .ticket-card {
+            display: flex;
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 10px 14px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-bottom: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+        .ticket-left {
+            border-right: 1px dashed #e5e7eb;
+            padding-right: 12px;
+            margin-right: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            font-size: 12px;
+        }
+        .ticket-left .flight {
+            font-size: 1.2rem;
+            font-weight: 800;
+            margin-top: 4px;
+            color: #111827;
+        }
+        .ticket-left .date {
+            font-size: 0.75rem;
+            margin-top: 4px;
+            color: #9ca3af;
+        }
+        .ticket-right {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            flex: 1;
+        }
+        .ticket-route {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #111827;
+        }
+        .ticket-time-row {
+            margin-top: 4px;
+            font-size: 0.75rem;
+            color: #4b5563;
+            display: flex;
+            justify-content: space-between;
+        }
+        .ticket-meta {
+            margin-top: 4px;
+            font-size: 0.7rem;
+            color: #9ca3af;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .exp-summary-card { 
+            background: var(--primary); color: white; padding: 2rem; border-radius: 1.5rem; text-align: center; margin-bottom: 1rem; 
+            box-shadow: 0 8px 20px rgba(44,62,80,0.3);
+        }
+        .stat-tabs { display: flex; background: rgba(0,0,0,0.2); border-radius: 12px; padding: 4px; margin-bottom: 1rem; }
+        .stat-tab { flex: 1; text-align: center; padding: 6px; font-size: 0.8rem; color: rgba(255,255,255,0.6); border-radius: 8px; font-weight: 700; cursor: pointer;}
+        .stat-tab.active { background: white; color: var(--primary); }
+
+        .quick-expense-card {
+            background: rgba(255,255,255,0.9);
+            border-radius: 1.2rem;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .quick-expense-row {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 0.6rem;
+            margin-bottom: 0.6rem;
+        }
+        .quick-expense-row-bottom {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.6rem;
+            margin-bottom: 0.6rem;
+        }
+        .quick-expense-card label {
+            font-size: 0.7rem;
+            color: #888;
+            margin-bottom: 2px;
+            display: block;
+            font-weight: 700;
+        }
+        .quick-expense-card input,
+        .quick-expense-card select {
+            width: 100%;
+            padding: 0.55rem 0.7rem;
+            border-radius: 0.7rem;
+            border: 1px solid #e5e7eb;
+            font-size: 0.8rem;
+        }
+        .quick-expense-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.3rem;
+        }
+        .quick-expense-footer button {
+            padding: 0.5rem 1.2rem;
+            border-radius: 999px;
+            border: none;
+            background: var(--primary);
+            color: #fff;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .exp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;}
+        .exp-item { background: rgba(255,255,255,0.8); padding: 1rem; border-radius: 1rem; backdrop-filter: blur(5px); }
+        
+        .expense-row {
+            background: white; padding: 1rem; border-radius: 1rem; margin-bottom: 0.8rem;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            cursor: pointer;
+        }
+        .pay-method-badge { font-size: 0.6rem; background: #eee; color: #666; padding: 2px 6px; border-radius: 4px; margin-left: 6px; }
+        .advance-badge { font-size: 0.6rem; border: 1px solid var(--accent); color: var(--accent); padding: 1px 4px; border-radius: 4px; margin-left: 4px; }
+
+        .wish-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .wish-card { 
+            background: white; border-radius: 1rem; overflow: hidden; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05); position: relative;
+            cursor: pointer;
+        }
+        .wish-img { width: 100%; aspect-ratio: 1; object-fit: cover; background: #eee; display: block;}
+        .wish-content { padding: 0.8rem; }
+        .wish-check { 
+            position: absolute; top: 8px; right: 8px; 
+            width: 24px; height: 24px; background: rgba(255,255,255,0.9); 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.1); z-index: 5;
+        }
+        .wish-check.checked { background: var(--accent); color: white; }
+
+        .bg-sight { background: #3b82f6; }
+        .bg-food { background: #f97316; }
+        .bg-shop { background: #ec4899; }
+        .bg-trans { background: #64748b; }
+        .bg-other { background: #10b981; }
+
+        .fab { 
+            position: fixed; bottom: calc(2rem + var(--safe-bottom)); right: 1.5rem; 
+            width: 3.5rem; height: 3.5rem; background: var(--primary); 
+            border-radius: 50%; color: white; box-shadow: 0 8px 20px rgba(44,62,80,0.4); 
+            display: flex; align-items: center; justify-content: center; z-index: 100;
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
         .fab:active { transform: scale(0.9); }
-        
-        /* Modal & Overlay */
-        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(3px); z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.3s; display: flex; align-items: flex-end; }
+
+        .overlay { 
+            position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); 
+            z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.3s; 
+            display: flex; align-items: flex-end;
+        }
         .overlay.open { opacity: 1; pointer-events: auto; }
-        .modal { background: white; width: 100%; border-radius: 1.5rem 1.5rem 0 0; padding: 1.5rem; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); max-height: 85dvh; overflow-y: auto; padding-bottom: calc(2rem + var(--safe-bottom)); }
-        .overlay.open .modal { transform: translateY(0); }
         
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
-        label { display: block; font-size: 0.7rem; color: #ccc; font-weight: 700; margin-bottom: 4px; }
-        input, textarea, select { width: 100%; padding: 0.8rem; background: #F8F9FA; border: 1px solid transparent; border-radius: 0.8rem; font-size: 1rem; color: var(--primary); outline: none; appearance: none; }
-        input:focus, textarea:focus, select:focus { background: white; border-color: var(--primary); }
+        .modal { 
+            background: #FDFBF7; width: 100%; border-radius: 1.5rem 1.5rem 0 0; padding: 1.5rem; 
+            transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            max-height: 90dvh; overflow-y: auto; padding-bottom: calc(2rem + var(--safe-bottom));
+        }
+        .overlay.open .modal { transform: translateY(0); }
+
+        .form-row { margin-bottom: 1rem; }
+        label { display: block; font-size: 0.75rem; color: #888; font-weight: 700; margin-bottom: 6px; }
+        input, select, textarea { 
+            width: 100%; padding: 0.9rem; background: white; 
+            border: 1px solid #eee; border-radius: 0.8rem; 
+            font-size: 1rem; color: var(--primary); outline: none; appearance: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+        input:focus, select:focus { border-color: var(--primary); }
+
         .cats { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
-        .cat-chip { padding: 8px 16px; background: #F8F9FA; border-radius: 20px; font-size: 0.8rem; color: #aaa; font-weight: 700; white-space: nowrap; border: 1px solid transparent; cursor: pointer; }
-        .cat-chip.active { background: var(--primary); color: white; }
-        .btn-save { width: 100%; padding: 1rem; background: var(--primary); color: white; border-radius: 1rem; font-size: 1rem; font-weight: 700; margin-top: 1rem; }
+        .cat-chip { 
+            padding: 8px 16px; background: white; border-radius: 20px; 
+            font-size: 0.8rem; color: #aaa; font-weight: 700; white-space: nowrap; 
+            border: 1px solid #eee; cursor: pointer;
+        }
+        .cat-chip.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .checkbox-wrapper {
+            display: flex; align-items: center; gap: 10px;
+            background: white; padding: 0.8rem; border-radius: 0.8rem; border: 1px solid #eee;
+        }
+        .checkbox-wrapper input[type="checkbox"] {
+            width: 1.2rem; height: 1.2rem; margin: 0;
+        }
+        
+        .btn-save { width: 100%; padding: 1rem; background: var(--primary); color: white; border-radius: 1rem; font-size: 1rem; font-weight: 700; margin-top: 1.5rem; box-shadow: 0 4px 12px rgba(44,62,80,0.2); }
         .btn-del { width: 100%; padding: 1rem; color: #ef4444; font-weight: 700; background: transparent; margin-top: 0.5rem; }
 
-        /* EXPENSE STYLES */
-        .exp-card { background: var(--primary); color: white; padding: 2rem 1.5rem; border-radius: 1.5rem; text-align: center; margin-bottom: 1.5rem; }
-        .twd-est { font-size: 0.85rem; opacity: 0.7; margin-top: 8px; font-weight: 400; }
-        
-        /* 放大版分類顯示 */
-        .exp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-        .exp-item { background: white; padding: 1.5rem 1rem; border-radius: 1.2rem; cursor: pointer; transition: transform 0.1s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
-        .exp-item:active { transform: scale(0.96); }
-        .exp-item .tag { font-size: 0.9rem; padding: 4px 10px; }
-        .exp-item .val { font-size: 1.4rem; font-weight: 800; color: var(--primary); }
+        .map-link { text-decoration: none; color: inherit; display: contents; }
 
-        /* Quick Add */
-        .quick-exp { background: white; padding: 1.2rem; border-radius: 1.2rem; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
-        .quick-exp h3 { margin: 0 0 0.8rem 0; font-size: 1rem; }
-        .quick-exp-form { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; font-size: 0.85rem; }
-        .quick-exp-form .full { grid-column: 1 / 3; }
-        .quick-exp-form button { width: 100%; padding: 1rem; border-radius: 0.8rem; background: var(--primary); color: #fff; font-weight: 700; font-size: 1rem; }
-        
-        /* 行程底部目前花費：改為純文字樣式 */
-        .itinerary-footer {
-            margin-top: 1.2rem;
-            padding: 0.3rem 0;
-            display: flex;
-            justify-content: flex-end;
+        /* 歡迎畫面 */
+        .welcome-card-wrapper {
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            display: none;
             align-items: center;
-            background: transparent;
-            box-shadow: none;
-            border-left: none;
-            border-radius: 0;
+            justify-content: center;
+            background: rgba(0,0,0,0.18);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
-        .it-foot-label { font-size: 0.9rem; font-weight: 700; color: #888; margin-right: 0.5rem; }
-        .it-foot-val { font-size: 1.2rem; font-weight: 900; color: var(--primary); }
 
-        /* Drag & Preview */
-        .item.dragging { opacity: 0.9; box-shadow: 0 10px 25px rgba(0,0,0,0.2); transform: scale(1.02); cursor: grabbing; z-index: 1000; }
-        .drag-placeholder { border: 2px dashed #e5e7eb; background: transparent; border-radius: 1rem; margin-bottom: 0.8rem; }
-        .preview-toast { position: fixed; left: 50%; bottom: calc(5rem + var(--safe-bottom)); transform: translateX(-50%); background: rgba(44,62,80,0.95); color: #fff; padding: 0.6rem 1rem; border-radius: 999px; font-size: 0.8rem; z-index: 400; max-width: 80vw; text-align: center; pointer-events: none; opacity: 0; transition: opacity 0.2s; }
-        .preview-toast.show { opacity: 1; }
+        .welcome-card-inner {
+            background: rgba(255,255,255,0.96);
+            border-radius: 1.4rem;
+            box-shadow: 0 12px 35px rgba(15,23,42,0.25);
+            padding: 1.2rem 1.3rem 1.1rem;
+            width: 88%;
+            max-width: 320px;
+            text-align: center;
+        }
+
+        .welcome-user-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 220px;
+            overflow-y: auto;
+            margin-top: 0.4rem;
+            padding-right: 2px;
+        }
+        .welcome-user-list::-webkit-scrollbar { width: 3px; }
+        .welcome-user-list::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 999px;
+        }
+
+        .welcome-user-btn {
+            align-self: center;
+            min-width: 120px;
+            max-width: 180px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid #e5e7eb;
+            background: #f9fafb;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #374151;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .welcome-user-btn:hover {
+            background: #e5e7eb;
+        }
+        .welcome-user-btn:active {
+            transform: scale(0.95);
+        }
+        .welcome-user-btn.selected {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        #quick-advance-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 4px;
+            justify-content: center;
+        }
+        #quick-advance-list .welcome-user-btn {
+            min-width: auto;
+            padding: 4px 8px;
+            font-size: 0.75rem;
+        }
     </style>
 </head>
 <body>
+
+<!-- 歡迎卡片 -->
+<div id="welcome-card" class="welcome-card-wrapper">
+  <div class="welcome-card-inner">
+    <div style="font-size:1.8rem;margin-bottom:0.4rem;">✈️</div>
+    <div style="font-family:'Noto Serif TC',serif;font-weight:800;font-size:1.1rem;margin-bottom:0.2rem;">
+      歡迎加入沖繩行
+    </div>
+    <div style="font-size:0.8rem;color:#6b7280;margin-bottom:0.4rem;">
+      請選擇你的名字，之後記帳會自動帶入
+    </div>
+    <div id="welcome-user-list" class="welcome-user-list"></div>
+  </div>
+</div>
+
 <header>
     <h1>沖繩行</h1>
-    <div class="subtitle"><span class="badge">5 Days</span> 旅遊紀錄 · 記帳 (JPY)</div>
+    <div class="subtitle"><span class="badge">5 Days</span> 旅遊紀錄 · 記帳</div>
 </header>
+
 <div class="tabs">
-    <button class="tab active" onclick="switchTab(this, 'itinerary')">行程</button>
-    <button class="tab" onclick="switchTab(this, 'expense')">記帳</button>
-    <button class="tab" onclick="alert('日記功能即將推出')">日記</button>
+    <div class="tab active" onclick="switchTab(this, 'itinerary')">
+        <svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zm-7 5h5v5h-5v-5z"/></svg>
+        行程
+    </div>
+    <div class="tab" onclick="switchTab(this, 'expense')">
+        <svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+        記帳
+    </div>
+    <div class="tab" onclick="switchTab(this, 'wishlist')">
+        <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        願望清單
+    </div>
 </div>
 
 <main id="view-itinerary">
     <div class="day-scroll" id="day-list"></div>
+    
     <div class="weather" id="weather-card">
-        <div class="w-txt"><h3>天氣預報</h3><p id="weather-desc">天氣晴朗，適合去海邊</p></div>
-        <div class="w-val" id="weather-temp">
-            <svg class="icon" style="color:#E76F51" viewBox="0 0 24 24" width="24" height="24"><path d="M6.76 4.84l-1.8-1.79-1.41 1.41 1.79 1.79 1.42-1.41zM4 10.5H1v2h3v-2zm9-9.95h-2V3.5h2V.55zm7.45 3.91l-1.41-1.41-1.79 1.79 1.41 1.41 1.79-1.79zm-3.21 13.7l1.79 1.8 1.41-1.41-1.8-1.79-1.4 1.4zM20"></path></svg>
-            <span>24°C</span>
+        <div class="w-txt">
+            <h3>沖繩．即時天氣</h3>
+            <p id="weather-desc">載入中...</p>
+            <p id="clothing-advice" style="font-size:0.7rem; color:var(--accent); margin-top:4px; font-weight:700;"></p>
         </div>
+        <div class="w-val" id="weather-temp">--°C</div>
     </div>
+
     <div class="list-head">
         <h2>行程表</h2>
-        <span class="hint">長按可拖曳排序</span>
+        <span class="hint">點擊編輯 / 右側導航</span>
     </div>
     <div id="plan-list"></div>
-
-    <!-- 行程底部顯示當日花費（純文字） -->
-    <div class="itinerary-footer">
-        <span class="it-foot-label">目前花費</span>
-        <span class="it-foot-val">¥ <span id="itinerary-day-cost">0</span></span>
-    </div>
 </main>
 
 <main id="view-expense" style="display:none">
-    <div class="exp-card">
-        <div style="font-size:2.5rem;font-weight:900;">¥ <span id="total-exp">0</span></div>
-        <div style="font-weight:700; opacity:0.9;">總花費</div>
-        <div class="twd-est">約 NT$ <span id="total-exp-twd">0</span> (匯率 0.22)</div>
+    <div class="exp-summary-card">
+        <div class="stat-tabs">
+            <div class="stat-tab active" onclick="toggleStat('personal')">個人消費</div>
+            <div class="stat-tab" onclick="toggleStat('advance')">待收款項</div>
+        </div>
+        <div style="font-size:2.5rem;font-weight:900;">NT$ <span id="total-exp">0</span></div>
+        <div id="stat-label">個人總花費</div>
     </div>
 
-    <!-- 快速記帳區 -->
-    <div class="quick-exp">
-        <h3>快速記帳</h3>
-        <form id="quick-exp-form" class="quick-exp-form" autocomplete="off">
+    <!-- 快速記帳表單 -->
+    <div class="quick-expense-card">
+        <div style="font-size:0.8rem;font-weight:700;margin-bottom:0.4rem;">快速記帳</div>
+        <div class="quick-expense-row">
             <div>
-                <label for="quick-date">日期</label>
-                <select id="quick-date" style="background-image:none;">
-                    <option value="01/06">01/06</option>
-                    <option value="01/07">01/07</option>
-                    <option value="01/08">01/08</option>
-                    <option value="01/09">01/09</option>
-                    <option value="01/10">01/10</option>
+                <label>名稱</label>
+                <input type="text" id="quick-title" placeholder="例：午餐、電車票">
+            </div>
+            <div>
+                <label>金額</label>
+                <input type="number" id="quick-amt" min="1" placeholder="NT$">
+            </div>
+        </div>
+        <div class="quick-expense-row-bottom">
+            <div>
+                <label>種類</label>
+                <select id="quick-cat">
+                    <option value="food">美食</option>
+                    <option value="sight">景點</option>
+                    <option value="shop">購物</option>
+                    <option value="trans">交通</option>
+                    <option value="other">其他</option>
                 </select>
             </div>
             <div>
-                <label for="quick-place">地點</label>
-                <input type="text" id="quick-place" placeholder="消費地點" maxlength="32" />
+                <label>付款方式</label>
+                <select id="quick-pay">
+                    <option value="cash">現金</option>
+                    <option value="card">信用卡 / 電子支付</option>
+                </select>
             </div>
-            <div>
-                <label for="quick-amt">金額 (日幣)</label>
-                <input type="number" id="quick-amt" min="1" max="999999" step="1" inputmode="numeric" pattern="[0-9]*">
-            </div>
-            <div>
-                <label for="quick-note">備註</label>
-                <input type="text" id="quick-note" placeholder="備註事項" maxlength="32" />
-            </div>
-            <div class="full">
-                <label>種類</label>
-                <div class="cats" id="quick-cat-list"></div>
-            </div>
-            <div class="full">
-                <button type="submit">新增記帳</button>
-            </div>
-        </form>
+        </div>
+
+        <!-- 代付對象 -->
+        <div style="margin-top:0.4rem;">
+            <label>代付對象（可複選）</label>
+            <div id="quick-advance-list"></div>
+        </div>
+
+        <div class="quick-expense-footer">
+            <div style="font-size:0.7rem;color:#9ca3af;">不勾選＝只有自己使用</div>
+            <button type="button" onclick="addQuickExpense()">新增</button>
+        </div>
     </div>
 
-    <div class="list-head">
-        <h2>分類統計</h2>
-        <span class="hint">點擊查看明細</span>
-    </div>
-    <!-- 放大版的分類顯示 -->
     <div class="exp-grid" id="exp-grid"></div>
-    
-    <!-- 類別明細區 -->
-    <div id="exp-detail" style="margin-top:1.5rem; min-height: 2rem;"></div>
-
+    <div class="list-head">
+        <h2>支出明細</h2>
+        <span class="hint">點擊刪除</span>
+    </div>
+    <div id="expense-list"></div>
 </main>
 
-<!-- 只在「行程」頁顯示的新增 FAB -->
-<button class="fab" id="btn-add" onclick="openModal()">
+<main id="view-wishlist" style="display:none">
+    <div class="list-head">
+        <h2>願望清單</h2>
+        <span class="hint">點擊打勾 / 新增照片</span>
+    </div>
+    <div class="wish-grid" id="wish-list"></div>
+</main>
+
+<div class="fab" id="btn-add" onclick="openModal()">
     <svg class="icon" style="width:2em;height:2em;" viewBox="0 0 24 24"><path d="M12 5v14m7-7H5" stroke="currentColor" stroke-width="2" fill="none"/></svg>
-</button>
+</div>
 
 <div class="overlay" id="modal-overlay">
     <div class="modal">
-        <h2 id="modal-title">新增行程</h2>
+        <h2 id="modal-title">新增項目</h2>
         <form id="add-form" autocomplete="off">
-            <div class="form-grid">
-                <div>
-                    <label for="add-time">時間</label>
-                    <input type="time" id="add-time" required>
-                </div>
-                <div>
-                    <label for="add-title">標題</label>
-                    <input type="text" id="add-title" maxlength="32" required>
-                </div>
+            <div class="form-row" id="field-time">
+                <label>時間</label>
+                <input type="time" id="add-time" required>
             </div>
-            <label for="add-loc">地點／備註</label>
-            <input type="text" id="add-loc" maxlength="32">
-            <div class="cats" id="cat-list"></div>
+
+            <div class="form-row">
+                <label>名稱 / 標題</label>
+                <input type="text" id="add-title" maxlength="32" required placeholder="例如：午餐、萬座毛">
+            </div>
+
             <div id="expense-fields" style="display:none">
-                <label for="add-amt">金額 (¥)</label>
-                <input type="number" id="add-amt" min="1" max="999999" step="1" inputmode="numeric" pattern="[0-9]*">
+                <div class="form-row">
+                    <label>金額 (NT$)</label>
+                    <input type="number" id="add-amt" min="1" max="999999" step="1" placeholder="輸入金額">
+                </div>
+                <div class="form-row">
+                    <label>付款方式</label>
+                    <select id="add-pay-method">
+                        <option value="cash">現金</option>
+                        <option value="card">信用卡 / 電子支付</option>
+                    </select>
+                </div>
             </div>
+
+            <div class="form-row" id="field-loc">
+                <label>地點 / 備註</label>
+                <input type="text" id="add-loc" maxlength="64" placeholder="輸入地點或備註">
+            </div>
+
+            <div class="form-row">
+                <label>種類標籤</label>
+                <div class="cats" id="cat-list"></div>
+            </div>
+
+            <div id="advance-field" class="form-row" style="display:none">
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" id="add-advance">
+                    <span style="font-size:0.9rem;font-weight:700;">此為代付款項 (不計入個人消費)</span>
+                </div>
+            </div>
+
+            <div id="wish-fields" style="display:none">
+                <div class="form-row">
+                    <label>圖片 URL (選填)</label>
+                    <input type="text" id="wish-img-url" placeholder="https://...">
+                </div>
+            </div>
+
             <button type="submit" class="btn-save">儲存</button>
             <button type="button" class="btn-del" onclick="deleteItem()">刪除紀錄</button>
         </form>
     </div>
 </div>
 
-<!-- 預覽提示 Toast -->
-<div id="preview-toast" class="preview-toast"></div>
-
 <script>
-const RATE = 0.22; // 匯率設定
-
-// 加入星期字樣 ㈡～㈥
 const DAYS = [
     { num: 1, label: '01/06', week: '(二)' },
     { num: 2, label: '01/07', week: '(三)' },
     { num: 3, label: '01/08', week: '(四)' },
     { num: 4, label: '01/09', week: '(五)' },
-    { num: 5, label: '01/10', week: '(六)' },
+    { num: 5, label: '01/10', week: '(六)' }
 ];
 
 const PLAN = [
-    [
+    [ 
         { time: '09:00', cat: 'sight', title: '萬座毛', loc: '沖繩景點', id: 1 },
         { time: '12:30', cat: 'food', title: '海人食堂', loc: '午餐', id: 2 },
         { time: '14:00', cat: 'shop', title: '國際通購物', loc: '血拼', id: 3 }
     ],
-    [
+    [ 
         { time: '10:00', cat: 'sight', title: '美ら海水族館', loc: '', id: 4 },
         { time: '13:00', cat: 'trans', title: '單軌列車體驗', loc: '', id: 5 },
         { time: '17:00', cat: 'food', title: '咖啡廳', loc: '悠閒下午茶', id: 6 }
@@ -292,17 +667,21 @@ const PLAN = [
     [], [], []
 ];
 
-// 初始化範例花費，幣值改為日幣
 const EXPENSE = [
-    [
-        { cat: 'food', title: '午餐', amt: 2500, date: '01/06', note: '', id: 'e1' },
-        { cat: 'shop', title: '紀念品', amt: 5000, date: '01/06', note: '買給朋友', id: 'e2' }
+    [ 
+        { cat: 'food', title: '午餐', amt: 650, payMethod:'cash', payBy: '許波', advanceFor: [], id: 'e1' },
+        { cat: 'shop', title: '紀念品', amt: 1200, payMethod:'card', payBy: '許波', advanceFor: ['方吉', '千又'], id: 'e2' } 
     ],
-    [
-        { cat: 'food', title: '咖啡', amt: 600, date: '01/07', note: '', id: 'e3' },
-        { cat: 'trans', title: '單軌車票', amt: 800, date: '01/07', note: '一日券', id: 'e4' }
+    [ 
+        { cat: 'food', title: '咖啡', amt: 180, payMethod:'cash', payBy: '方吉', advanceFor: [], id: 'e3' },
+        { cat: 'trans', title: '單軌車票', amt: 1200, payMethod:'card', payBy: '方吉', advanceFor: ['許波'], id: 'e4' }
     ],
     [], [], []
+];
+
+const WISHLIST = [
+    { title: '吃 A5 和牛', checked: false, img: 'https://images.unsplash.com/photo-1588168333986-5078d3ae3976?w=400', id: 'w1' },
+    { title: '買限定泡盛', checked: true, img: '', id: 'w2' }
 ];
 
 const CATEGORIES = [
@@ -313,514 +692,602 @@ const CATEGORIES = [
     { key: 'other', label: '其他', color: 'bg-other' }
 ];
 
+const MEMBERS = ['許波', '方吉', '千又', '侑焄', '家銘'];
+
+let currentUser = localStorage.getItem('tripUser') || null;
 let curTab = 'itinerary';
 let curDay = 0;
 let editingItem = null;
 let editingType = null;
+let statMode = 'personal';
 
-// 拖曳相關變數
-let longPressTimer = null;
-let isDraggingPlan = false;
-let dragItemEl = null;
-let dragPlaceholder = null;
-let dragStartY = 0;
-let dragOffsetY = 0;
-let dragFromIndex = null;
-let previewToastTimer = null;
+// ========== 初始化 ==========
+
+function init() {
+    if (!currentUser) {
+        showWelcomeCard();
+    } else {
+        updateSubtitleWithUser();
+    }
+    renderQuickAdvanceList();
+    renderDays();
+    renderPlan();
+    renderWishlist();
+    fetchWeather();
+    renderCategories();
+    if (currentUser) renderExpense();
+}
+
+// ========== 歡迎畫面 ==========
+
+function showWelcomeCard() {
+    const wrapper = document.getElementById('welcome-card');
+    const list = document.getElementById('welcome-user-list');
+    if (!wrapper || !list) return;
+
+    list.innerHTML = '';
+    MEMBERS.forEach(name => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'welcome-user-btn';
+        btn.textContent = name;
+        btn.onclick = (e) => {
+            e.preventDefault();
+            selectUser(name);
+        };
+        list.appendChild(btn);
+    });
+
+    wrapper.style.display = 'flex';
+    wrapper.style.pointerEvents = 'auto';
+}
+
+function selectUser(name) {
+    currentUser = name;
+    localStorage.setItem('tripUser', name);
+
+    const wrapper = document.getElementById('welcome-card');
+    if (wrapper) {
+        wrapper.style.display = 'none';
+        wrapper.style.pointerEvents = 'none';
+    }
+
+    updateSubtitleWithUser();
+    renderQuickAdvanceList();
+    renderExpense();
+    renderDays();
+    renderPlan();
+}
+
+function updateSubtitleWithUser() {
+    const subtitle = document.querySelector('.subtitle');
+    if (!subtitle || !currentUser) return;
+    subtitle.innerHTML = `<span class="badge">${currentUser}</span> 旅遊紀錄 · 記帳`;
+}
+
+function renderQuickAdvanceList() {
+    const wrap = document.getElementById('quick-advance-list');
+    if (!wrap) return;
+    wrap.innerHTML = '';
+
+    if (!currentUser || !MEMBERS.includes(currentUser)) return;
+
+    const others = MEMBERS.filter(name => name !== currentUser);
+    others.forEach(name => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'welcome-user-btn';
+        btn.textContent = name;
+        btn.dataset.name = name;
+        btn.onclick = (e) => {
+            e.preventDefault();
+            btn.classList.toggle('selected');
+        };
+        wrap.appendChild(btn);
+    });
+}
+
+// ========== 天氣 ==========
+
+function fetchWeather() {
+    updateWeatherUI(26, '晴時多雲');
+}
+
+function updateWeatherUI(temp, desc) {
+    document.getElementById('weather-temp').textContent = `${temp}°C`;
+    document.getElementById('weather-desc').textContent = desc;
+    
+    let advice = "天氣舒適，穿短袖即可";
+    if(temp > 28) advice = "天氣炎熱，注意防曬與補水";
+    else if(temp < 20) advice = "微涼，建議帶件薄外套";
+    document.getElementById('clothing-advice').textContent = `💡 ${advice}`;
+}
+
+// ========== 分頁 ==========
 
 function switchTab(tabBtn, name) {
     document.querySelectorAll('.tab').forEach($=>$.classList.remove('active'));
     tabBtn.classList.add('active');
-    document.getElementById('view-itinerary').style.display = (name==='itinerary')?'block':'none';
-    document.getElementById('view-expense').style.display = (name==='expense')?'block':'none';
-    curTab = name;
     
-    // 切換時重整資料確保最新
-    if(name === 'itinerary') {
-        renderPlan();
-        // 行程頁顯示 FAB
-        const fab = document.getElementById('btn-add');
-        if (fab) fab.style.display = 'flex';
+    document.getElementById('view-itinerary').style.display = 'none';
+    document.getElementById('view-expense').style.display = 'none';
+    document.getElementById('view-wishlist').style.display = 'none';
+    
+    document.getElementById(`view-${name}`).style.display = 'block';
+    curTab = name;
+
+    const fab = document.getElementById('btn-add');
+    if (name === 'expense') {
+        fab.style.display = 'none';
     } else {
-        renderExpense();
-        // 記帳頁隱藏 FAB（右下角＋號）
-        const fab = document.getElementById('btn-add');
-        if (fab) fab.style.display = 'none';
+        fab.style.display = 'flex';
     }
+
+    if(name === 'wishlist') renderWishlist();
 }
 
-function renderDaysBase() {
+// ========== Day 卡片 ==========
+
+function renderDays() {
     const dayList = document.getElementById('day-list');
     dayList.innerHTML = '';
     DAYS.forEach((day, idx) => {
         const div = document.createElement('div');
         div.className = 'day-card' + (curDay===idx?' active':'');
-        div.onclick = ()=>{ 
-            curDay = idx; 
+        div.onclick = (e) => {
+            e.preventDefault();
+            curDay = idx;
             renderDays();
-            renderPlan(); 
-            renderExpense(); 
+            renderPlan();
+            renderExpense();
         };
-        const dotHTML = (curDay === idx) ? '<span class="day-dot"></span>' : '';
         div.innerHTML = `
             <div class="day-top">
                 <span>Day ${day.num}</span>
-                ${dotHTML}
+                <span class="day-dot"></span>
             </div>
-            <div class="day-num">${day.label}<span>${day.week}</span></div>
+            <div class="day-num">${day.label}<span>日</span></div>
         `;
         dayList.appendChild(div);
     });
 }
 
-// 更新「行程頁」底部目前花費，與記帳頁統一
-function updateItineraryDayCost() {
-    let daySum = 0;
-    if (EXPENSE[curDay]) {
-        daySum = EXPENSE[curDay].reduce((a,b)=>a+b.amt, 0);
+// ========== 航班卡片 ==========
+
+function getFlightCardHtml(dayIndex) {
+    if (dayIndex === 0) {
+        return `
+        <div class="ticket-card">
+            <div class="ticket-left">
+                <div class="flight">IT230</div>
+                <div class="date">2026/01/06</div>
+            </div>
+            <div class="ticket-right">
+                <div class="ticket-route">
+                    <span>TPE</span>
+                    <span style="font-size:0.9rem;">✈</span>
+                    <span>OKA</span>
+                </div>
+                <div class="ticket-time-row">
+                    <span>起飛 06:35</span>
+                    <span>抵達 08:55</span>
+                </div>
+                <div class="ticket-meta">
+                    <a href="https://tw.trip.com/actualtime/detail.html?flightNo=IT230&date=2026-01-06&locale=zh-TW" target="_blank" rel="noopener noreferrer" style="font-size:0.7rem;color:#2563eb;font-weight:700;text-decoration:none;">
+                        即時動態 / 報到櫃檯 →
+                    </a>
+                </div>
+            </div>
+        </div>`;
     }
-    const el = document.getElementById('itinerary-day-cost');
-    if (el) el.textContent = daySum.toLocaleString();
+    if (dayIndex === 4) {
+        return `
+        <div class="ticket-card">
+            <div class="ticket-left">
+                <div class="flight">IT231</div>
+                <div class="date">2026/01/10</div>
+            </div>
+            <div class="ticket-right">
+                <div class="ticket-route">
+                    <span>OKA</span>
+                    <span style="font-size:0.9rem;">✈</span>
+                    <span>TPE</span>
+                </div>
+                <div class="ticket-time-row">
+                    <span>起飛 09:45</span>
+                    <span>抵達 10:20</span>
+                </div>
+                <div class="ticket-meta">
+                    <a href="https://tw.trip.com/actualtime/detail.html?flightNo=IT231&date=2026-01-10&locale=zh-TW" target="_blank" rel="noopener noreferrer" style="font-size:0.7rem;color:#2563eb;font-weight:700;text-decoration:none;">
+                        即時動態 / 報到櫃檯 →
+                    </a>
+                </div>
+            </div>
+        </div>`;
+    }
+    return '';
 }
+
+// ========== 行程 ==========
 
 function renderPlan() {
     const list = document.getElementById('plan-list');
     list.innerHTML = '';
-    
-    // 同步更新行程頁的目前花費（使用 EXPENSE[curDay]）
-    updateItineraryDayCost();
+
+    const flightHtml = getFlightCardHtml(curDay);
+    if (flightHtml) {
+        list.insertAdjacentHTML('beforeend', flightHtml);
+    }
 
     const plans = PLAN[curDay] || [];
-    if (plans.length === 0) {
-        list.innerHTML = `<div style="color:#bbb;text-align:center;margin:2rem 0;">目前沒有行程</div>`;
+
+    if (plans.length===0 && !flightHtml) {
+        list.innerHTML = `<div style="color:#888;text-align:center;margin:2rem 0;">目前沒有行程</div>`;
         return;
     }
 
     plans.forEach((item, idx) => {
-        const cat = CATEGORIES.find(c => c.key === item.cat) || {};
+        const cat = CATEGORIES.find(c=>c.key===item.cat) || {};
+        const mapUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(item.loc || ('沖繩 ' + item.title))}`;
+
         const div = document.createElement('div');
-        div.className = 'item';
-        div.setAttribute('data-index', idx);
-
-        div.innerHTML = `
-            <div class="time">${item.time}</div>
-            <div class="info">
-                <span class="tag ${cat.color}">${cat.label || '-'}</span>
-                <div class="title">${item.title}</div>
-                <div class="loc">
-                    <svg class="icon" viewBox="0 0 24 24" width="16" height="16">
-                        <circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="2" fill="none"></circle>
-                        <path d="M12 2C7 2 4 7.2 4 10.5c0 4.7 6.1 10.8 7.4 12.1.3.3.8.3 1.1 0C13.9 21.3 20 15.2 20 10.5 20 7.2 17 2 12 2z" stroke="currentColor" stroke-width="2" fill="none"></path>
-                    </svg>
-                    ${item.loc || ''}
-                </div>
-            </div>
-        `;
-
-        // 觸控長按邏輯
-        const pressStart = (e) => {
-            if (isDraggingPlan) return;
-            const startY = (e.touches ? e.touches[0].clientY : e.clientY);
-            let moved = false;
-
-            longPressTimer = setTimeout(() => {
-                if (navigator.vibrate) navigator.vibrate(20); 
-                showPlanPreviewToast(item);
-                startPlanDrag(e, div, idx);
-            }, 500); 
-
-            const moveHandler = (ev) => {
-                const curY = (ev.touches ? ev.touches[0].clientY : ev.clientY);
-                if (Math.abs(curY - startY) > 10 && !isDraggingPlan) {
-                    clearTimeout(longPressTimer);
-                    longPressTimer = null;
-                    moved = true;
-                }
-                if (isDraggingPlan) {
-                    ev.preventDefault();
-                    onPlanDragMove(ev);
-                }
-            };
-
-            const endHandler = (ev) => {
-                clearTimeout(longPressTimer);
-                longPressTimer = null;
-                document.removeEventListener('touchmove', moveHandler);
-                document.removeEventListener('touchend', endHandler);
-                document.removeEventListener('mousemove', moveHandler);
-                document.removeEventListener('mouseup', endHandler);
-
-                if (isDraggingPlan) {
-                    endPlanDrag(ev);
-                } else if (!moved) {
-                    openModal('plan', item, idx);
-                }
-            };
-
-            document.addEventListener('touchmove', moveHandler, { passive: false });
-            document.addEventListener('touchend', endHandler);
-            document.addEventListener('mousemove', moveHandler);
-            document.addEventListener('mouseup', endHandler);
+        div.className = 'plan-card';
+        div.onclick = (e) => {
+            if(e.target.closest('.nav-btn')) return;
+            openModal('plan', item, idx);
         };
 
-        div.addEventListener('touchstart', pressStart, { passive: false });
-        div.addEventListener('mousedown', pressStart);
-
+        div.innerHTML = `
+            <div class="plan-left">
+                <div class="plan-time">${item.time}</div>
+                <div class="plan-tag ${cat.color}">${cat.label}</div>
+                <div class="plan-title">${item.title}</div>
+                <div class="plan-loc">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                    ${item.loc || '未設定地點'}
+                </div>
+            </div>
+            <div class="plan-actions">
+                <a href="${mapUrl}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;">
+                    <button type="button" class="nav-btn">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2L4.5 20.29 11 18l1 4 1.5-6.29L19.5 9 12 2z"/>
+                        </svg>
+                        導航
+                    </button>
+                </a>
+            </div>
+        `;
         list.appendChild(div);
     });
 }
 
-/* --- 拖曳相關函式 --- */
-function showPlanPreviewToast(item) {
-    const toast = document.getElementById('preview-toast');
-    toast.textContent = `排序中: ${item.time} ${item.title}`;
-    toast.classList.add('show');
-    clearTimeout(previewToastTimer);
-    previewToastTimer = setTimeout(() => {
-        toast.classList.remove('show');
-    }, 2000);
-}
+// ========== 記帳 ==========
 
-function startPlanDrag(e, el, index) {
-    isDraggingPlan = true;
-    dragItemEl = el;
-    dragFromIndex = index;
-    const rect = el.getBoundingClientRect();
-    dragStartY = rect.top;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    dragOffsetY = clientY - rect.top;
-    dragPlaceholder = document.createElement('div');
-    dragPlaceholder.className = 'drag-placeholder';
-    dragPlaceholder.style.height = rect.height + 'px';
-    el.parentNode.insertBefore(dragPlaceholder, el.nextSibling);
-    el.classList.add('dragging');
-    el.style.position = 'fixed';
-    el.style.left = rect.left + 'px';
-    el.style.top = rect.top + 'px';
-    el.style.width = rect.width + 'px';
-    el.style.zIndex = '500';
-}
-
-function onPlanDragMove(e) {
-    if (!isDraggingPlan || !dragItemEl) return;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    const newTop = clientY - dragOffsetY;
-    dragItemEl.style.top = newTop + 'px';
-    const list = document.getElementById('plan-list');
-    const siblings = Array.from(list.querySelectorAll('.item')).filter(el => el !== dragItemEl);
-    let newIndex = dragFromIndex;
-    const centerY = newTop + dragItemEl.offsetHeight / 2;
-    siblings.forEach((sib) => {
-        const rect = sib.getBoundingClientRect();
-        const sibIndex = parseInt(sib.getAttribute('data-index'), 10);
-        if (centerY > rect.top + rect.height / 2) {
-            if(sibIndex >= newIndex) newIndex = sibIndex + 1;
-        } 
-    });
-    const children = Array.from(list.children);
-    let insertBeforeEl = null;
-    for(let child of children) {
-        if(child === dragItemEl || child === dragPlaceholder) continue;
-        const r = child.getBoundingClientRect();
-        if(centerY < r.top + r.height / 2) {
-            insertBeforeEl = child;
-            break;
-        }
-    }
-    if (insertBeforeEl) {
-        list.insertBefore(dragPlaceholder, insertBeforeEl);
-    } else {
-        list.appendChild(dragPlaceholder);
-    }
-}
-
-function endPlanDrag() {
-    if (!isDraggingPlan) { resetPlanDragState(); return; }
-    const list = document.getElementById('plan-list');
-    const children = Array.from(list.children).filter(c => c !== dragItemEl); 
-    const newIndex = children.indexOf(dragPlaceholder);
-    if (newIndex >= 0 && dragFromIndex !== null && newIndex !== dragFromIndex) {
-        const item = PLAN[curDay].splice(dragFromIndex, 1)[0];
-        PLAN[curDay].splice(newIndex, 0, item);
-    }
-    resetPlanDragState();
-    renderPlan();
-    document.getElementById('preview-toast').classList.remove('show');
-}
-
-function resetPlanDragState() {
-    isDraggingPlan = false;
-    if (dragItemEl) {
-        dragItemEl.classList.remove('dragging');
-        dragItemEl.style.position = '';
-        dragItemEl.style.left = '';
-        dragItemEl.style.top = '';
-        dragItemEl.style.width = '';
-        dragItemEl.style.zIndex = '';
-    }
-    if (dragPlaceholder && dragPlaceholder.parentNode) {
-        dragPlaceholder.parentNode.removeChild(dragPlaceholder);
-    }
-    dragItemEl = null;
-    dragPlaceholder = null;
-    dragFromIndex = null;
-}
-
-/* --- 記帳相關函式 --- */
 function renderExpense() {
-    // 當天花費計算 (以日幣計算)
-    let sum = EXPENSE[curDay]?.reduce((a,b)=>a+b.amt,0) || 0;
-    
-    document.getElementById('total-exp').textContent = sum.toLocaleString();
-    
-    // 台幣換算
-    const twd = Math.round(sum * RATE);
-    document.getElementById('total-exp-twd').textContent = twd.toLocaleString();
-    
-    const grid = document.getElementById('exp-grid');
-    grid.innerHTML = '';
-    let catMap = {};
-    CATEGORIES.forEach(c=>catMap[c.key]=0);
-    (EXPENSE[curDay]||[]).forEach(item=>{ catMap[item.cat]=(catMap[item.cat]||0)+item.amt; });
-    
-    CATEGORIES.forEach(cat=>{
-        const val = catMap[cat.key];
-        const d = document.createElement('div');
-        d.className = 'exp-item';
-        // 放大版顯示，未消費的類別顯示 0 或淡色
-        d.style.opacity = val > 0 ? 1 : 0.6;
-        d.innerHTML = `
-            <span class="tag ${cat.color}">${cat.label}</span>
-            <div class="val">¥ ${val.toLocaleString()}</div>
-        `;
-        d.onclick = () => showExpenseDetailByCategory(cat.key);
-        grid.appendChild(d);
+    if (!currentUser) return;
+
+    const list = EXPENSE[curDay] || [];
+    const filtered = list.filter(item => {
+        if (statMode === 'advance') {
+            // 待收款：只看「我當付款人 & 有代付」
+            return item.payBy === currentUser && item.advanceFor && item.advanceFor.length > 0;
+        } else {
+            // 個人消費：只看「我付自己的」
+            return item.payBy === currentUser && (!item.advanceFor || item.advanceFor.length === 0);
+        }
     });
-    
-    // 清空明細顯示區，等待點擊
-    document.getElementById('exp-detail').innerHTML = '<div style="text-align:center;color:#ccc;font-size:0.8rem;padding:1rem;">點擊上方分類查看詳細</div>';
 
-    // 同步更新行程頁的目前花費
-    updateItineraryDayCost();
-}
+    const expenseList = document.getElementById('expense-list');
+    expenseList.innerHTML = '';
 
-function showExpenseDetailByCategory(catKey) {
-    const detail = document.getElementById('exp-detail');
-    if (!detail) return;
-
-    const cat = CATEGORIES.find(c => c.key === catKey);
-    const label = cat ? cat.label : '';
-    const items = (EXPENSE[curDay] || []).filter(it => it.cat === catKey);
-
-    if (!items.length) {
-        detail.innerHTML = `<div style="text-align:center;color:#ccc;padding:1rem;">${label}類別尚無消費</div>`;
+    if (filtered.length === 0) {
+        expenseList.innerHTML = `<div style="color:#888;text-align:center;margin:2rem 0;">目前沒有記錄</div>`;
         return;
     }
 
-    let html = `<div style="margin-bottom:0.5rem; font-weight:bold; color:#666; font-size:0.9rem;">${label} 明細</div>`;
-    items.forEach(it => {
-        const date = it.date || DAYS[curDay].label;
-        const place = it.title || '—';
-        html += `
-            <div onclick="confirmDeleteExpense('${it.id}', '${place}')" style="background:white;border-radius:0.8rem;padding:0.8rem 1rem;margin-bottom:0.6rem;display:flex;justify-content:space-between;align-items:center;box-shadow:0 1px 3px rgba(0,0,0,0.05); cursor:pointer;">
-                <div style="font-size:0.9rem;">
-                    <div style="font-weight:700;">${place}</div>
-                    <div style="color:#999;font-size:0.75rem;">${date} ${it.note ? '· '+it.note : ''}</div>
-                </div>
-                <div style="font-weight:800;font-size:1.1rem;">¥ ${it.amt.toLocaleString()}</div>
-            </div>
-        `;
-    });
-    html += `<div style="text-align:center;font-size:0.7rem;color:#ccc;margin-top:0.5rem;">點擊項目可刪除</div>`;
-    detail.innerHTML = html;
-    detail.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
+    filtered.forEach(item => {
+        const cat = CATEGORIES.find(c=>c.key===item.cat) || {};
+        const div = document.createElement('div');
+        div.className = 'expense-row';
+        div.onclick = () => openModal('expense', item);
 
-function confirmDeleteExpense(id, title) {
-    if(confirm(`確定要刪除「${title}」這筆紀錄嗎？`)) {
-        const idx = EXPENSE[curDay].findIndex(e => e.id === id);
-        if(idx > -1) {
-            EXPENSE[curDay].splice(idx, 1);
-            renderExpense();
+        let advanceText = '';
+        if (item.advanceFor && item.advanceFor.length > 0) {
+            advanceText = `<span class="advance-badge">代付: ${item.advanceFor.join(', ')}</span>`;
         }
-    }
-}
 
-function openModal(type='plan', item=null, idx=-1){
-    document.getElementById('modal-overlay').classList.add('open');
-    document.getElementById('add-form').reset();
-    document.getElementById('expense-fields').style.display = (curTab==='expense'||type==='expense') ? 'block':'none';
-    const cats = document.getElementById('cat-list');
-    cats.innerHTML = '';
-    CATEGORIES.forEach(c=>{
-        let btn = document.createElement('div');
-        btn.className = 'cat-chip'+(item&&item.cat===c.key?' active':'');
-        btn.textContent = c.label;
-        btn.onclick = ()=>{document.querySelectorAll('#cat-list .cat-chip').forEach(x=>x.classList.remove('active'));btn.classList.add('active');};
-        btn.setAttribute('data-key', c.key);
-        cats.appendChild(btn);
+        div.innerHTML = `
+            <div>
+                <div style="font-weight:700; color:var(--primary);">${item.title}</div>
+                <div style="font-size:0.75rem; color:#888; margin-top:4px;">
+                    ${cat.label}
+                    <span class="pay-method-badge">${item.payMethod==='cash'?'現金':'卡'}</span>
+                    ${advanceText}
+                </div>
+            </div>
+            <div style="font-weight:700; font-size:1.1rem; color:var(--accent);">NT$ ${item.amt}</div>
+        `;
+        expenseList.appendChild(div);
     });
-    if(!item && cats.firstChild) cats.firstChild.classList.add('active');
 
-    if(item){
-        document.getElementById('add-time').value = item.time||'';
-        document.getElementById('add-title').value = item.title;
-        document.getElementById('add-loc').value = item.loc||'';
-        document.getElementById('modal-title').textContent = type==='plan'?'編輯行程':'編輯記帳';
-        if(item.amt) document.getElementById('add-amt').value = item.amt;
-        editingItem = idx; editingType = type;
-        document.querySelector('.btn-del').style.display = 'block';
+    updateExpenseStats();
+}
+
+function updateExpenseStats() {
+    if (!currentUser) return;
+
+    const list = EXPENSE[curDay] || [];
+
+    if (statMode === 'advance') {
+        // 待收款：我付給別人的總額
+        const total = list
+            .filter(item => item.payBy === currentUser && item.advanceFor && item.advanceFor.length > 0)
+            .reduce((sum, item) => sum + item.amt, 0);
+        document.getElementById('total-exp').textContent = total;
+        document.getElementById('stat-label').textContent = '待收款項';
     } else {
-        document.getElementById('modal-title').textContent = (curTab==='expense'||type==='expense')?'新增記帳':'新增行程';
-        editingItem=null; editingType=curTab==='expense'?'expense':'plan';
-        document.querySelector('.btn-del').style.display = 'none';
+        // 個人消費：我付自己的總額
+        const total = list
+            .filter(item => item.payBy === currentUser && (!item.advanceFor || item.advanceFor.length === 0))
+            .reduce((sum, item) => sum + item.amt, 0);
+        document.getElementById('total-exp').textContent = total;
+        document.getElementById('stat-label').textContent = '個人總花費';
     }
 }
 
-function closeModal(){
+function toggleStat(mode) {
+    statMode = mode;
+    document.querySelectorAll('.stat-tab').forEach($=>$.classList.remove('active'));
+    event.target.classList.add('active');
+    renderExpense();
+}
+
+function addQuickExpense() {
+    if (!currentUser) {
+        alert('請先選擇名字');
+        return;
+    }
+
+    const title = document.getElementById('quick-title').value.trim();
+    const amt = parseInt(document.getElementById('quick-amt').value) || 0;
+    const cat = document.getElementById('quick-cat').value;
+    const payMethod = document.getElementById('quick-pay').value;
+
+    if (!title || amt <= 0) {
+        alert('請輸入完整資訊');
+        return;
+    }
+
+    // 取得代付對象
+    const advanceFor = [];
+    document.querySelectorAll('#quick-advance-list .welcome-user-btn.selected').forEach(btn => {
+        advanceFor.push(btn.dataset.name);
+    });
+
+    const newExpense = {
+        cat,
+        title,
+        amt,
+        payMethod,
+        payBy: currentUser,
+        advanceFor,
+        id: 'e' + Date.now()
+    };
+
+    EXPENSE[curDay].push(newExpense);
+
+    // 清空表單
+    document.getElementById('quick-title').value = '';
+    document.getElementById('quick-amt').value = '';
+    document.getElementById('quick-cat').value = 'food';
+    document.getElementById('quick-pay').value = 'cash';
+    document.querySelectorAll('#quick-advance-list .welcome-user-btn').forEach($=>$.classList.remove('selected'));
+
+    renderExpense();
+    alert('記帳成功！');
+}
+
+// ========== Modal & 編輯 ==========
+
+function renderCategories() {
+    const container = document.getElementById('cat-list');
+    container.innerHTML = '';
+    CATEGORIES.forEach(cat => {
+        const div = document.createElement('div');
+        div.className = 'cat-chip';
+        div.textContent = cat.label;
+        div.onclick = () => {
+            document.querySelectorAll('.cat-chip').forEach($=>$.classList.remove('active'));
+            div.classList.add('active');
+            document.getElementById('add-form').dataset.selectedCat = cat.key;
+        };
+        container.appendChild(div);
+    });
+}
+
+function openModal(type = 'plan', data = null, idx = null) {
+    if (!currentUser && type !== 'plan') {
+        alert('請先選擇名字');
+        return;
+    }
+
+    editingItem = data;
+    editingType = type;
+
+    const overlay = document.getElementById('modal-overlay');
+    const form = document.getElementById('add-form');
+    const modal = document.querySelector('.modal');
+
+    // 隱藏 / 顯示欄位
+    document.getElementById('field-time').style.display = type === 'plan' ? 'block' : 'none';
+    document.getElementById('expense-fields').style.display = type === 'expense' ? 'block' : 'none';
+    document.getElementById('field-loc').style.display = type === 'plan' ? 'block' : 'none';
+    document.getElementById('advance-field').style.display = type === 'expense' ? 'block' : 'none';
+    document.getElementById('wish-fields').style.display = type === 'wish' ? 'block' : 'none';
+    document.querySelector('.btn-del').style.display = data ? 'block' : 'none';
+
+    // 填入資料
+    if (data) {
+        document.getElementById('modal-title').textContent = '編輯項目';
+        if (type === 'plan') {
+            document.getElementById('add-time').value = data.time;
+            document.getElementById('add-title').value = data.title;
+            document.getElementById('add-loc').value = data.loc;
+            const catChip = document.querySelector(`[data-cat="${data.cat}"]`);
+            if (catChip) catChip.click();
+        } else if (type === 'expense') {
+            document.getElementById('add-title').value = data.title;
+            document.getElementById('add-amt').value = data.amt;
+            document.getElementById('add-pay-method').value = data.payMethod;
+            document.getElementById('add-advance').checked = data.advanceFor && data.advanceFor.length > 0;
+            const catChip = document.querySelector(`[data-cat="${data.cat}"]`);
+            if (catChip) catChip.click();
+        } else if (type === 'wish') {
+            document.getElementById('add-title').value = data.title;
+            document.getElementById('wish-img-url').value = data.img || '';
+        }
+    } else {
+        document.getElementById('modal-title').textContent = type === 'wish' ? '新增願望' : type === 'expense' ? '新增支出' : '新增行程';
+        form.reset();
+    }
+
+    form.onsubmit = (e) => {
+        e.preventDefault();
+        saveItem(type, idx);
+    };
+
+    overlay.classList.add('open');
+}
+
+function closeModal() {
     document.getElementById('modal-overlay').classList.remove('open');
 }
 
-document.getElementById('modal-overlay').addEventListener('click', e=>{
-    if(e.target.id==='modal-overlay') closeModal();
-});
-
-document.getElementById('add-form').addEventListener('submit', function(e){
-    e.preventDefault();
-    let time = document.getElementById('add-time').value;
-    let title = document.getElementById('add-title').value.trim();
-    let loc = document.getElementById('add-loc').value.trim();
-    let cat = document.querySelector('#cat-list .cat-chip.active')?.getAttribute('data-key')||CATEGORIES[0].key;
-    
-    if((curTab==='expense'||editingType==='expense') && document.getElementById('expense-fields').style.display==='block'){
-        let amt = parseInt(document.getElementById('add-amt').value)||0;
-        if(!amt || amt<1){alert('請填寫金額'); return;}
-        const dateStr = DAYS[curDay].label;
-        
-        if(editingItem!==null){
-            EXPENSE[curDay][editingItem] = {cat, title, amt, date: dateStr, note: loc, id: EXPENSE[curDay][editingItem].id};
-        } else {
-            if(!EXPENSE[curDay]) EXPENSE[curDay]=[];
-            EXPENSE[curDay].push({cat, title, amt, date: dateStr, note: loc, id:'e'+Date.now()});
-        }
-        renderExpense(); closeModal();
+function saveItem(type, idx) {
+    const title = document.getElementById('add-title').value.trim();
+    if (!title) {
+        alert('請輸入名稱');
         return;
     }
-    if(editingItem!==null){
-        PLAN[curDay][editingItem] = {time, cat, title, loc, id: PLAN[curDay][editingItem].id};
-    } else {
-        if(!PLAN[curDay]) PLAN[curDay]=[];
-        PLAN[curDay].push({time, cat, title, loc, id: Date.now()});
+
+    if (type === 'plan') {
+        const time = document.getElementById('add-time').value;
+        const loc = document.getElementById('add-loc').value;
+        const cat = document.getElementById('add-form').dataset.selectedCat || 'sight';
+
+        if (!time) {
+            alert('請輸入時間');
+            return;
+        }
+
+        if (editingItem && idx !== null) {
+            PLAN[curDay][idx] = { time, cat, title, loc, id: editingItem.id };
+        } else {
+            PLAN[curDay].push({ time, cat, title, loc, id: 'p' + Date.now() });
+        }
+    } else if (type === 'expense') {
+        const amt = parseInt(document.getElementById('add-amt').value) || 0;
+        const payMethod = document.getElementById('add-pay-method').value;
+        const isAdvance = document.getElementById('add-advance').checked;
+        const cat = document.getElementById('add-form').dataset.selectedCat || 'food';
+
+        if (amt <= 0) {
+            alert('請輸入正確金額');
+            return;
+        }
+
+        const advanceFor = isAdvance ? ['other'] : [];
+
+        if (editingItem) {
+            Object.assign(editingItem, { cat, title, amt, payMethod, advanceFor });
+        } else {
+            EXPENSE[curDay].push({ cat, title, amt, payMethod, payBy: currentUser, advanceFor, id: 'e' + Date.now() });
+        }
+    } else if (type === 'wish') {
+        const img = document.getElementById('wish-img-url').value.trim();
+        if (editingItem) {
+            Object.assign(editingItem, { title, img });
+        } else {
+            WISHLIST.push({ title, checked: false, img, id: 'w' + Date.now() });
+        }
     }
-    renderPlan(); closeModal();
+
+    closeModal();
+    if (type === 'plan') renderPlan();
+    if (type === 'expense') renderExpense();
+    if (type === 'wish') renderWishlist();
+}
+
+function deleteItem() {
+    if (!confirm('確認刪除？')) return;
+
+    if (editingType === 'plan' && editingItem) {
+        const idx = PLAN[curDay].findIndex(p => p.id === editingItem.id);
+        if (idx >= 0) PLAN[curDay].splice(idx, 1);
+    } else if (editingType === 'expense' && editingItem) {
+        const idx = EXPENSE[curDay].findIndex(e => e.id === editingItem.id);
+        if (idx >= 0) EXPENSE[curDay].splice(idx, 1);
+    } else if (editingType === 'wish' && editingItem) {
+        const idx = WISHLIST.findIndex(w => w.id === editingItem.id);
+        if (idx >= 0) WISHLIST.splice(idx, 1);
+    }
+
+    closeModal();
+    if (editingType === 'plan') renderPlan();
+    if (editingType === 'expense') renderExpense();
+    if (editingType === 'wish') renderWishlist();
+}
+
+// ========== 願望清單 ==========
+
+function renderWishlist() {
+    const grid = document.getElementById('wish-list');
+    grid.innerHTML = '';
+
+    WISHLIST.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'wish-card';
+        div.innerHTML = `
+            <img src="${item.img}" alt="${item.title}" class="wish-img" onerror="this.style.display='none'">
+            <div class="wish-check ${item.checked?'checked':''}" onclick="toggleWish(event, '${item.id}')">
+                ${item.checked ? '✓' : ''}
+            </div>
+            <div class="wish-content">
+                <div style="font-weight:700; font-size:0.9rem;">${item.title}</div>
+                <button type="button" onclick="openModal('wish', WISHLIST.find(w=>w.id==='${item.id}'))" style="background:none; border:none; color:var(--primary); cursor:pointer; font-size:0.7rem; margin-top:4px; font-weight:700;">編輯</button>
+            </div>
+        `;
+        grid.appendChild(div);
+    });
+}
+
+function toggleWish(event, id) {
+    event.stopPropagation();
+    const item = WISHLIST.find(w => w.id === id);
+    if (item) item.checked = !item.checked;
+    renderWishlist();
+}
+
+// ========== 初始化入口 ==========
+
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('頁面載入');
+    init();
 });
 
-function deleteItem(){
-    if(editingItem===null) return;
-    if(editingType==='expense') {
-        EXPENSE[curDay].splice(editingItem,1);
-        renderExpense(); closeModal();
-    } else {
-        PLAN[curDay].splice(editingItem,1);
-        renderPlan(); closeModal();
+// 關閉 Modal 的點擊背景
+document.getElementById('modal-overlay').onclick = (e) => {
+    if (e.target.id === 'modal-overlay') closeModal();
+};
+
+// 防止歡迎卡片遮罩干擾
+document.getElementById('welcome-card').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('welcome-card')) {
+        // 點空白不關閉
     }
-}
+}, false);
 
-function init() {
-    renderDays();
-    renderPlan();
-    renderExpense();
-    
-    document.addEventListener('gesturestart', function(e) {
-        e.preventDefault();
-    });
-
-    // 初始化 Modal 分類
-    document.getElementById('cat-list').innerHTML = CATEGORIES.map(
-        c=>`<div class="cat-chip" data-key="${c.key}">${c.label}</div>`
-    ).join('');
-
-    // 初始化快速記帳分類
-    const quickCats = document.getElementById('quick-cat-list');
-    if(quickCats) {
-        quickCats.innerHTML = '';
-        CATEGORIES.forEach(c => {
-            const btn = document.createElement('div');
-            btn.className = 'cat-chip';
-            btn.textContent = c.label;
-            btn.setAttribute('data-key', c.key);
-            btn.onclick = () => {
-                quickCats.querySelectorAll('.cat-chip').forEach(x => x.classList.remove('active'));
-                btn.classList.add('active');
-            };
-            quickCats.appendChild(btn);
-        });
-        if(quickCats.firstChild) quickCats.firstChild.classList.add('active');
-    }
-    
-    // 設定快速記帳選單預設值為當前選擇的天數
-    const dateSelect = document.getElementById('quick-date');
-    if(dateSelect) {
-        dateSelect.value = DAYS[curDay].label;
-    }
-
-    // 一開始在行程頁，顯示 FAB
-    const fab = document.getElementById('btn-add');
-    if (fab) fab.style.display = 'flex';
-    
-    // 快速記帳表單監聽
-    document.getElementById('quick-exp-form').addEventListener('submit', function(e){
-        e.preventDefault();
-        const dateSelect = document.getElementById('quick-date');
-        const date = dateSelect.value; 
-        const place = document.getElementById('quick-place').value.trim() || '未命名地點';
-        const note = document.getElementById('quick-note').value.trim();
-        const amt = parseInt(document.getElementById('quick-amt').value, 10) || 0;
-        const catBtn = document.querySelector('#quick-cat-list .cat-chip.active');
-        const cat = catBtn ? catBtn.getAttribute('data-key') : CATEGORIES[0].key;
-
-        if (!amt || amt < 1) { alert('請輸入有效花費金額'); return; }
-
-        // 找出選擇的日期對應的 index
-        const targetDayIdx = DAYS.findIndex(d => d.label === date);
-        if(targetDayIdx === -1) { alert('日期錯誤'); return; }
-
-        if (!EXPENSE[targetDayIdx]) EXPENSE[targetDayIdx] = [];
-        EXPENSE[targetDayIdx].push({
-            cat,
-            title: place,
-            amt,
-            date,
-            note,
-            id: 'e' + Date.now()
-        });
-
-        // 重置欄位
-        document.getElementById('quick-amt').value = '';
-        document.getElementById('quick-place').value = '';
-        document.getElementById('quick-note').value = '';
-        
-        // 如果新增的是當天的帳，刷新畫面；如果不是，提示成功
-        if(targetDayIdx === curDay) {
-            renderExpense();
-        } else {
-            alert(`已新增至 ${date} 的記帳`);
-        }
-    });
-}
-
-// 監聽日期卡片切換，順便更新快速記帳的預設日期
-const originalRenderDays = renderDaysBase;
-function renderDays() {
-    originalRenderDays();
-    const dateSelect = document.getElementById('quick-date');
-    if(dateSelect) {
-        dateSelect.value = DAYS[curDay].label;
-    }
-}
-
-window.onload = init;
 </script>
 </body>
 </html>
-
