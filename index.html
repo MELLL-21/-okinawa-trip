@@ -405,6 +405,79 @@
     opacity: 1;
 }
 
+/* 🆕 登入成功動畫 */
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.welcome-card-wrapper.exit-animation {
+  animation: fadeOut 0.6s ease-out forwards;
+}
+
+/* 🆕 成功訊息樣式 */
+.login-success-message {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 2rem 1.5rem;
+  border-radius: 1.2rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  z-index: 999;
+  animation: slideUp 0.4s ease-out;
+  max-width: 300px;
+}
+
+.login-success-message .success-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.8rem;
+  animation: scaleIn 0.5s ease-out;
+}
+
+.login-success-message .success-text {
+  font-family: 'Noto Serif TC', serif;
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: #2C3E50;
+  margin-bottom: 0.2rem;
+}
+
+.login-success-message .success-name {
+  font-size: 1.3rem;
+  color: #E76F51;
+  font-weight: 900;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
 
 
 
@@ -896,30 +969,61 @@ function updateSyncStatus(message) {
         }
 
         function selectUsername(name) {
+  // 🆕 檢查密碼
   const pwdInput = document.getElementById('entry-password');
   const enteredPwd = pwdInput.value;
 
-  // ✅ 檢查密碼是否正確
   if (enteredPwd !== GOOGLE_SHEETS_SECRET_KEY) {
-    alert('密碼錯誤，無法進入！');
+    alert('❌ 密碼錯誤，無法進入！');
     pwdInput.value = ''; // 清空密碼
     return;
   }
 
-  // 密碼正確後的邏輯
-  currentUser = name;
-  updateSubtitleWithUser();
-  renderExpense();
-  renderExpenseCategories();
+  // 🆕 禁用所有按鈕，防止重複點擊
+  document.querySelectorAll('.welcome-user-btn').forEach(btn => {
+    btn.disabled = true;
+    btn.style.opacity = '0.5';
+  });
 
-  // 隱藏歡迎畫面
-  const wrapper = document.getElementById('welcome-card');
-  if (wrapper) wrapper.style.display = 'none';
-  
-  // 🆕 儲存到本地，下次不用再輸入（可選）
-  localStorage.setItem('expense_user', name);
-  localStorage.setItem('expense_auth', 'true');
+  // 🆕 顯示成功訊息
+  const successMsg = document.createElement('div');
+  successMsg.className = 'login-success-message';
+  successMsg.innerHTML = `
+    <div class="success-icon">✅</div>
+    <div class="success-text">登入成功，歡迎</div>
+    <div class="success-name">${name}</div>
+  `;
+  document.body.appendChild(successMsg);
+
+  // 🆕 1.5 秒後進入主頁
+  setTimeout(() => {
+    // 設定使用者
+    currentUser = name;
+    updateSubtitleWithUser();
+    renderExpense();
+    renderExpenseCategories();
+
+    // 淡出歡迎畫面
+    const wrapper = document.getElementById('welcome-card');
+    if (wrapper) {
+      wrapper.classList.add('exit-animation');
+    }
+
+    // 淡出成功訊息
+    successMsg.style.animation = 'fadeOut 0.4s ease-out forwards';
+
+    // 0.6 秒後完全隱藏
+    setTimeout(() => {
+      if (wrapper) wrapper.style.display = 'none';
+      successMsg.remove();
+
+      // 🆕 儲存到本地
+      localStorage.setItem('expense_user', name);
+      localStorage.setItem('expense_auth', 'true');
+    }, 600);
+  }, 1500); // 1.5 秒後開始淡出
 }
+
 
         function updateSubtitleWithUser() {
             const subtitle = document.querySelector('.subtitle');
