@@ -799,7 +799,8 @@
 const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzBhwYQ5YJ49E87CnyxToegFM8v3jjjfPplyv0gyiG-eWqXQLoDjnaFm0mF-qAc-wXB/userweb';
 // 👆 替換成你部署後複製的 URL
 
-const GOOGLE_SHEETS_SECRET_KEY = '沖繩旅行6202'; // ⚠️ 必須與 Apps Script 中的 SECRET_KEY 相同
+let userSecretKey = ""; // ✅ 初始為空
+
 
 let sheetsReady = true;
 
@@ -820,7 +821,7 @@ async function syncExpenseToSheet(expense) {
         payBy: expense.payBy,
         payMethod: expense.payMethod,
         advanceFor: expense.advanceFor || [],
-        secretKey: GOOGLE_SHEETS_SECRET_KEY  // ✅ 傳送密鑰
+        secretKey: userSecretKey  // ✅ 使用者剛才輸入的密碼
       })
     });
     
@@ -989,8 +990,8 @@ function updateSyncStatus(message) {
         }
 
         function selectUsername(name) {
-    const pwdInput = document.getElementById('entry-password');
-    const enteredPwd = pwdInput.value;
+  const pwdInput = document.getElementById('entry-password');
+  userSecretKey = pwdInput.value; // ✅ 將使用者輸入的密碼存入變數
 
     // ✅ 1. 密碼驗證
     if (enteredPwd !== GOOGLE_SHEETS_SECRET_KEY) {
