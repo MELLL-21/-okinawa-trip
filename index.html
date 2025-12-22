@@ -117,7 +117,7 @@
         /* Quick Expense Form */
         .quick-expense-card { background: rgba(255,255,255,0.9); border-radius: 1.2rem; padding: 1rem; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: 0.3s; border: 2px solid transparent; }
         .quick-expense-card.editing { border-color: var(--accent); background: #fff; box-shadow: 0 8px 24px rgba(231, 111, 81, 0.15); }
-        .quick-expense-row { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 0.6rem; margin-bottom: 0.6rem; }
+        .quick-expense-row {display: flex; /* 改為 flex */flex-wrap: wrap; /* 允許換行 */gap: 0.8rem;margin-bottom: 0.8rem;}.quick-expense-row > div {flex: 1 1 120px; /* 寬度不足時自動換行 */}
         .quick-expense-card label { font-size: 0.7rem; color: #888; margin-bottom: 2px; display: block; font-weight: 700; }
         .quick-expense-card input, .quick-expense-card select { width: 100%; padding: 0.55rem 0.7rem; border-radius: 0.7rem; border: 1px solid #e5e7eb; font-size: 0.8rem; }
         .quick-expense-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 0.3rem; }
@@ -197,6 +197,221 @@
         #debt-modal-overlay { display: flex; align-items: flex-end; }
         #debt-detail-list { margin-bottom: 1.5rem; }
         #debt-modal-footer { text-align: right; font-weight: 900; font-size: 1.2rem; color: var(--primary); border-top: 1px solid #eee; padding-top: 1rem; }
+
+/* --- 修改後：圓弧與活潑風格 --- */
+
+.plan-wrapper {
+    position: relative;
+    /* 這裡不需要留白，由內容撐開 */
+}
+
+/* 1. 卡片樣式：圓弧左側邊條 */
+.plan-card {
+    background: white;
+    padding: 1rem;
+    border-radius: 1.2rem; /* 保持原本圓角 */
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+    cursor: pointer;
+    position: relative;
+    z-index: 2;
+    /* 關鍵修改：利用 border-left 實作邊條，會自動跟隨 border-radius */
+    border: 1px solid white; /* 預設邊框 */
+    border-left: 6px solid var(--card-color, #ccc); /* 左側變粗且有顏色 */
+    transition: transform 0.1s;
+}
+
+.plan-card:active {
+    transform: scale(0.98);
+}
+
+.plan-left {
+    padding-left: 8px; /* 稍微推開一點，避開左側邊條 */
+    flex: 1; /* 確保佔滿剩餘空間 */
+    min-width: 0; /* 防止文字溢出 */
+}
+
+/* 2. 交通按鈕：更精緻的版本 */
+.trans-badge {
+    position: relative;
+    z-index: 2;
+    margin: 4px auto; /* 縮小上下間距 */
+    width: fit-content;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border-radius: 99px;
+    border: 2px solid var(--card-color, #e2e8f0);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+    font-size: 0.75rem; /* 字體稍微縮小 */
+    color: #555;
+    font-weight: 800;
+}
+
+/* 交通資訊的短連接線 */
+.trans-line {
+    height: 14px; /* 短一點 */
+    width: 2px;
+    background: #e2e8f0;
+    margin: 0 auto;
+    border-radius: 2px;
+}
+
+.trans-icon, .trans-time {
+    padding: 5px 10px; /* 縮小內距 */
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: background 0.2s;
+}
+
+.trans-icon {
+    background: var(--card-color-light, #f1f5f9);
+    color: var(--card-color, #64748b);
+    border-radius: 99px 0 0 99px;
+    padding-left: 12px;
+}
+.trans-time {
+    padding-right: 12px;
+    border-radius: 0 99px 99px 0;
+}
+.trans-icon:active, .trans-time:active {
+    filter: brightness(0.95);
+}
+
+/* 3. 新增：交通選擇 Action Sheet 的新樣式 (5個並排，高度短) */
+.trans-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); /* 5格並排 */
+    gap: 8px; /* 間距縮小 */
+    margin-bottom: 1rem;
+}
+
+.trans-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 4px; /* 高度縮小 */
+    border-radius: 12px;
+    background: #f8fafc;
+    cursor: pointer;
+    border: 1px solid #f1f5f9;
+    transition: all 0.2s;
+}
+.trans-option:active {
+    background: #e2e8f0;
+    transform: scale(0.95);
+}
+.trans-opt-icon {
+    font-size: 1.6rem; /* 圖示大小適中 */
+    margin-bottom: 2px;
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.05));
+}
+.trans-opt-label {
+    font-size: 0.7rem; /* 文字縮小 */
+    font-weight: 700;
+    color: #475569;
+    white-space: nowrap; /* 不換行 */
+}
+.currency-capsule {
+  display: inline-flex;
+  background: #f0f0f0;
+  border-radius: 20px;
+  padding: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 700;
+  user-select: none;
+  border: 1px solid #e5e7eb;
+  gap: 0;
+}
+
+.currency-capsule span {
+  padding: 6px 10px;
+  border-radius: 16px;
+  transition: 0.2s;
+  color: #666;
+  font-size: 0.75rem;
+  font-weight: 800;
+  min-width: 30px;
+  text-align: center;
+}
+
+.currency-capsule span.active {
+  background: var(--primary);
+  color: white;
+}
+
+
+	/* 容器設定為垂直排列，讓指示點排在最下方 */
+#summary-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%; /* 確保高度撐開 */
+}
+
+.stat-swipe-wrapper {
+    flex: 1;
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    
+    /* 新增這行：確保容器寬度明確 */
+    width: 100%; 
+}
+
+.swipe-card {
+    /* 強制每張卡片寬度為容器的 100%，不允許壓縮或放大 */
+    flex: 0 0 100% !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    
+    scroll-snap-align: start; /* 滑動時自動對齊起點 */
+    padding: 10px 15px;      /* 維持您原本的內距 */
+    box-sizing: border-box;  /* 確保 padding 不會撐大寬度 */
+}
+
+
+/* 6點鐘方向指示點 [image:1] */
+.swipe-dots {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 0 12px 0; /* 增加底部間距，使其位於卡片底部中央 */
+}
+
+.dot {
+    width: 5px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+/* 啟動狀態的點變長且變亮 */
+.dot.active {
+    background: #FFD700; /* 與總額金黃色統一 */
+    width: 15px;
+    border-radius: 3px;
+    opacity: 1;
+}
+
+
+
+
+
+
+
+
     </style>
 </head>
 <body>
@@ -252,92 +467,159 @@
     <main id="view-expense" style="display:none">
         <!-- EXPENSE SUMMARY CARD -->
         <div class="exp-summary-card">
-            <div class="stat-tabs">
-                <div class="stat-tab active" onclick="toggleStat('personal')">個人消費</div>
-                <div class="stat-tab" onclick="toggleStat('advance')">待收付款項</div>
-            </div>
-            <div id="summary-content">
-                <div style="font-size:2.5rem;font-weight:900">NT$ <span id="total-exp">0</span></div>
-                <div id="stat-label">個人總花費</div>
-            </div>
+            <!-- 請替換 id="summary-content" 內部的內容樣板 -->
+<div id="summary-content" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0;">
+    <!-- 左側：原始幣別分行 -->
+    <div style="flex: 1; text-align: left; padding-left: 10px; border-right: 1px solid rgba(255,255,255,0.2);">
+        <div style="margin-bottom: 8px;">
+            <span style="font-size: 0.75rem; opacity: 0.8; display: block; margin-bottom: 2px;">🇯🇵 日幣消費</span>
+            <span style="font-size: 1.2rem; font-weight: 700;">¥ ${totals.JPY.toLocaleString()}</span>
+        </div>
+        <div>
+            <span style="font-size: 0.75rem; opacity: 0.8; display: block; margin-bottom: 2px;">🇹🇼 台幣消費</span>
+            <span style="font-size: 1.2rem; font-weight: 700;">NT$ ${totals.TWD.toLocaleString()}</span>
+        </div>
+    </div>
+    
+    <!-- 右側：加總結果 -->
+    <div style="flex: 1; text-align: center;">
+        <div style="font-size: 0.75rem; opacity: 0.8; margin-bottom: 4px;">總計約 (Total)</div>
+        <div style="font-size: 1.8rem; font-weight: 900; color: #FFD700;"> <!-- 使用金黃色強調總額 -->
+            <span style="font-size: 1rem; margin-right: 2px;">NT$</span>${combinedTwd.toLocaleString()}
+        </div>
+    </div>
+</div>
+
         </div>
 
         <!-- QUICK EXPENSE FORM -->
-        <div class="quick-expense-card" id="quick-expense-card">
-            <div style="font-size:0.8rem;font-weight:700;margin-bottom:1rem;">
-                <span id="quick-form-title">快速記帳</span>
-            </div>
-            <div class="quick-expense-row">
-                <div>
-                    <label>日期</label>
-                    <select id="quick-date">
-                        <option value="0">01/06 (第1天)</option>
-                        <option value="1">01/07 (第2天)</option>
-                        <option value="2">01/08 (第3天)</option>
-                        <option value="3">01/09 (第4天)</option>
-                        <option value="4">01/10 (第5天)</option>
-                    </select>
-                </div>
-                <div>
-                    <label>種類</label>
-                    <select id="quick-cat">
-                        <option value="food">美食</option>
-                        <option value="sight">景點</option>
-                        <option value="shop">購物</option>
-                        <option value="trans">交通</option>
-                        <option value="other">其他</option>
-                    </select>
-                </div>
-            </div>
-            <div class="quick-expense-row">
-                <div>
-                    <label>名稱</label>
-                    <input type="text" id="quick-title" placeholder="例：午餐">
-                </div>
-                <div>
-                    <label>金額</label>
-                    <input type="number" id="quick-amt" min="1" placeholder="NT$">
-                </div>
-            </div>
-            <div class="quick-expense-row">
-                <div>
-                    <label>付款方式</label>
-                    <select id="quick-pay">
-                        <option value="cash">現金</option>
-                        <option value="card">信用卡</option>
-                    </select>
-                </div>
-                <div>
-                    <label>代付方式</label>
-                    <select id="quick-split-mode" onchange="toggleQuickSplitMode(this.value)">
-                        <option value="none">只有自己</option>
-                        <option value="equal">平均分帳</option>
-                        <option value="custom">自訂分帳</option>
-                    </select>
-                </div>
-            </div>
-            <div id="quick-split-options" style="display:none;margin-top:1rem;padding:1rem;background:#f9fafb;border-radius:0.8rem;border:1px solid #e5e7eb;">
-                <div id="quick-equal-mode" style="display:none;">
-                    <div style="font-size:0.7rem;color:#888;font-weight:700;margin-bottom:0.8rem;">選擇分帳人員</div>
-                    <div id="quick-split-persons" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
-                </div>
-                <div id="quick-custom-mode" style="display:none;">
-                    <div style="font-size:0.7rem;color:#888;font-weight:700;margin-bottom:0.8rem;">自訂每人金額</div>
-                    <div id="quick-custom-amounts"></div>
-                </div>
-                <div id="quick-split-preview" style="margin-top:0.8rem;padding:0.8rem;background:white;border-radius:0.6rem;border-left:3px solid var(--accent);font-size:0.75rem;color:#666;"></div>
-            </div>
-            <div class="quick-expense-footer">
-                <div style="font-size:0.7rem;color:#9ca3af;" id="quick-hint"></div>
-                <div style="display:flex;gap:6px;align-items:center;">
-                    <div class="edit-actions" id="edit-actions">
-                        <button type="button" class="btn-delete-inline" onclick="deleteEditingItem()">刪除</button>
-                        <button type="button" class="btn-cancel" onclick="cancelEdit()">取消</button>
-                    </div>
-                    <button type="button" class="btn-submit" id="btn-quick-submit" onclick="addQuickExpense()">新增</button>
-                </div>
-            </div>
+<div class="quick-expense-card" id="quick-expense-card">
+  <div style="font-size:0.8rem; font-weight:700; margin-bottom:1rem;">
+    <span id="quick-form-title">快速記帳</span>
+  </div>
+
+  <!-- Row 1: 日期、種類 -->
+  <div class="quick-expense-row">
+    <div>
+      <label>日期</label>
+      <select id="quick-date">
+        <option value="0">01/06 (第1天)</option>
+        <option value="1">01/07 (第2天)</option>
+        <option value="2">01/08 (第3天)</option>
+        <option value="3">01/09 (第4天)</option>
+        <option value="4">01/10 (第5天)</option>
+      </select>
+    </div>
+    <div>
+      <label>種類</label>
+      <select id="quick-cat">
+        <option value="food">美食</option>
+        <option value="sight">景點</option>
+        <option value="shop">購物</option>
+        <option value="trans">交通</option>
+        <option value="other">其他</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Row 2: 名稱、支付方式 -->
+  <div class="quick-expense-row">
+    <div>
+      <label>名稱</label>
+      <input type="text" id="quick-title" placeholder="例：午餐">
+    </div>
+    <div>
+      <label>支付方式</label>
+      <select id="quick-pay">
+        <option value="cash">現金</option>
+        <option value="card">信用卡</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Row 3: 金額、幣別、轉換 -->
+  <div class="quick-expense-row" style="align-items: flex-end;">
+    <div style="flex: 1; position: relative;">
+      <label>金額</label>
+      <div style="display: flex; align-items: center; gap: 6px;">
+        <!-- 膠囊型幣別切換 -->
+        <div class="currency-capsule" onclick="toggleCurrency()" style="min-width: 70px; justify-content: center;">
+          <span id="btn-jpy" class="active" style="cursor: pointer;">¥</span>
+          <span id="btn-twd" style="cursor: pointer;">NT$</span>
         </div>
+        <input type="number" id="quick-amt" min="0" placeholder="0" oninput="updateConversion()" style="flex: 1;">
+      </div>
+      <div id="conversion-hint" style="font-size:0.7rem; color:#999; margin-top:4px; min-height:1rem;"></div>
+    </div>
+  </div>
+
+  <!-- Row 4: 支付人、分帳模式 -->
+  <div class="quick-expense-row">
+    <div>
+      <label>支付人</label>
+      <select id="quick-pay-by">
+        <option value="me">本人 (我付錢)</option>
+      </select>
+    </div>
+    <div>
+      <label>分帳模式</label>
+      <select id="quick-split-mode" onchange="toggleQuickSplitMode(this.value)">
+        <option value="none">不分帳</option>
+        <option value="equal">平均分帳</option>
+        <option value="custom">自訂分帳</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- 分帳選項 (當選擇分帳時顯示) -->
+  <div id="quick-split-options" style="display:none; margin-top:1rem; padding:1rem; background:#f9fafb; border-radius:0.8rem; border: 1px solid #e5e7eb;">
+    <div id="quick-equal-mode" style="display:none;">
+      <div style="font-size:0.7rem; color:#888; font-weight:700; margin-bottom:0.8rem;">選擇參與平均分帳的人</div>
+      <div id="quick-split-persons" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+    </div>
+    <div id="quick-custom-mode" style="display:none;">
+      <div style="font-size:0.7rem; color:#888; font-weight:700; margin-bottom:0.8rem;">自訂每人分帳金額</div>
+      <div id="quick-custom-amounts"></div>
+    </div>
+    <!-- 分帳預覽 -->
+    <div id="quick-split-preview" style="margin-top:0.8rem; padding:0.8rem; background:white; border-radius:0.6rem; border-left:3px solid var(--accent); font-size:0.75rem; color:#666;"></div>
+  </div>
+
+  <!-- 按鈕區 -->
+  <div class="quick-expense-footer">
+    <div style="font-size:0.7rem; color:#9ca3af;" id="quick-hint"></div>
+    <div style="display:flex; gap:6px; align-items:center;">
+      <div class="edit-actions" id="edit-actions">
+        <button type="button" class="btn-delete-inline" onclick="deleteEditingItem()">刪除</button>
+        <button type="button" class="btn-cancel" onclick="cancelEdit()">取消</button>
+      </div>
+      <button type="button" class="btn-submit" id="btn-quick-submit" onclick="addQuickExpense()">新增</button>
+    </div>
+  </div>
+</div>
+<!-- Google Sheets 連動狀態 -->
+<div style="margin-top: 1rem; padding: 0.8rem; background: #f0f7ff; border-radius: 0.8rem; border-left: 3px solid #007bff;">
+  <div style="font-size: 0.8rem; font-weight: 700; color: #0066cc; margin-bottom: 0.4rem;">
+    📊 Google Sheets 連動
+  </div>
+  <div style="font-size: 0.7rem; color: #666; margin-bottom: 0.6rem;">
+    每條記帳會自動同步到試算表
+  </div>
+  <div style="display: flex; gap: 8px;">
+    <a href="https://docs.google.com/spreadsheets/d/1cUlrwJtPnIKetDlx0yweLUFjWbxRRU0s-kE57teS-1I/edit" 
+       target="_blank" 
+       style="flex: 1; padding: 0.5rem; background: #007bff; color: white; border-radius: 6px; text-align: center; font-size: 0.75rem; font-weight: 700; text-decoration: none; cursor: pointer;">
+      📈 開啟試算表
+    </a>
+    <button id="btn-sync-now" 
+            onclick="loadExpensesFromSheet()" 
+            style="flex: 1; padding: 0.5rem; background: #6c757d; color: white; border: none; border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer;">
+      🔄 手動同步
+    </button>
+  </div>
+  <div id="sync-status" style="font-size: 0.65rem; color: #666; margin-top: 0.4rem; text-align: center;"></div>
+</div>
+
 
         <!-- CATEGORY SUMMARY -->
         <div class="exp-category-card" id="exp-category-card">
@@ -347,7 +629,7 @@
 
         <div class="list-head">
             <h2>支出明細</h2>
-            <span class="hint">點擊查看 / 展開編輯</span>
+            <span class="hint">點擊查看</span>
         </div>
         <div id="expense-list"></div>
     </main>
@@ -379,13 +661,8 @@
                     <input type="text" id="add-title" maxlength="32" required placeholder="例如：國際通逛街">
                 </div>
                 <div class="form-row" id="field-loc">
-                    <label>地點</label>
+                    <label>地點 / 備註</label>
                     <input type="text" id="add-loc" maxlength="64" placeholder="例如：單軌縣廳前站">
-                    <div class="form-row">
-    <label for="add-notes">備註</label>
-    <input type="text" id="add-notes" maxlength="128" placeholder="例如：逛街購物、必吃美食">
-</div>
-                      
                 </div>
                 <div class="form-row">
                     <label>種類標籤</label>
@@ -416,6 +693,93 @@
     </div>
 
     <script>
+	// ===== Google Apps Script 連動（含密鑰驗證）=====
+
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzBhwYQ5YJ49E87CnyxToegFM8v3jjjfPplyv0gyiG-eWqXQLoDjnaFm0mF-qAc-wXB/userweb';
+// 👆 替換成你部署後複製的 URL
+
+const GOOGLE_SHEETS_SECRET_KEY = '沖繩旅行6202'; // ⚠️ 必須與 Apps Script 中的 SECRET_KEY 相同
+
+let sheetsReady = true;
+
+// 同步記帳到 Google Sheets
+async function syncExpenseToSheet(expense) {
+  try {
+    console.log('🔄 正在同步記帳到 Google Sheets...');
+    
+    const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        id: expense.id,
+        date: expense.date,
+        cat: expense.cat,
+        title: expense.title,
+        amt: expense.amt,
+        currency: expense.currency,
+        payBy: expense.payBy,
+        payMethod: expense.payMethod,
+        advanceFor: expense.advanceFor || [],
+        secretKey: GOOGLE_SHEETS_SECRET_KEY  // ✅ 傳送密鑰
+      })
+    });
+    
+    const result = await response.json();
+    
+    if (result.status === 'success') {
+      console.log('✅ 記帳已同步到 Google Sheets');
+      updateSyncStatus('✅ 已同步到 Google Sheets');
+    } else {
+      console.error('❌ 同步失敗:', result.message);
+      updateSyncStatus('❌ ' + result.message);
+    }
+  } catch (err) {
+    console.error('❌ 網路錯誤:', err);
+    updateSyncStatus('❌ 網路錯誤，請檢查網路連線');
+  }
+}
+
+// 從 Google Sheets 讀取資料
+async function loadExpensesFromSheet() {
+  try {
+    console.log('📖 正在讀取 Google Sheets 資料...');
+    
+    const response = await fetch(
+      `${GOOGLE_APPS_SCRIPT_URL}?secretKey=${GOOGLE_SHEETS_SECRET_KEY}`
+    );
+    
+    const result = await response.json();
+    
+    if (result.status === 'success') {
+      console.log('✅ 成功讀取', result.count, '筆記帳');
+      updateSyncStatus('✅ 已連接 Google Sheets');
+      return result.data;
+    } else {
+      console.error('❌ 讀取失敗:', result.message);
+      updateSyncStatus('❌ ' + result.message);
+      return [];
+    }
+  } catch (err) {
+    console.log('⚠️ 無法連接 Google Sheets（可能是首次使用或網路問題）');
+    // 這不是致命錯誤，本地記帳仍可使用
+    return [];
+  }
+}
+
+// 更新同步狀態顯示
+function updateSyncStatus(message) {
+  const statusEl = document.getElementById('sync-status');
+  if (statusEl) {
+    statusEl.textContent = message;
+    // 3 秒後清除訊息
+    setTimeout(() => {
+      statusEl.textContent = '';
+    }, 3000);
+  }
+}
+
+// ===== 結束 Google Apps Script 連動 =====
+
+
         // --- DATA ---
         const DAYS = [
             { num: 1, label: '01/06', week: '週二' },
@@ -428,16 +792,29 @@
         // ✅ 清空所有預設資料
         const PLAN = [
 				[{ time: '04:10', cat: 'trans', title: '登機準備', loc: '桃園機場第一航廈', id: 101 },
-                { time: '08:55', cat: 'trans', title: '抵達沖繩/拿行李', loc: '那霸機場', id: 103 },
-                { time: '09:30', cat: 'food', title: '買麵包', loc: 'PANCHORI-NA 麵包店', id: 104 },
-                { time: '11:15', cat: 'food', title: '吃海膽飯', loc: 'Shirasa 食堂', id: 105 },
-                { time: '12:15', cat: 'sight', title: '古宇利島', loc: '古宇利島', id: 106 },
-                { time: '14:30', cat: 'food', title: '咖啡廳休息', loc: 'Shinmei Coffee', id: 107 },
-                { time: '15:00', cat: 'sight', title: '美麗海水族館', loc: '海洋博公園', id: 108 },
-                { time: '17:30', cat: 'trans', title: '回程民宿', loc: '包車返回約2小時', id: 109 },
-                { time: '20:00', cat: 'other', title: '民宿整備休息', loc: '民宿', id: 110 },
-                { time: '21:00', cat: 'food', title: '晚餐：琉球之牛', loc: '那霸國際通 (3F)', id: 111 },
-                { time: '23:00', cat: 'shop', title: '晚餐後逛街回家', loc: '國際通', id: 112 }], [], [], [], []
+                { time: '08:55', cat: 'trans', title: '抵達沖繩/拿行李', loc: '那霸機場', id: 102 },
+                { time: '09:30', cat: 'food', title: '買麵包', loc: 'PANCHORI-NA 麵包店', id: 103 },
+                { time: '11:15', cat: 'food', title: '吃海膽飯', loc: 'Shirasa 食堂', id: 104 },
+                { time: '12:15', cat: 'sight', title: '古宇利島', loc: '古宇利島', id: 105 },
+                { time: '14:30', cat: 'food', title: '咖啡廳休息', loc: 'Shinmei Coffee', id: 106 },
+                { time: '15:00', cat: 'sight', title: '美麗海水族館', loc: '沖縄美ら海水族館', id: 107 },
+                { time: '17:30', cat: 'trans', title: '回程民宿', loc: 'Chateau TIIDA', id: 108 },
+                { time: '20:00', cat: 'other', title: '民宿整備休息', loc: 'Chateau TIIDA', id: 109 },
+                { time: '21:00', cat: 'food', title: '晚餐：琉球之牛', loc: '燒肉 琉球之牛 那霸國際通（3F）', id: 110 },
+                { time: '23:00', cat: 'shop', title: '晚餐後逛街回家', loc: '那覇国際通り(なはこくさいとおり)', id: 111 }], 
+				
+				[{ time: '09:30', cat: 'trans', title: '搭單軌列車', loc: '安里駅', id: 201 },
+                { time: '10:30', cat: 'sight', title: '漫畫倉', loc: '漫畫倉庫 那霸店', id: 202 },
+                { time: '11:30', cat: 'sight', title: '二手精品', loc: 'セカンドストリート赤嶺店', id: 203 },
+                { time: '12:30', cat: 'food', title: '午餐', loc: '魚屋直營食堂', id: 204 },
+                { time: '13:00', cat: 'sight', title: '永旺AEON', loc: 'AEON MALL Okinawa Rycom', id: 205 },
+                { time: '15:30', cat: 'sight', title: '琉球服/和服', loc: '琉装スタジオ ちゅら美人 琉服美人', id: 206 },
+                { time: '17:00', cat: 'food', title: '波上宮', loc: '波上宮', id: 207 },
+                { time: '17:30', cat: 'trans', title: '回國際通', loc: '赤嶺駅／あかみねえき', id: 208 },
+                { time: '18:00', cat: 'food', title: '晚餐', loc: '琉家拉麵 國際通本店', id: 209 },], 
+				[], 
+				[], 
+				[]
         ];
 
         const EXPENSE = [
@@ -447,12 +824,14 @@
         const WISHLIST = [];
 
         const CATEGORIES = [
-            { key:'sight', label:'景點', color:'bg-sight' },
-            { key:'food', label:'美食', color:'bg-food' },
-            { key:'shop', label:'購物', color:'bg-shop' },
-            { key:'trans', label:'交通', color:'bg-trans' },
-            { key:'other', label:'其他', color:'bg-other' }
-        ];
+    // 這裡新增了 hex 屬性，用來做動態上色
+    { key:'sight', label:'景點', color:'bg-sight', hex:'#3b82f6', light:'#eff6ff' }, // 藍
+    { key:'food', label:'美食', color:'bg-food', hex:'#f97316', light:'#fff7ed' },  // 橘
+    { key:'shop', label:'購物', color:'bg-shop', hex:'#ec4899', light:'#fdf2f8' },  // 粉
+    { key:'trans', label:'交通', color:'bg-trans', hex:'#64748b', light:'#f8fafc' }, // 灰
+    { key:'other', label:'其他', color:'bg-other', hex:'#10b981', light:'#ecfdf5' }  // 綠
+];
+
 
         const MEMBERS = ['許波', '方吉', '千又', '侑焄', '家銘'];
 
@@ -465,16 +844,19 @@
         let statMode = 'personal';
         let editingId = null;
 
-        // --- INIT ---
         function init() {
-            currentUser = null;
-            showWelcomeCard();
-            renderDays();
-            renderPlan();
-            renderWishlist();
-            fetchWeather();
-            renderCategories();
-        }
+	currentUser = null;
+	showWelcomeCard();
+	renderDays();
+	renderPlan();
+	renderWishlist();
+	fetchWeather();
+	renderCategories();
+
+	// 🆕 嘗試連接 Google Sheets
+	loadExpensesFromSheet();
+	}	
+
 
         function showWelcomeCard() {
             const wrapper = document.getElementById('welcome-card');
@@ -570,51 +952,79 @@
             });
         }
 
-        function renderPlan() {
+       function renderPlan() {
     const list = document.getElementById('plan-list');
     list.innerHTML = '';
 
     const plans = PLAN[curDay] || [];
-    if(plans.length===0) {
+    if(plans.length === 0) {
         list.innerHTML = '<div style="color:#888;text-align:center;margin:2rem 0">尚無行程</div>';
         return;
     }
 
     plans.forEach((item, idx) => {
-        const cat = CATEGORIES.find(c=>c.key===item.cat) || CATEGORIES[4];
-        // Google Maps 導航連結
-        const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.loc + ' ' + item.title)}`;
+        const cat = CATEGORIES.find(c => c.key === item.cat) || CATEGORIES[4];
         
-        const div = document.createElement('div');
-        div.className = 'plan-card';
-        div.onclick = (e) => {
-            if(e.target.closest('.nav-btn')) return;
-            openModal('plan', item, idx);
-        };
-        div.innerHTML = `
-            <div class="plan-left">
-                <div class="plan-time">${item.time}</div>
-                <div class="plan-tag ${cat.color}">${cat.label}</div>
-                <div class="plan-title">${item.title}</div>
-                <div class="plan-loc">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-                    ${item.loc}
+        // 交通資料
+        const trans = item.trans || { mode: 'car', hour: 0, min: 10 };
+        const transIcons = { 'car': '🚗', 'train': '🚃', 'walk': '🚶', 'bus': '🚌', 'airplane': '✈️' };
+        const iconSymbol = transIcons[trans.mode] || '🚗';
+        
+        let timeStr = '';
+        if(trans.hour > 0) timeStr += `${trans.hour}小時`;
+        if(trans.min > 0) timeStr += `${trans.min}分`;
+        if(trans.hour===0 && trans.min===0) timeStr = '0分';
+
+        const isNotLast = idx < plans.length - 1;
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'plan-wrapper';
+        
+        // 設定顏色變數
+        wrapper.style.setProperty('--card-color', cat.hex || '#ccc');
+        wrapper.style.setProperty('--card-color-light', cat.light || '#eee');
+
+        wrapper.innerHTML = `
+            <div class="plan-card" onclick="if(!event.target.closest('.nav-btn')) openModal('plan', PLAN[curDay][${idx}], ${idx})">
+                <div class="plan-left">
+                    <div class="plan-time">${item.time}</div>
+                    <div class="plan-tag" style="background:${cat.hex}">${cat.label}</div>
+                    <div class="plan-title">${item.title}</div>
+                    <div class="plan-loc">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                        ${item.loc}
+                    </div>
+                </div>
+                <div class="plan-actions">
+                    <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.loc)}" target="_blank" style="text-decoration:none">
+                        <button type="button" class="nav-btn">
+                             <svg viewBox="0 0 24 24"><path d="M1 11.6l19.6-9.3a1.3 1.3 0 0 1 1.7 1.7l-9.3 19.6c-.6 1.3-2.5 1.3-3.1 0l-2.7-6.2-6.2-2.7c-1.3-.6-1.3-2.5 0-3.1z"/></svg>
+                            導航
+                        </button>
+                    </a>
                 </div>
             </div>
-            <div class="plan-actions">
-                <a href="${mapUrl}" target="_blank" rel="noopener noreferrer" style="text-decoration:none">
-                    <button type="button" class="nav-btn">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M1 11.6l19.6-9.3a1.3 1.3 0 0 1 1.7 1.7l-9.3 19.6c-.6 1.3-2.5 1.3-3.1 0l-2.7-6.2-6.2-2.7c-1.3-.6-1.3-2.5 0-3.1z"/>
-                        </svg>
-                        導航
-                    </button>
-                </a>
+
+            ${isNotLast ? `
+            <div class="trans-line"></div>
+            <div class="trans-badge">
+                <div class="trans-icon" onclick="openTransModePicker(${idx})">
+                    ${iconSymbol}
+                </div>
+                <div class="trans-time" onclick="openTransTimePicker(${idx})">
+                    ${timeStr}
+                </div>
             </div>
+            <div class="trans-line"></div>
+            ` : ''} 
         `;
-        list.appendChild(div);
+        list.appendChild(wrapper);
     });
 }
+
+
+
+
 
         // --- EXPENSE ---
         function renderExpense() {
@@ -663,7 +1073,7 @@
                                 detailHtml += `
                                     <div class="detail-list-item">
                                         <span class="detail-user-name ${userClass}">${name}${userLabel}</span>
-                                        <span class="detail-amount">NT${amt}</span>
+                                        <span class="detail-amount">${item.currency === 'JPY' ? '¥' : 'NT$'}${amt}</span>
                                     </div>
                                 `;
                             }
@@ -678,7 +1088,7 @@
                             detailHtml += `
                                 <div class="detail-list-item">
                                     <span class="detail-user-name payer">${currentUser} (本人)</span>
-                                    <span class="detail-amount">NT${perPerson}</span>
+                                    <span class="detail-amount">${item.currency === 'JPY' ? '¥' : 'NT$'}${perPerson}</span>
                                 </div>
                             `;
                         }
@@ -687,7 +1097,7 @@
                             detailHtml += `
                                 <div class="detail-list-item">
                                     <span class="detail-user-name debtor">${name}</span>
-                                    <span class="detail-amount">NT${perPerson}</span>
+                                    <span class="detail-amount">${item.currency === 'JPY' ? '¥' : 'NT$'}${perPerson}</span>
                                 </div>
                             `;
                         });
@@ -705,8 +1115,8 @@
                             </div>
                         </div>
                         <div style="font-weight:700; font-size:1.1rem; color:var(--accent)">
-                            NT$${item.amt}
-                        </div>
+							${item.currency === 'JPY' ? '¥' : 'NT$'}${item.amt}
+						</div>
                     </div>
                     <div class="expense-detail-panel">
                         ${detailHtml}
@@ -723,80 +1133,106 @@
         }
 
         function updateExpenseStats() {
-            if (!currentUser) return;
-            
-            const summaryContainer = document.getElementById('summary-content');
-            if (!summaryContainer) return;
+    if (!currentUser) return;
+    const summaryContainer = document.getElementById('summary-content');
+    if (!summaryContainer) return;
 
-            let totalPersonal = 0;
-            let totalReceivable = 0;
-            let totalPayable = 0;
+    // A. 初始化統計變數 [memory:11]
+    let totals = { JPY: 0, TWD: 0 };
+    let receivable = { JPY: 0, TWD: 0 };
+    let payable = { JPY: 0, TWD: 0 };
+    const EX_RATE = 0.215; // 統一在此定義一次匯率 [memory:5]
 
-            EXPENSE.forEach(dayList => {
-                dayList.forEach(item => {
-                    if (item.payBy === currentUser) {
-                        if (!item.advanceFor || item.advanceFor.length === 0) {
-                            totalPersonal += item.amt;
-                        }
-                    }
-
-                    if (item.payBy === currentUser && item.advanceFor && item.advanceFor.length > 0) {
-                        if (item.splitDetails && item.splitDetails.amounts) {
-                            Object.entries(item.splitDetails.amounts).forEach(([name, amt]) => {
-                                if (name !== currentUser && amt > 0 && (!item.settled || !item.settled[name])) {
-                                    totalReceivable += amt;
-                                }
-                            });
-                        } else {
-                            const perPerson = Math.floor(item.amt / item.advanceFor.length);
-                            item.advanceFor.forEach(name => {
-                                if (name !== currentUser && (!item.settled || !item.settled[name])) {
-                                    totalReceivable += perPerson;
-                                }
-                            });
-                        }
-                    }
-
-                    if (item.payBy !== currentUser && item.advanceFor && item.advanceFor.includes(currentUser)) {
-                        let myAmt = 0;
-                        if (item.splitDetails && item.splitDetails.amounts) {
-                            myAmt = item.splitDetails.amounts[currentUser] || 0;
-                        } else {
-                            myAmt = Math.floor(item.amt / item.advanceFor.length);
-                        }
-
-                        if (myAmt > 0 && (!item.settled || !item.settled[currentUser])) {
-                            totalPayable += myAmt;
-                        }
-                    }
-                });
-            });
-
-            if (statMode === 'advance') {
-                summaryContainer.innerHTML = `
-                    <div style="display: flex; justify-content: space-around; align-items: center; padding-top: 10px;">
-                        <div style="text-align: center;">
-                            <div style="font-size: 0.8rem; opacity: 0.6; margin-bottom: 4px; font-weight:700;">應收</div>
-                            <div style="font-size: 1.6rem; font-weight: 900; color: #10b981;">
-                                <span style="font-size:0.9rem; margin-right:2px;">NT$</span>${totalReceivable}
-                            </div>
-                        </div>
-                        <div style="width: 1px; height: 40px; background: rgba(255,255,255,0.2);"></div>
-                        <div style="text-align: center;">
-                            <div style="font-size: 0.8rem; opacity: 0.6; margin-bottom: 4px; font-weight:700;">應付</div>
-                            <div style="font-size: 1.6rem; font-weight: 900; color: #E76F51;">
-                                <span style="font-size:0.9rem; margin-right:2px;">NT$</span>${totalPayable}
-                            </div>
-                        </div>
-                    </div>
-                `;
-            } else {
-                summaryContainer.innerHTML = `
-                    <div style="font-size:2.5rem;font-weight:900">NT$ <span id="total-exp">${totalPersonal}</span></div>
-                    <div id="stat-label">個人總花費</div>
-                `;
+    // B. 完整計算邏輯 (不可省略)
+    EXPENSE.forEach(dayList => {
+        dayList.forEach(item => {
+            const c = item.currency || 'TWD';
+            if (item.payBy === currentUser) {
+                if (!item.advanceFor || item.advanceFor.length === 0) totals[c] += item.amt;
+                else if (item.splitDetails?.amounts) totals[c] += (item.splitDetails.amounts[currentUser] || 0);
+                else totals[c] += Math.floor(item.amt / (item.advanceFor.length));
             }
-        }
+            if (item.payBy === currentUser && item.advanceFor?.length > 0) {
+                if (item.splitDetails?.amounts) {
+                    Object.entries(item.splitDetails.amounts).forEach(([name, amt]) => {
+                        if (name !== currentUser && amt > 0 && (!item.settled || !item.settled[name])) receivable[c] += amt;
+                    });
+                } else {
+                    const perPerson = Math.floor(item.amt / item.advanceFor.length);
+                    item.advanceFor.forEach(name => {
+                        if (name !== currentUser && (!item.settled || !item.settled[name])) receivable[c] += perPerson;
+                    });
+                }
+            }
+            if (item.payBy !== currentUser && item.advanceFor?.includes(currentUser)) {
+                let myAmt = item.splitDetails?.amounts ? (item.splitDetails.amounts[currentUser] || 0) : Math.floor(item.amt / item.advanceFor.length);
+                if (myAmt > 0 && (!item.settled || !item.settled[currentUser])) payable[c] += myAmt;
+            }
+        });
+    });
+
+    const combinedTwd = Math.round(totals.TWD + (totals.JPY * EX_RATE));
+    const combinedRec = Math.round(receivable.TWD + (receivable.JPY * EX_RATE));
+    const combinedPay = Math.round(payable.TWD + (payable.JPY * EX_RATE));
+
+    const getCardHtml = (title, jpy, twd, combined, color) => `
+    <div class="swipe-card">
+        <div style="font-size:0.8rem; font-weight:700; color:${color}; margin-bottom:8px; text-align:center;">${title}</div>
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+            <!-- 左側：增加 class="swipe-card-left" -->
+            <div class="swipe-card-left">
+                <div style="margin-bottom: 6px;">
+                    <span style="font-size: 0.65rem; opacity: 0.7; display: block; white-space: nowrap;">🇯🇵 JP 日幣</span>
+                    <span style="font-size: 1.1rem; font-weight: 700;">¥ ${jpy.toLocaleString()}</span>
+                </div>
+                <div>
+                    <span style="font-size: 0.65rem; opacity: 0.7; display: block; white-space: nowrap;">🇹🇼 TW 台幣</span>
+                    <span style="font-size: 1.1rem; font-weight: 700;">NT$ ${twd.toLocaleString()}</span>
+                </div>
+            </div>
+            <!-- 右側 -->
+            <div style="flex: 1; text-align: right; padding-right: 5px;">
+                <div style="font-size: 0.6rem; opacity: 0.8; margin-bottom: 2px;">總計約 (Total)</div>
+                <div style="font-size: 1.6rem; font-weight: 900; color: #FFD700;">
+                    <span style="font-size: 0.9rem;">NT$</span> ${combined.toLocaleString()}
+                </div>
+            </div>
+        </div>
+    </div>
+`;
+
+
+    // D. 渲染畫面
+    summaryContainer.style.overflow = "hidden";
+    // 在 updateExpenseStats 函式末尾的渲染部分
+summaryContainer.innerHTML = `
+    <!-- 滑動內容 -->
+    <div class="stat-swipe-wrapper" id="stat-swipe-wrapper">
+        ${getCardHtml('個人花費總額', totals.JPY, totals.TWD, combinedTwd, '#fff')}
+        ${getCardHtml('待收付款項 (應收)', receivable.JPY, receivable.TWD, combinedRec, '#10b981')}
+        ${getCardHtml('待收付款項 (應付)', payable.JPY, payable.TWD, combinedPay, '#E76F51')}
+    </div>
+    
+    <!-- 滑動指示點：確保在這裡 [image:1] -->
+    <div class="swipe-dots">
+        <span class="dot active"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+    </div>
+`;
+
+// 重新綁定滑動監聽 (確保指示點會動)
+const wrapper = document.getElementById('stat-swipe-wrapper');
+if (wrapper) {
+    wrapper.onscroll = function() {
+        const idx = Math.round(this.scrollLeft / this.offsetWidth);
+        const dots = document.querySelectorAll('.dot');
+        dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+    };
+}
+}
+
+
 
         function toggleStat(mode) {
             statMode = mode;
@@ -868,124 +1304,167 @@
         }
 
         function updateQuickSplitPreview() {
-            const previewDiv = document.getElementById('quick-split-preview');
-            const modeSelect = document.getElementById('quick-split-mode');
-            const mode = modeSelect.value;
-            const amtInput = document.getElementById('quick-amt');
-            const totalAmt = parseInt(amtInput.value || 0);
+  const previewDiv = document.getElementById('quick-split-preview');
+  const modeSelect = document.getElementById('quick-split-mode');
+  const mode = modeSelect.value;
+  const amtInput = document.getElementById('quick-amt');
+  const totalAmt = parseInt(amtInput.value) || 0;
 
-            if (totalAmt <= 0) {
-                previewDiv.textContent = '';
-                return;
-            }
+  if (totalAmt === 0) {
+    previewDiv.textContent = '';
+    return;
+  }
 
-            if (mode === 'equal') {
-                const selected = Array.from(document.querySelectorAll('#quick-split-persons .split-person-btn.selected'));
-                if (selected.length === 0) {
-                    previewDiv.textContent = '⚠ 請選擇分帳對象';
-                    return;
-                }
-                const totalPeople = selected.length + 1;
-                const perPerson = Math.floor(totalAmt / totalPeople);
-                previewDiv.innerHTML = `共 NT$${totalAmt}÷ ${totalPeople} 人= 每人 NT$${perPerson}`;
-            } else if (mode === 'custom') {
-                const inputs = document.querySelectorAll('.quick-custom-amt');
-                let totalCustom = 0;
-                inputs.forEach(input => {
-                    totalCustom += parseInt(input.value || 0);
-                });
-                const myShare = totalAmt - totalCustom;
-                if (myShare < 0) {
-                    previewDiv.style.borderLeftColor = '#ef4444';
-                    previewDiv.textContent = '❌ 分帳金額超過總金額';
-                } else {
-                    previewDiv.style.borderLeftColor = 'var(--accent)';
-                    previewDiv.innerHTML = `他人：NT$${totalCustom}<br>我的：NT$${myShare}`;
-                }
-            }
-        }
+  if (mode === 'equal') {
+    const selected = Array.from(
+      document.querySelectorAll('#quick-split-persons .split-person-btn.selected')
+    );
+    if (selected.length === 0) {
+      previewDiv.textContent = '';
+      return;
+    }
+
+    // ✅ 不再 +1，直接用選取的人數
+    const totalPeople = selected.length;
+    const perPerson = Math.floor(totalAmt / totalPeople);
+
+    previewDiv.innerHTML = `共 NT$${totalAmt} ÷ ${totalPeople} 人 = 每人 NT$${perPerson}`;
+  } else if (mode === 'custom') {
+    // 原本 custom 的邏輯保持不變
+    const inputs = document.querySelectorAll('.quick-custom-amt');
+    let totalCustom = 0;
+    inputs.forEach(input => {
+      totalCustom += parseInt(input.value) || 0;
+    });
+    const myShare = totalAmt - totalCustom;
+    if (myShare < 0) {
+      previewDiv.style.borderLeftColor = '#ef4444';
+      previewDiv.textContent = '分帳總額超過原始金額';
+    } else {
+      previewDiv.style.borderLeftColor = 'var(--accent)';
+      previewDiv.innerHTML = `其他人合計 NT$${totalCustom}<br>我需負擔 NT$${myShare}`;
+    }
+  } else {
+    previewDiv.textContent = '';
+  }
+}
+
 
         function addQuickExpense() {
-            if (!currentUser) {
-                alert('請先選擇使用者');
-                return;
+    if (!currentUser) {
+        alert('請先選擇使用者');
+        return;
+    }
+
+    const dateSelect = document.getElementById('quick-date');
+    curDay = parseInt(dateSelect.value);
+
+    const title = document.getElementById('quick-title').value.trim();
+    const amt = parseInt(document.getElementById('quick-amt').value || 0);
+    const currency = currentCurrency;
+    const cat = document.getElementById('quick-cat').value;
+    const payMethod = document.getElementById('quick-pay').value;
+    const splitModeQuick = document.getElementById('quick-split-mode').value;
+
+    if (!title || amt <= 0) {
+        alert('請填寫名稱和金額');
+        return;
+    }
+
+    // ★ 誰付錢
+    const payerVal = document.getElementById('quick-pay-by')
+        ? document.getElementById('quick-pay-by').value
+        : 'me';
+    let payBy = (payerVal === 'me') ? currentUser : payerVal;
+
+    let advanceFor = [];
+    let splitDetails = null;
+
+    if (payerVal !== 'me') {
+        // ★ 別人付錢：這筆是「我欠 payBy」
+        // 簡單處理：分帳對象 = 我 + payBy，之後 updateExpenseStats 會把它算進「應付」
+        advanceFor = [currentUser, payBy];
+    } else {
+        // ★ 我付錢：沿用你原本的分帳邏輯
+        if (splitModeQuick === 'equal') {
+            const selected = Array.from(
+                document.querySelectorAll('#quick-split-persons .split-person-btn.selected')
+            );
+            const selectedNames = selected.map(btn => btn.dataset.name);
+            if (selectedNames.length > 0) {
+                advanceFor = [currentUser, ...selectedNames];
             }
-
-            const dateSelect = document.getElementById('quick-date');
-            curDay = parseInt(dateSelect.value);
-
-            const title = document.getElementById('quick-title').value.trim();
-            const amt = parseInt(document.getElementById('quick-amt').value || 0);
-            const cat = document.getElementById('quick-cat').value;
-            const payMethod = document.getElementById('quick-pay').value;
-            const splitModeQuick = document.getElementById('quick-split-mode').value;
-
-            if (!title || amt <= 0) {
-                alert('請填寫名稱和金額');
-                return;
-            }
-
-            let advanceFor = [];
-            let splitDetails = null;
-
-            if (splitModeQuick === 'equal') {
-                const selected = Array.from(document.querySelectorAll('#quick-split-persons .split-person-btn.selected'));
-                const selectedNames = selected.map(btn => btn.dataset.name);
-                if (selectedNames.length > 0) {
-                    advanceFor = [currentUser, ...selectedNames];
+        } else if (splitModeQuick === 'custom') {
+            const inputs = document.querySelectorAll('.quick-custom-amt');
+            let customMap = {};
+            inputs.forEach(input => {
+                const val = parseInt(input.value || 0);
+                if (val > 0) {
+                    customMap[input.dataset.name] = val;
                 }
-            } else if (splitModeQuick === 'custom') {
-                const inputs = document.querySelectorAll('.quick-custom-amt');
-                let customMap = {};
-                inputs.forEach(input => {
-                    const val = parseInt(input.value || 0);
-                    if (val > 0) {
-                        customMap[input.dataset.name] = val;
-                    }
-                });
-                const myShare = amt - Object.values(customMap).reduce((a, b) => a + b, 0);
-                if (myShare > 0) {
-                    customMap[currentUser] = myShare;
-                    advanceFor = Object.keys(customMap);
-                    splitDetails = { mode: 'custom', amounts: customMap };
-                }
+            });
+            const myShare = amt - Object.values(customMap).reduce((a, b) => a + b, 0);
+            if (myShare > 0) {
+                customMap[currentUser] = myShare;
+                advanceFor = Object.keys(customMap);
+                splitDetails = { mode: 'custom', amounts: customMap };
             }
-
-            if (editingId) {
-                const idx = EXPENSE[curDay].findIndex(e => e.id === editingId);
-                if (idx >= 0) {
-                    EXPENSE[curDay][idx] = { 
-                        cat, title, amt, payMethod, 
-                        payBy: currentUser, 
-                        advanceFor, 
-                        splitDetails, 
-                        id: editingId 
-                    };
-                }
-                cancelEdit();
-            } else {
-                const newExpense = {
-                    cat, title, amt, payMethod,
-                    payBy: currentUser,
-                    advanceFor,
-                    splitDetails,
-                    id: '' + Date.now()
-                };
-                EXPENSE[curDay].push(newExpense);
-            }
-
-            document.getElementById('quick-title').value = '';
-            document.getElementById('quick-amt').value = '';
-            document.getElementById('quick-date').value = '0';
-            document.getElementById('quick-cat').value = 'food';
-            document.getElementById('quick-pay').value = 'cash';
-            document.getElementById('quick-split-mode').value = 'none';
-            toggleQuickSplitMode('none');
-
-            renderExpense();
-            updateExpenseStats();
-            renderExpenseCategories();
         }
+        // splitModeQuick === 'none' 的情況，advanceFor 保持 []，表示純個人消費
+    }
+
+    if (editingId) {
+        const idx = EXPENSE[curDay].findIndex(e => e.id === editingId);
+        if (idx >= 0) {
+            EXPENSE[curDay][idx] = {
+                cat, title, amt, payMethod,
+                payBy,
+                currency,
+                advanceFor,
+                splitDetails,
+                id: editingId
+            };
+        }
+        cancelEdit();
+    } else {
+        const newExpense = {
+            cat, title, amt, payMethod,
+            payBy,
+            currency,
+            advanceFor,
+            splitDetails,
+            id: '' + Date.now()
+        };
+        EXPENSE[curDay].push(newExpense);
+   
+   // 🆕 加入這段（同步到 Google Sheets）
+	syncExpenseToSheet({
+  id: newExpense.id,
+  date: DAYS[curDay].label,
+  cat: cat,
+  title: title,
+  amt: amt,
+  currency: currency, 
+  payBy: payBy,
+  payMethod: payMethod,
+  advanceFor: advanceFor,
+});
+	}
+
+    // 清空表單
+    document.getElementById('quick-title').value = '';
+    document.getElementById('quick-amt').value = '';
+    document.getElementById('quick-date').value = '0';
+    document.getElementById('quick-cat').value = 'food';
+    document.getElementById('quick-pay').value = 'cash';
+    document.getElementById('quick-split-mode').value = 'none';
+    toggleQuickSplitMode('none');
+
+    renderExpense();
+    updateExpenseStats();
+    renderExpenseCategories();
+}
+
 
         function editExpenseInQuickForm(item) {
             editingId = item.id;
@@ -1052,11 +1531,12 @@
                                     if (amt <= 0) return;
                                     if (item.settled && item.settled[name]) return;
                                     
-                                    if (!debtorStats[name]) {
-                                        debtorStats[name] = { label: name, amount: 0, count: 0 };
-                                    }
-                                    debtorStats[name].amount += amt;
-                                    debtorStats[name].count += 1;
+                                   if (!debtorStats[name]) {
+								debtorStats[name] = { label: name, JPY: 0, TWD: 0, count: 0 }; // 改為物件儲存雙幣
+								}
+									const c = item.currency || 'TWD';
+									debtorStats[name][c] += amt; // 依幣別累加 (amt 或 perPerson)
+									debtorStats[name].count += 1;
                                 });
                             } else {
                                 const othersInThisSplit = item.advanceFor.filter(name => name !== currentUser);
@@ -1069,10 +1549,11 @@
                                     if (item.settled && item.settled[name]) return;
                                     
                                     if (!debtorStats[name]) {
-                                        debtorStats[name] = { label: name, amount: 0, count: 0 };
-                                    }
-                                    debtorStats[name].amount += perPerson;
-                                    debtorStats[name].count += 1;
+								debtorStats[name] = { label: name, JPY: 0, TWD: 0, count: 0 }; // 改為物件儲存雙幣
+								}
+									const c = item.currency || 'TWD';
+									debtorStats[name][c] += perPerson;
+									debtorStats[name].count += 1;
                                 });
                             }
                         }
@@ -1086,8 +1567,8 @@
             let stats = {};
             
             CATEGORIES.forEach(c => {
-                stats[c.key] = { amount: 0, count: 0, color: c.color, label: c.label };
-            });
+				stats[c.key] = { JPY: 0, TWD: 0, count: 0, color: c.color, label: c.label };
+				});
             
             EXPENSE.forEach(dayList => {
                 dayList.forEach(item => {
@@ -1112,29 +1593,34 @@
                     }
                     
                     if (myShare > 0) {
-                        const catKey = item.cat || 'other';
-                        if (!stats[catKey]) {
-                            stats[catKey] = { amount: 0, count: 0, color: 'bg-other', label: catKey };
-                        }
-                        stats[catKey].amount += myShare;
-                        stats[catKey].count += 1;
-                    }
+    const catKey = item.cat || 'other';
+    const c = item.currency || 'TWD'; // 判斷幣別
+    stats[catKey][c] += myShare;
+    stats[catKey].count += 1;
+}
                 });
             });
             
-            CATEGORIES.forEach(cat => {
-                const s = stats[cat.key];
-                if (!s || s.amount === 0) return;
-                
-                const itemDiv = document.createElement('div');
-                itemDiv.className = `exp-category-item ${cat.color}`;
-                itemDiv.innerHTML = `
-                    <span>${cat.label}</span>
-                    <span>NT$${s.amount}</span>
-                    <span>${s.count}筆</span>
-                `;
-                grid.appendChild(itemDiv);
-            });
+           CATEGORIES.forEach(cat => {
+    const s = stats[cat.key];
+    if (!s || (s.JPY === 0 && s.TWD === 0)) return;
+    
+    const itemDiv = document.createElement('div');
+    itemDiv.className = `exp-category-item ${cat.color}`;
+    
+    // 動態組成金額文字：日幣為主，台幣為輔 [memory:4]
+    let amountHtml = '';
+    if (s.JPY > 0) amountHtml += `<div style="font-size:1.1rem; font-weight:900;">¥${s.JPY.toLocaleString()}</div>`;
+    if (s.TWD > 0) amountHtml += `<div style="font-size:0.8rem; opacity:0.8;">NT$${s.TWD.toLocaleString()}</div>`;
+
+    itemDiv.innerHTML = `
+        <span style="font-size:0.85rem; margin-bottom:4px; display:block;">${cat.label}</span>
+        ${amountHtml}
+        <span style="font-size:0.7rem; margin-top:4px; display:block;">${s.count}筆</span>
+    `;
+    grid.appendChild(itemDiv);
+});
+
             
             if (grid.innerHTML === '') {
                 grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#888; padding:10px;">沒有支出</div>';
@@ -1142,31 +1628,36 @@
         }
 
         function renderDebtorGrid(gridId, stats) {
-            const grid = document.getElementById(gridId);
-            if (!grid) return;
+    const grid = document.getElementById(gridId);
+    if (!grid) return;
+    grid.innerHTML = '';
 
-            grid.innerHTML = '';
+    const list = Object.values(stats).filter(s => (s.JPY > 0 || s.TWD > 0));
 
-            const list = Object.values(stats).filter(s => s.amount > 0);
+    list.forEach((s) => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'exp-category-item bg-other';
+        itemDiv.style.cursor = 'pointer';
+        itemDiv.onclick = () => openDebtModal(s.label);
 
-            list.forEach((s) => {
-                const itemDiv = document.createElement('div');
-                itemDiv.className = 'exp-category-item bg-other';
-                itemDiv.style.cursor = 'pointer';
-                itemDiv.onclick = () => openDebtModal(s.label);
+        // 動態判定顯示哪些幣別
+        let amtHtml = '';
+        if (s.JPY > 0) amtHtml += `<div style="font-size:1.1rem; font-weight:900;">¥${s.JPY.toLocaleString()}</div>`;
+        if (s.TWD > 0) amtHtml += `<div style="font-size:0.8rem; opacity:0.8;">NT$${s.TWD.toLocaleString()}</div>`;
 
-                itemDiv.innerHTML = `
-                    <span>${s.label}</span>
-                    <span>NT$${s.amount}</span>
-                    <span>${s.count}筆</span>
-                `;
-                grid.appendChild(itemDiv);
-            });
+        itemDiv.innerHTML = `
+            <span style="font-size:0.85rem; margin-bottom:4px; display:block;">${s.label}</span>
+            ${amtHtml}
+            <span style="font-size:0.7rem; margin-top:4px; display:block;">${s.count}筆紀錄</span>
+        `;
+        grid.appendChild(itemDiv);
+    });
 
-            if (grid.innerHTML === '') {
-                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#888; padding:10px;">目前尚無消費紀錄 🎉</div>';
-            }
-        }
+    if (grid.innerHTML === '') {
+        grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#888; padding:10px;">目前尚無消費紀錄 🎉</div>';
+    }
+}
+
 
         function openDebtModal(debtorName) {
             const overlay = document.getElementById('debt-modal-overlay');
@@ -1440,6 +1931,181 @@
         }
 
         window.addEventListener('load', init);
-    </script>
+    // ==========================================
+// NEW: 交通資訊編輯功能 (Action Sheet UI)
+// ==========================================
+
+// --- 修改後的交通選單函式 ---
+function openTransModePicker(idx) {
+    const overlay = document.createElement('div');
+    overlay.className = 'temp-overlay';
+    // 遮罩樣式
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:999;display:flex;align-items:flex-end;backdrop-filter:blur(2px);';
+    
+    // 5個選項
+    const options = [
+        { key: 'car', icon: '🚗', label: '開車' },
+        { key: 'train', icon: '🚃', label: '電車' },
+        { key: 'bus', icon: '🚌', label: '公車' },
+        { key: 'airplane', icon: '✈️', label: '飛行' }, // 新增
+        { key: 'walk', icon: '🚶', label: '步行' }
+    ];
+
+    let itemsHtml = '';
+    options.forEach(opt => {
+        itemsHtml += `
+            <div class="trans-option" onclick="saveTransMode(${idx}, '${opt.key}')">
+                <span class="trans-opt-icon">${opt.icon}</span>
+                <span class="trans-opt-label">${opt.label}</span>
+            </div>
+        `;
+    });
+
+    const menu = document.createElement('div');
+    // 選單容器樣式：稍微縮減 padding，讓整體看起來更緊湊
+    menu.style.cssText = 'width:100%;background:white;border-radius:1.5rem 1.5rem 0 0;padding:1.2rem;padding-bottom:calc(1.5rem + env(safe-area-inset-bottom));animation:slideUp 0.2s ease-out;';
+    
+    menu.innerHTML = `
+        <h3 style="margin:0 0 1rem 0;text-align:center;color:#334155;font-size:1rem;">選擇交通方式</h3>
+        <div class="trans-grid">${itemsHtml}</div>
+        <button onclick="this.closest('.temp-overlay').remove()" style="width:100%;padding:10px;border:none;background:#f1f5f9;color:#64748b;border-radius:12px;font-weight:700;font-size:0.9rem;">取消</button>
+    `;
+
+    overlay.appendChild(menu);
+    document.body.appendChild(overlay);
+    overlay.onclick = (e) => { if(e.target === overlay) overlay.remove(); };
+}
+
+
+// 2. 打開時間選擇選單 (模擬滾輪選擇)
+function openTransTimePicker(idx) {
+    const item = PLAN[curDay][idx];
+    const cur = item.trans || { hour: 0, min: 10 }; // 預設值
+
+    const overlay = document.createElement('div');
+    overlay.className = 'temp-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:999;display:flex;align-items:flex-end;backdrop-filter:blur(2px);';
+    
+    // 產生 0-60 分鐘的選項
+    let minOptions = '';
+    for(let i=0; i<=60; i+=5) { // 預設5分鐘一跳，比較好選
+        minOptions += `<option value="${i}">${i}</option>`;
+    }
+
+    const menu = document.createElement('div');
+    menu.style.cssText = 'width:100%;background:white;border-radius:1.5rem 1.5rem 0 0;padding:1.5rem;padding-bottom:calc(2rem + env(safe-area-inset-bottom));animation:slideUp 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);';
+    
+    menu.innerHTML = `
+        <h3 style="margin:0 0 1.5rem 0;text-align:center;color:#334155;">交通時間</h3>
+        <div style="display:flex;gap:12px;align-items:center;margin-bottom:1.5rem;">
+            <div style="flex:1;">
+                <label style="display:block;text-align:center;font-size:0.75rem;color:#94a3b8;margin-bottom:6px;font-weight:700;">小時</label>
+                <div style="position:relative;">
+                    <select id="pk-hour" style="width:100%;padding:12px;border-radius:12px;border:1px solid #e2e8f0;font-size:1.4rem;text-align:center;font-weight:800;color:#334155;background:#f8fafc;appearance:none;">
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                    </select>
+                </div>
+            </div>
+            <div style="font-weight:900;color:#cbd5e1;font-size:1.5rem;margin-top:1.2rem">:</div>
+            <div style="flex:1;">
+                <label style="display:block;text-align:center;font-size:0.75rem;color:#94a3b8;margin-bottom:6px;font-weight:700;">分鐘</label>
+                <div style="position:relative;">
+                    <select id="pk-min" style="width:100%;padding:12px;border-radius:12px;border:1px solid #e2e8f0;font-size:1.4rem;text-align:center;font-weight:800;color:#334155;background:#f8fafc;appearance:none;">
+                        ${minOptions}
+                    </select>
+                </div>
+            </div>
+        </div>
+        <button id="btn-save-time" style="width:100%;padding:14px;border:none;background:var(--primary);color:white;border-radius:12px;font-weight:700;font-size:1rem;box-shadow:0 4px 12px rgba(44,62,80,0.2);">確定修改</button>
+    `;
+
+    overlay.appendChild(menu);
+    document.body.appendChild(overlay);
+
+    // 設定目前選中的值
+    document.getElementById('pk-hour').value = cur.hour || 0;
+    // 如果目前分鐘數不是5的倍數，還是要能顯示出來
+    let safeMin = cur.min || 0;
+    const minSelect = document.getElementById('pk-min');
+    // 如果現有值不在選項內（例如 13分），動態加進去
+    if(!minSelect.querySelector(`option[value="${safeMin}"]`)){
+        const opt = document.createElement('option');
+        opt.value = safeMin;
+        opt.text = safeMin;
+        minSelect.add(opt);
+    }
+    minSelect.value = safeMin;
+
+    // 綁定儲存按鈕
+    document.getElementById('btn-save-time').onclick = () => {
+        saveTransTime(idx, 
+            parseInt(document.getElementById('pk-hour').value), 
+            parseInt(document.getElementById('pk-min').value)
+        );
+        overlay.remove();
+    };
+    overlay.onclick = (e) => { if(e.target === overlay) overlay.remove(); };
+}
+
+// 3. 儲存資料的 Helper Functions
+function saveTransMode(idx, mode) {
+    if(!PLAN[curDay][idx].trans) PLAN[curDay][idx].trans = { hour:0, min:10 }; // 預設結構
+    PLAN[curDay][idx].trans.mode = mode;
+    document.querySelector('.temp-overlay').remove(); // 關閉選單
+    renderPlan(); // 重新渲染畫面
+}
+
+function saveTransTime(idx, hour, min) {
+    if(!PLAN[curDay][idx].trans) PLAN[curDay][idx].trans = { mode:'car' }; // 預設結構
+    PLAN[curDay][idx].trans.hour = hour;
+    PLAN[curDay][idx].trans.min = min;
+    renderPlan(); // 重新渲染畫面
+}
+
+let currentCurrency = 'JPY';
+const EXCHANGE_RATE = 0.215; // 您可在此修改匯率
+
+function toggleCurrency() {
+    currentCurrency = (currentCurrency === 'JPY') ? 'TWD' : 'JPY';
+    
+    // 切換按鈕樣式
+    document.getElementById('btn-jpy').classList.toggle('active');
+    document.getElementById('btn-twd').classList.toggle('active');
+    
+    // 更新輸入框提示與標籤
+    const unit = currentCurrency === 'JPY' ? '¥' : 'NT$';
+    document.getElementById('quick-amt').placeholder = unit;
+    document.getElementById('unit-label').innerText = unit;
+    
+    updateConversion();
+}
+
+function updateConversion() {
+    const val = parseFloat(document.getElementById('quick-amt').value) || 0;
+    const hint = document.getElementById('conversion-hint');
+    
+    if (currentCurrency === 'JPY') {
+        const twd = Math.round(val * EXCHANGE_RATE);
+        hint.innerText = `約 NT$ ${twd.toLocaleString()}`;
+    } else {
+        const jpy = Math.round(val / EXCHANGE_RATE);
+        hint.innerText = `約 ¥ ${jpy.toLocaleString()}`;
+    }
+}
+
+document.getElementById('summary-content').addEventListener('scroll', function(e) {
+    const scrollLeft = e.target.scrollLeft;
+    const width = e.target.offsetWidth;
+    const index = Math.round(scrollLeft / width);
+    const dots = document.querySelectorAll('.dot');
+    dots.forEach((dot, i) => {
+        dot.classList.toggle('active', i === index);
+    });
+}, { passive: true });
+
+</script>
 </body>
-</html>
+</html> 
