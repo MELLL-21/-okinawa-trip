@@ -428,79 +428,70 @@
   }
 }
 
-.welcome-card-wrapper.exit-animation {
-  animation: fadeOut 0.6s ease-out forwards;
+/* --- 修正版：歡迎畫面與成功動畫 --- */
+
+/* 1. 確保背景遮罩永遠置中且覆蓋全螢幕 */
+#welcome-card {
+    position: fixed;
+    inset: 0;
+    z-index: 998;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.2);
+    backdrop-filter: blur(10px);
+    transition: opacity 0.5s ease;
 }
 
-/* 🆕 登入成功動畫 */
-@keyframes fadeOut {
-  from {
-    opacity: 1;
-    transform: scale(1);
-  }
-  to {
+/* 2. 背景卡片內容：點擊後會平滑消失 */
+.welcome-card-inner {
+    transition: all 0.4s ease;
+}
+.welcome-card-inner.hide-content {
     opacity: 0;
-    transform: scale(0.95);
-  }
+    transform: scale(0.9);
+    pointer-events: none;
 }
 
-/* 🆕 從中間出現的動畫 */
-@keyframes slideInCenter {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-  }
-}
-
-/* 🆕 成功訊息樣式 */
+/* 3. 成功訊息：強制固定在螢幕正中央，不隨容器跳動 */
 .login-success-message {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: white;
-  padding: 2rem 1.5rem;
-  border-radius: 1.2rem;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-  text-align: center;
-  z-index: 999;
-  animation: slideInCenter 0.4s ease-out;
-  max-width: 300px;
+    position: fixed;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important; /* 強制修正位移 */
+    background: white;
+    padding: 2.5rem 2rem;
+    border-radius: 1.5rem;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+    text-align: center;
+    z-index: 999;
+    width: 280px;
+    animation: slideInCenter 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
-.login-success-message .success-icon {
-  font-size: 2.5rem;
-  margin-bottom: 0.8rem;
-  animation: scaleIn 0.5s ease-out;
+/* 4. 動畫：由小變大並保持在中心 */
+@keyframes slideInCenter {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -45%) scale(0.85);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
 }
 
-.login-success-message .success-text {
-  font-family: 'Noto Serif TC', serif;
-  font-weight: 800;
-  font-size: 1.1rem;
-  color: #2C3E50;
-  margin-bottom: 0.2rem;
+/* 5. 成功訊息消失動畫 */
+@keyframes fadeOutMsg {
+    to {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.95);
+    }
 }
 
-.login-success-message .success-name {
-  font-size: 1.3rem;
-  color: #E76F51;
-  font-weight: 900;
-}
-
-@keyframes scaleIn {
-  from {
-    transform: scale(0.5);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
+/* 6. 全域淡出效果 */
+.welcome-fade-out {
+    opacity: 0 !important;
 }
 
 .welcome-card-wrapper.exit-animation {
@@ -998,60 +989,59 @@ function updateSyncStatus(message) {
         }
 
         function selectUsername(name) {
-  // 🆕 檢查密碼
-  const pwdInput = document.getElementById('entry-password');
-  const enteredPwd = pwdInput.value;
+    const pwdInput = document.getElementById('entry-password');
+    const enteredPwd = pwdInput.value;
 
-  if (enteredPwd !== GOOGLE_SHEETS_SECRET_KEY) {
-    alert('❌ 密碼錯誤，無法進入！');
-    pwdInput.value = ''; // 清空密碼
-    return;
-  }
-
-  // 🆕 禁用所有按鈕，防止重複點擊
-  document.querySelectorAll('.welcome-user-btn').forEach(btn => {
-    btn.disabled = true;
-    btn.style.opacity = '0.5';
-  });
-
-  // 🆕 顯示成功訊息
-  const successMsg = document.createElement('div');
-  successMsg.className = 'login-success-message';
-  successMsg.innerHTML = `
-    <div class="success-icon">✅</div>
-    <div class="success-text">登入成功，歡迎</div>
-    <div class="success-name">${name}</div>
-  `;
-  document.body.appendChild(successMsg);
-
-  // 🆕 1.5 秒後進入主頁
-  setTimeout(() => {
-    // 設定使用者
-    currentUser = name;
-    updateSubtitleWithUser();
-    renderExpense();
-    renderExpenseCategories();
-
-    // 淡出歡迎畫面
-    const wrapper = document.getElementById('welcome-card');
-    if (wrapper) {
-      wrapper.classList.add('exit-animation');
+    // ✅ 1. 密碼驗證
+    if (enteredPwd !== GOOGLE_SHEETS_SECRET_KEY) {
+        alert('❌ 密碼錯誤，無法進入！');
+        pwdInput.value = '';
+        return;
     }
 
-    // 淡出成功訊息
-    successMsg.style.animation = 'fadeOut 0.4s ease-out forwards';
+    // ✅ 2. 隱藏背景的密碼輸入卡片內容
+    const welcomeInner = document.querySelector('.welcome-card-inner');
+    if (welcomeInner) {
+        welcomeInner.classList.add('hide-content'); 
+    }
 
-    // 0.6 秒後完全隱藏
+    // ✅ 3. 建立並顯示「成功訊息」
+    const successMsg = document.createElement('div');
+    successMsg.className = 'login-success-message';
+    successMsg.innerHTML = `
+        <div style="font-size:3.5rem; margin-bottom:1rem; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));">✅</div>
+        <div style="font-family:'Noto Serif TC',serif; font-weight:800; font-size:1.2rem; color:#2C3E50;">登入成功，歡迎</div>
+        <div style="font-size:1.6rem; color:#E76F51; font-weight:900; margin-top:0.6rem;">${name}</div>
+    `;
+    document.body.appendChild(successMsg);
+
+    // ✅ 4. 等待 1.2 秒後，執行主頁切換動畫
     setTimeout(() => {
-      if (wrapper) wrapper.style.display = 'none';
-      successMsg.remove();
+        // 更新當前使用者狀態
+        currentUser = name;
+        updateSubtitleWithUser();
+        renderExpense();
+        renderExpenseCategories();
 
-      // 🆕 儲存到本地
-      localStorage.setItem('expense_user', name);
-      localStorage.setItem('expense_auth', 'true');
-    }, 600);
-  }, 1500); // 1.5 秒後開始淡出
+        // 啟動全螢幕淡出動畫
+        const wrapper = document.getElementById('welcome-card');
+        if (wrapper) wrapper.classList.add('welcome-fade-out');
+        
+        // 成功訊息同步淡出
+        successMsg.style.animation = 'fadeOutMsg 0.4s ease-in forwards';
+
+        // 徹底清除登入畫面並存儲狀態
+        setTimeout(() => {
+            if (wrapper) wrapper.style.display = 'none';
+            successMsg.remove();
+            
+            localStorage.setItem('expense_user', name);
+            localStorage.setItem('expense_auth', 'true');
+        }, 400);
+
+    }, 1200); 
 }
+
 
 
         function updateSubtitleWithUser() {
