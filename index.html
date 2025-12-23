@@ -698,23 +698,18 @@
     </div>
   </div>
 
-  <!-- Row 4: 支付人、分帳模式 -->
-  <div class="quick-expense-row">
-    <div>
-      <label>支付人</label>
-      <select id="quick-pay-by">
-        <option value="me">本人 (我付錢)</option>
-      </select>
+ <!-- Row 4: 只保留分帳模式 -->
+<div class="quick-expense-row">
+    <div style="flex: 1;">  <!-- 讓分帳模式獨佔整行 -->
+        <label>分帳模式</label>
+        <select id="quick-split-mode" onchange="toggleQuickSplitMode(this.value)">
+            <option value="none">不分帳</option>
+            <option value="equal">平均分帳</option>
+            <option value="custom">自訂分帳</option>
+        </select>
     </div>
-    <div>
-      <label>分帳模式</label>
-      <select id="quick-split-mode" onchange="toggleQuickSplitMode(this.value)">
-        <option value="none">不分帳</option>
-        <option value="equal">平均分帳</option>
-        <option value="custom">自訂分帳</option>
-      </select>
-    </div>
-  </div>
+</div>
+
 
   <!-- 分帳選項 (當選擇分帳時顯示) -->
   <div id="quick-split-options" style="display:none; margin-top:1rem; padding:1rem; background:#f9fafb; border-radius:0.8rem; border: 1px solid #e5e7eb;">
