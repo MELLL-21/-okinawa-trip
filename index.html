@@ -929,10 +929,10 @@ function updateSyncStatus(message) {
     { key:'other', label:'其他', color:'bg-other', hex:'#10b981', light:'#ecfdf5' }  // 綠
 ];
 
-let userEnteredSecret = ""; // 初始為空
 		
         const MEMBERS = ['許波', '方吉', '千又', '侑焄', '家銘'];
 
+		let userEnteredSecret = ""; // 初始為空
         // --- STATE ---
         let currentUser = null;
         let curTab = 'itinerary';
@@ -989,16 +989,13 @@ let userEnteredSecret = ""; // 初始為空
   const pwdInput = document.getElementById('entry-password');
   const enteredPwd = pwdInput.value;
 
-  // ✅ 不再跟硬編碼的常數比較，而是直接存起來
-  // 原本的寫法：if (enteredPwd !== GOOGLE_SHEETS_SECRET_KEY)
-  // 新寫法：任何非空字串都先收下來，後端會驗證
-  
+  // ✅ 檢查密碼是否為空
   if (!enteredPwd || enteredPwd.trim() === '') {
     alert('❌ 請輸入密碼');
     return;
   }
 
-  // 🆕 將使用者輸入的密碼存入全域變數
+  // ✅ 存儲使用者輸入的密碼到全域變數
   userEnteredSecret = enteredPwd;
 
   // 禁用所有按鈕，防止重複點擊
@@ -1017,6 +1014,7 @@ let userEnteredSecret = ""; // 初始為空
   `;
   document.body.appendChild(successMsg);
 
+  // 延遲 1.2 秒後進入主頁
   setTimeout(() => {
     currentUser = name;
     updateSubtitleWithUser();
@@ -1038,6 +1036,7 @@ let userEnteredSecret = ""; // 初始為空
 
   }, 1200);
 }
+
 
 
 
