@@ -929,10 +929,10 @@ function updateSyncStatus(message) {
     { key:'other', label:'其他', color:'bg-other', hex:'#10b981', light:'#ecfdf5' }  // 綠
 ];
 
+let userEnteredSecret = ""; // 初始為空
 		
         const MEMBERS = ['許波', '方吉', '千又', '侑焄', '家銘'];
 
-		let userEnteredSecret = ""; // 初始為空
         // --- STATE ---
         let currentUser = null;
         let curTab = 'itinerary';
@@ -969,33 +969,61 @@ function updateSyncStatus(message) {
 
 
         function showWelcomeCard() {
-            const wrapper = document.getElementById('welcome-card');
-            const list = document.getElementById('welcome-user-list');
-            if(!wrapper || !list) return;
+  const wrapper = document.getElementById('welcome-card');
+  const list = document.getElementById('welcome-user-list');
+  
+  console.log('🔍 showWelcomeCard called'); // 調試用
+  console.log('wrapper:', wrapper); // 確保存在
+  console.log('list:', list);
+  console.log('MEMBERS:', MEMBERS); // 確保有成員
+  
+  if(!wrapper || !list) {
+    console.error('❌ 找不到歡迎畫面的 DOM 元素');
+    return;
+  }
+  
+  // 清空清單
+  list.innerHTML = '';
+  
+  // 為每個成員建立按鈕
+  if (MEMBERS && MEMBERS.length > 0) {
+    MEMBERS.forEach(name => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'welcome-user-btn';
+      btn.textContent = name;
+      btn.style.display = 'block'; // 🆕 確保可見
+      btn.onclick = (e) => {
+        e.preventDefault();
+        console.log('點擊按鈕:', name); // 調試用
+        selectUsername(name);
+      };
+      list.appendChild(btn);
+      console.log('✅ 新增按鈕:', name); // 調試用
+    });
+  } else {
+    console.error('❌ MEMBERS 陣列為空或未定義');
+  }
+  
+  wrapper.style.display = 'flex';
+  console.log('✅ 歡迎畫面已顯示'); // 調試用
+}
 
-            list.innerHTML = '';
-            MEMBERS.forEach(name => {
-                const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.className = 'welcome-user-btn';
-                btn.textContent = name;
-                btn.onclick = (e) => { e.preventDefault(); selectUsername(name); };
-                list.appendChild(btn);
-            });
-            wrapper.style.display = 'flex';
-        }
 
         function selectUsername(name) {
   const pwdInput = document.getElementById('entry-password');
   const enteredPwd = pwdInput.value;
 
-  // ✅ 檢查密碼是否為空
+  // ✅ 不再跟硬編碼的常數比較，而是直接存起來
+  // 原本的寫法：if (enteredPwd !== GOOGLE_SHEETS_SECRET_KEY)
+  // 新寫法：任何非空字串都先收下來，後端會驗證
+  
   if (!enteredPwd || enteredPwd.trim() === '') {
     alert('❌ 請輸入密碼');
     return;
   }
 
-  // ✅ 存儲使用者輸入的密碼到全域變數
+  // 🆕 將使用者輸入的密碼存入全域變數
   userEnteredSecret = enteredPwd;
 
   // 禁用所有按鈕，防止重複點擊
@@ -1014,7 +1042,6 @@ function updateSyncStatus(message) {
   `;
   document.body.appendChild(successMsg);
 
-  // 延遲 1.2 秒後進入主頁
   setTimeout(() => {
     currentUser = name;
     updateSubtitleWithUser();
@@ -1036,7 +1063,6 @@ function updateSyncStatus(message) {
 
   }, 1200);
 }
-
 
 
 
