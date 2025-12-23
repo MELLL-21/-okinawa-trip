@@ -824,13 +824,6 @@ const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzBhwYQ5
 
 let selectedUserForLogin = null; // 暫存目前選中的登入者
 
-
-let sheetsReady = true;
-
-// ===== Google Apps Script 連動（動態密鑰驗證）=====
-
-const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzBhwYQ5YJ49E87CnyxToegFM8v3jjjfPplyv0gyiG-eWqXQLoDjnaFm0mF-qAc-wXB/userweb';
-
 let sheetsReady = true;
 
 // 🆕 同步記帳到 Google Sheets（使用使用者輸入的密鑰）
@@ -975,19 +968,24 @@ function updateSyncStatus(message) {
         let statMode = 'personal';
         let editingId = null;
 
-        // 1. 初始化 (自動登入邏輯)
+        // ===== 初始化與登入邏輯 (唯一版本) =====
+
+// 1. 初始化 (自動登入邏輯)
 function init() {
+  console.log('🔍 應用初始化開始...');
+  console.log('MEMBERS:', MEMBERS);
+  
   // 嘗試從本地儲存讀取
   const savedUser = localStorage.getItem('expense_user');
-  const savedKey = localStorage.getItem('expense_secret_key'); // 讀取儲存的密碼
+  const savedKey = localStorage.getItem('expense_secret_key');
 
   // 如果有使用者紀錄 且 有密碼紀錄
   if (savedUser && savedKey) {
-    console.log('🔄 偵測到已登入，自動恢復 Session...');
+    console.log('✅ 自動登入:', savedUser);
     
     // 1. 恢復全域變數
     currentUser = savedUser;
-    userEnteredSecret = savedKey; // 重要！恢復這個變數才能跟 Google Sheets 溝通
+    userEnteredSecret = savedKey;
 
     // 2. 更新介面
     updateSubtitleWithUser();
@@ -1002,17 +1000,18 @@ function init() {
     renderWishlist();
     fetchWeather();
     
-    // 延遲載入記帳資料 (確保介面先出來)
+    // 延遲載入記帳資料
     setTimeout(() => {
       renderExpense();
-      loadExpensesFromSheet(); // 這時 userEnteredSecret 已經有值了，所以會成功
+      renderExpenseCategories();
+      loadExpensesFromSheet();
     }, 100);
 
   } else {
-    // 沒有紀錄，顯示歡迎頁
+    console.log('🔑 首次進入，顯示登入頁');
     showWelcomeCard();
     
-    // 背景還是要先渲染一些基本結構 (除了記帳)
+    // 背景結構
     renderDays();
     renderPlan();
     renderWishlist();
@@ -1022,87 +1021,111 @@ function init() {
 
 // 2. 顯示歡迎頁 (產生選人按鈕)
 function showWelcomeCard() {
+  console.log('📋 showWelcomeCard 執行...');
+  
   const wrapper = document.getElementById('welcome-card');
   const list = document.getElementById('welcome-user-list');
   
-  if (!wrapper || !list) return;
+  console.log('wrapper:', wrapper);
+  console.log('list:', list);
+  console.log('MEMBERS:', MEMBERS);
+  
+  if (!wrapper || !list) {
+    console.error('❌ 找不到歡迎畫面元素！');
+    return;
+  }
 
+  // 確保歡迎頁顯示
   wrapper.style.display = 'flex';
+  wrapper.style.opacity = '1';
+  wrapper.classList.remove('welcome-fade-out');
+  
+  // 清空舊內容
   list.innerHTML = '';
-  selectedUserForLogin = null; // 重置選擇
+  selectedUserForLogin = null;
 
+  // 🛡️ 防呆檢查
+  if (!MEMBERS || MEMBERS.length === 0) {
+    list.innerHTML = '<div style="color: #ef4444; font-weight: 700; padding: 20px; text-align: center;">⚠️ 未設定成員名單 (MEMBERS)</div>';
+    console.error('❌ MEMBERS 陣列是空的！');
+    return;
+  }
+
+  // 產生按鈕
+  console.log('產生 ' + MEMBERS.length + ' 個按鈕...');
   MEMBERS.forEach(name => {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'welcome-user-btn';
     btn.textContent = name;
+    btn.style.display = 'block';
     
-    // 點擊事件：切換選中狀態
     btn.onclick = (e) => {
       e.preventDefault();
-      // 移除其他人的 active 狀態
+      console.log('點擊使用者:', name);
+      
+      // 移除其他人的選取
       document.querySelectorAll('.welcome-user-btn').forEach(b => b.classList.remove('selected'));
-      // 自己加上 active
+      // 選取自己
       btn.classList.add('selected');
       // 紀錄
       selectedUserForLogin = name;
     };
     list.appendChild(btn);
   });
+  
+  console.log('✅ 按鈕產生完成');
 }
 
 // 3. 按下「確認登入」按鈕
 function handleLogin() {
+  console.log('🔐 handleLogin 執行...');
+  
   const pwdInput = document.getElementById('entry-password');
   const enteredPwd = pwdInput.value;
 
-  // 驗證 1: 有沒有選人
   if (!selectedUserForLogin) {
-    alert('請先點選您的名字！');
+    alert('❌ 請先點選您的名字！');
     return;
   }
 
-  // 驗證 2: 有沒有輸入密碼
   if (!enteredPwd || enteredPwd.trim() === '') {
-    alert('請輸入通關密碼！');
+    alert('❌ 請輸入通關密碼！');
     return;
   }
 
-  // --- 登入成功流程 ---
+  console.log('✅ 驗證成功，登入使用者:', selectedUserForLogin);
   
-  // 1. 儲存到變數
+  // 儲存變數
   userEnteredSecret = enteredPwd;
   currentUser = selectedUserForLogin;
 
-  // 2. 儲存到 LocalStorage (實現永久登入)
+  // 儲存到 LocalStorage
   localStorage.setItem('expense_user', currentUser);
-  localStorage.setItem('expense_secret_key', userEnteredSecret); // 存起來！
+  localStorage.setItem('expense_secret_key', userEnteredSecret);
   localStorage.setItem('expense_auth', 'true');
 
-  // 3. UI 轉場特效
+  // UI 轉場
   const btn = document.getElementById('btn-login-confirm');
   btn.textContent = '驗證成功...';
-  btn.style.background = '#10B981'; // 變綠色
+  btn.style.background = '#10B981';
 
   setTimeout(() => {
-    // 4. 隱藏歡迎頁
     const wrapper = document.getElementById('welcome-card');
     wrapper.classList.add('welcome-fade-out');
     
     updateSubtitleWithUser();
     renderExpense();
+    renderExpenseCategories();
     
-    // 5. 立即觸發一次同步 (檢查密碼對不對)
-    loadExpensesFromSheet().then(data => {
-      // 這裡其實可以加一個判斷，如果 Google Sheets 回傳錯誤（密碼錯），
-      // 可以在這裡強制登出 (logout)，不過目前先做到這樣即可。
-    });
+    loadExpensesFromSheet();
 
     setTimeout(() => {
       wrapper.style.display = 'none';
     }, 500);
   }, 800);
 }
+
 
 
 
