@@ -1072,54 +1072,76 @@ function showWelcomeCard() {
   console.log('✅ 按鈕產生完成');
 }
 
-// 3. 按下「確認登入」按鈕
-function handleLogin() {
-  console.log('🔐 handleLogin 執行...');
+// 🆕 驗證密碼是否正確
+async function validateSecretKey(secretKey) {
+  try {
+    const response = await fetch(
+      `${GOOGLE_APPS_SCRIPT_URL}?secretKey=${encodeURIComponent(secretKey)}`
+    );
+    
+    const result = await response.json();
+    
+    // 如果 Google Apps Script 返回 error，表示密鑰錯誤
+    return result.status === 'success';
+    
+  } catch (err) {
+    return false;
+  }
+}
+
+		
+async function handleLogin() {
+  console.log('🔑 開始登入流程...');
   
   const pwdInput = document.getElementById('entry-password');
   const enteredPwd = pwdInput.value;
-
-  if (!selectedUserForLogin) {
-    alert('❌ 請先點選您的名字！');
-    return;
-  }
-
-  if (!enteredPwd || enteredPwd.trim() === '') {
-    alert('❌ 請輸入通關密碼！');
-    return;
-  }
-
-  console.log('✅ 驗證成功，登入使用者:', selectedUserForLogin);
+  const selectedUser = selectedUserForLogin;  // 已選中的使用者
   
-  // 儲存變數
+  if (!selectedUser) {
+    alert('❌ 請先選擇使用者');
+    return;
+  }
+  
+  if (!enteredPwd || enteredPwd.trim() === '') {
+    alert('❌ 密鑰不能為空');
+    return;
+  }
+  
+  // 🆕 驗證密鑰 ！！！
+  const btn = document.getElementById('btn-login-confirm');
+  btn.textContent = '驗證中...';
+  btn.disabled = true;
+  
+  const isValid = await validateSecretKey(enteredPwd);
+  
+  if (!isValid) {
+    alert('❌ 密鑰錯誤，請重試');
+    btn.textContent = '確認登入';
+    btn.disabled = false;
+    return;
+  }
+  
+  // ✅ 密鑰正確，才允許登入
+  currentUser = selectedUser;
   userEnteredSecret = enteredPwd;
-  currentUser = selectedUserForLogin;
-
-  // 儲存到 LocalStorage
+  
   localStorage.setItem('expense_user', currentUser);
   localStorage.setItem('expense_secret_key', userEnteredSecret);
-  localStorage.setItem('expense_auth', 'true');
-
-  // UI 轉場
-  const btn = document.getElementById('btn-login-confirm');
-  btn.textContent = '驗證成功...';
-  btn.style.background = '#10B981';
-
+  
+  // 進入應用
+  const wrapper = document.getElementById('welcome-card');
+  wrapper.classList.add('welcome-fade-out');
+  
+  updateSubtitleWithUser();
+  renderExpense();
+  renderExpenseCategories();
+  loadExpensesFromSheet();
+  
   setTimeout(() => {
-    const wrapper = document.getElementById('welcome-card');
-    wrapper.classList.add('welcome-fade-out');
-    
-    updateSubtitleWithUser();
-    renderExpense();
-    renderExpenseCategories();
-    
-    loadExpensesFromSheet();
-
-    setTimeout(() => {
-      wrapper.style.display = 'none';
-    }, 500);
-  }, 800);
+    wrapper.style.display = 'none';
+  }, 500);
 }
+
 
 
 
