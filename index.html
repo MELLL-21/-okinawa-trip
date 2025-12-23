@@ -1014,25 +1014,21 @@ let userEnteredSecret = ""; // 初始為空
   const pwdInput = document.getElementById('entry-password');
   const enteredPwd = pwdInput.value;
 
-  // ✅ 不再跟硬編碼的常數比較，而是直接存起來
-  // 原本的寫法：if (enteredPwd !== GOOGLE_SHEETS_SECRET_KEY)
-  // 新寫法：任何非空字串都先收下來，後端會驗證
-  
+  // 1. 檢查密碼是否為空
   if (!enteredPwd || enteredPwd.trim() === '') {
     alert('❌ 請輸入密碼');
     return;
   }
 
-  // 🆕 將使用者輸入的密碼存入全域變數
+  // 2. 將輸入的密碼存入變數（這取代了原本的錯誤檢查）
   userEnteredSecret = enteredPwd;
 
-  // 禁用所有按鈕，防止重複點擊
+  // 3. 開始登入動畫
   document.querySelectorAll('.welcome-user-btn').forEach(btn => {
     btn.disabled = true;
     btn.style.opacity = '0.5';
   });
 
-  // 顯示成功訊息
   const successMsg = document.createElement('div');
   successMsg.className = 'login-success-message';
   successMsg.innerHTML = `
@@ -1042,6 +1038,7 @@ let userEnteredSecret = ""; // 初始為空
   `;
   document.body.appendChild(successMsg);
 
+  // 4. 延遲後進入首頁
   setTimeout(() => {
     currentUser = name;
     updateSubtitleWithUser();
