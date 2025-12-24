@@ -858,25 +858,38 @@ async function syncExpenseToSheet(expense) {
   }
 }
 
+// 請將原本的 loadExpensesFromSheet 替換成這個版本
 async function loadExpensesFromSheet() {
   try {
+    console.log('📖 正在讀取 Google Sheets 資料...');
+    
+    // 1. 直接從 localStorage 拿密碼，最保險
     const savedKey = localStorage.getItem('expense_secret_key');
-    if (!savedKey) return [];
 
-    const response = await fetch(`${GOOGLE_APPS_SCRIPT_URL}?secretKey=${encodeURIComponent(savedKey)}`);
+    // 2. 如果沒密碼，就回傳空陣列
+    if (!savedKey) {
+        console.error("❌ 找不到密碼");
+        return [];
+    }
+
+    // 3. 把密碼拼在網址後面
+    const response = await fetch(
+      `${GOOGLE_APPS_SCRIPT_URL}?secretKey=${encodeURIComponent(savedKey)}`
+    );
+    
     const result = await response.json();
 
     if (result.status === 'success') {
+      console.log('✅ 成功讀取', result.count, '筆記帳');
+      updateSyncStatus('✅ 已連接 Google Sheets');
       return result.data;
     } else {
-      if(result.message === '密碼錯誤') {
-          alert('連線密碼已失效，請重新登入');
-          logout();
-      }
+      console.error('❌ 讀取失敗:', result.message);
+      updateSyncStatus('❌ ' + result.message);
       return [];
     }
   } catch (err) {
-    console.error('載入失敗', err);
+    console.log('⚠️ 無法連接 Google Sheets', err);
     return [];
   }
 }
@@ -1088,49 +1101,36 @@ async function validateSecretKey(secretKey) {
 }
 
 
-async function checkLogin() {
-    const input = document.getElementById('login-password');
-    const pwd = input.value.trim();
-    const errorMsg = document.getElementById('login-error');
-    const loginBtn = document.querySelector('.login-btn');
+async function handleLogin() {
+  console.log('🔑 開始登入流程...');
 
-    if (!pwd) return;
+  const pwdInput = document.getElementById('entry-password');
+  const enteredPwd = pwdInput.value;
+  const selectedUser = selectedUserForLogin;  // 已選中的使用者
 
-    // 變更按鈕狀態，增加使用者體驗
-    loginBtn.textContent = '驗證中...';
-    loginBtn.disabled = true;
-    errorMsg.style.display = 'none';
+  if (!selectedUser) {
+    alert('❌ 請先選擇使用者');
+    return;
+  }
 
-    try {
-        // 直接拿輸入的密碼去測試讀取 Google Sheets
-        const response = await fetch(`${GOOGLE_APPS_SCRIPT_URL}?secretKey=${encodeURIComponent(pwd)}`);
-        const result = await response.json();
+  if (!enteredPwd || enteredPwd.trim() === '') {
+    alert('❌ 密碼不能為空');
+    return;
+  }
 
-        if (result.status === 'success') {
-            // 只有 Google 說成功了，我們才把密碼存進瀏覽器
-            localStorage.setItem('isLoggedIn', 'true');
-            localStorage.setItem('expense_secret_key', pwd); 
-            
-            userEnteredSecret = pwd;
-            document.getElementById('login-screen').classList.remove('active');
-            initApp();
-            console.log('✅ 密碼經驗證正確，已進入系統');
-        } else {
-            // Google 回傳錯誤（通常是密碼不對）
-            errorMsg.style.display = 'block';
-            errorMsg.textContent = '密碼錯誤，請重新輸入';
-            input.value = '';
-            input.focus();
-        }
-    } catch (err) {
-        console.error('驗證失敗:', err);
-        errorMsg.style.display = 'block';
-        errorMsg.textContent = '連線失敗，請檢查網路';
-    } finally {
-        loginBtn.textContent = '進入系統';
-        loginBtn.disabled = false;
-    }
-}
+  // 🆕 驗證密鑰 ！！！
+  const btn = document.getElementById('btn-login-confirm');
+  btn.textContent = '驗證中...';
+  btn.disabled = true;
+
+  const isValid = await validateSecretKey(enteredPwd);
+
+  if (!isValid) {
+    alert('❌ 密碼錯誤，請重試');
+    btn.textContent = '確認登入';
+    btn.disabled = false;
+    return;
+  }
 
   // ✅ 密鑰正確，才允許登入
   currentUser = selectedUser;
@@ -2432,21 +2432,18 @@ function manualSync() {
 		// 新增這個函式來通知後端刪除
 async function deleteFromSheet(id) {
     const savedKey = localStorage.getItem('expense_secret_key');
-    if(!savedKey) return;
-
     try {
         await fetch(GOOGLE_APPS_SCRIPT_URL, {
             method: 'POST',
-            // 注意：GAS 不支援 CORS 複雜請求，我們用 JSON 字串發送
             body: JSON.stringify({
-                action: 'delete',
+                action: 'delete', // 告訴後端這是刪除動作
                 id: id,
                 secretKey: savedKey
             })
         });
-        console.log('✅ 雲端同步刪除完成');
+        console.log('✅ Google Sheet 資料已刪除');
     } catch (e) {
-        console.error('❌ 雲端刪除失敗', e);
+        console.error('❌ 刪除失敗', e);
     }
 }
 
