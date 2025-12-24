@@ -1089,16 +1089,7 @@ return false;
 }
 }
 
-async function validateSecretKey(secretKey) {
-    try {
-      const response = await fetch(...);
-      const result = await response.json();
-      return result.status === 'success';
-    } catch (err) {
-      return false;
-    }
-  }
-	
+
 async function handleLogin() {
 console.log('🔑 開始登入流程...');
 
