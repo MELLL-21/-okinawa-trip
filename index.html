@@ -839,7 +839,7 @@ async function syncExpenseToSheet(expense) {
         payBy: expense.payBy,
         payMethod: expense.payMethod,
         advanceFor: expense.advanceFor || [],
-        secretKey: localStorage.getItem('expense_secret_key')  // ✅ 改用使用者輸入的值
+        secretKey: userEnteredSecret  // ✅ 改用使用者輸入的值
       })
     });
 
@@ -858,25 +858,15 @@ async function syncExpenseToSheet(expense) {
   }
 }
 
-// 請將原本的 loadExpensesFromSheet 替換成這個版本
+// 🆕 從 Google Sheets 讀取資料（使用使用者輸入的密鑰）
 async function loadExpensesFromSheet() {
   try {
     console.log('📖 正在讀取 Google Sheets 資料...');
-    
-    // 1. 直接從 localStorage 拿密碼，最保險
-    const savedKey = localStorage.getItem('expense_secret_key');
 
-    // 2. 如果沒密碼，就回傳空陣列
-    if (!savedKey) {
-        console.error("❌ 找不到密碼");
-        return [];
-    }
-
-    // 3. 把密碼拼在網址後面
     const response = await fetch(
-      `${GOOGLE_APPS_SCRIPT_URL}?secretKey=${encodeURIComponent(savedKey)}`
+      `${GOOGLE_APPS_SCRIPT_URL}?secretKey=${encodeURIComponent(userEnteredSecret)}`  // ✅ 改用使用者輸入的值
     );
-    
+
     const result = await response.json();
 
     if (result.status === 'success') {
@@ -889,7 +879,7 @@ async function loadExpensesFromSheet() {
       return [];
     }
   } catch (err) {
-    console.log('⚠️ 無法連接 Google Sheets', err);
+    console.log('⚠️ 無法連接 Google Sheets');
     return [];
   }
 }
@@ -1114,6 +1104,7 @@ async function handleLogin() {
   }
 
   if (!enteredPwd || enteredPwd.trim() === '') {
+    alert('❌ 密鑰不能為空');
     alert('❌ 密碼不能為空');
     return;
   }
@@ -1126,6 +1117,7 @@ async function handleLogin() {
   const isValid = await validateSecretKey(enteredPwd);
 
   if (!isValid) {
+    alert('❌ 密鑰錯誤，請重試');
     alert('❌ 密碼錯誤，請重試');
     btn.textContent = '確認登入';
     btn.disabled = false;
@@ -1764,24 +1756,16 @@ if (wrapper) {
         }
 
         function deleteEditingItem() {
-    if(!editingId) return;
-    if(!confirm('確定要刪除這筆消費嗎？')) return;
+            if(!editingId) return;
+            if(!confirm('確定要刪除這筆消費嗎？')) return;
 
-    const idx = EXPENSE[curDay].findIndex(e => e.id === editingId);
-    if(idx >= 0) {
-        // 1. 取得要刪除的 ID
-        const targetId = EXPENSE[curDay][idx].id;
-        
-        // 2. 從畫面移除
-        EXPENSE[curDay].splice(idx, 1);
-        
-        // 3. 呼叫剛剛新增的函式，從 Google Sheets 移除
-        deleteFromSheet(targetId); 
-    }
-    cancelEdit();
-    renderExpense();
-    updateExpenseStats(); // 記得更新統計
-}
+            const idx = EXPENSE[curDay].findIndex(e => e.id === editingId);
+            if(idx >= 0) {
+                EXPENSE[curDay].splice(idx, 1);
+            }
+            cancelEdit();
+            renderExpense();
+        }
 
         function renderExpenseCategories() {
             const grid = document.getElementById('exp-category-grid');
@@ -2429,23 +2413,6 @@ function manualSync() {
   });
 }
 
-		// 新增這個函式來通知後端刪除
-async function deleteFromSheet(id) {
-    const savedKey = localStorage.getItem('expense_secret_key');
-    try {
-        await fetch(GOOGLE_APPS_SCRIPT_URL, {
-            method: 'POST',
-            body: JSON.stringify({
-                action: 'delete', // 告訴後端這是刪除動作
-                id: id,
-                secretKey: savedKey
-            })
-        });
-        console.log('✅ Google Sheet 資料已刪除');
-    } catch (e) {
-        console.error('❌ 刪除失敗', e);
-    }
-}
 
 </script>
 </body>
