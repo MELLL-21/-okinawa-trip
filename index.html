@@ -1075,32 +1075,34 @@ function showWelcomeCard() {
 
 // 🆕 驗證密碼是否正確 (改進版：回傳完整資訊)
 async function validateSecretKey(secretKey) {
-  try {
-    // 檢查網址是否已設定
+   try {
     if (!GOOGLE_APPS_SCRIPT_URL || GOOGLE_APPS_SCRIPT_URL.includes("SCRIPT_URL")) {
        return { status: 'error', message: '尚未設定 Google Apps Script 網址' };
     }
 
-    const response = await fetch(
-      `${GOOGLE_APPS_SCRIPT_URL}?secretKey=${encodeURIComponent(secretKey)}`
-    );
+    // 改用 POST，並將資料放在 payload 裡
+    const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+      method: "POST",
+      //這行很重要，告訴 GAS 這是單純的表單資料，避開複雜的 CORS 預檢 (Preflight)
+      headers: { "Content-Type": "application/x-www-form-urlencoded" }, 
+      body: JSON.stringify({
+        action: "validate", // 告訴後端我要做驗證
+        secretKey: secretKey
+      })
+    });
     
-    // 檢查 HTTP 連線狀態 (例如 404 或 500)
     if (!response.ok) {
        return { status: 'error', message: `伺服器連線失敗 (${response.status})` };
     }
 
-    // 嘗試解析 JSON
     const result = await response.json();
-    return result; // 直接回傳 GAS 回傳的完整 JSON 物件 ({status:..., message:...})
+    return result;
 
   } catch (err) {
     console.error("驗證過程錯誤:", err);
-    // 捕捉網路斷線、CORS 錯誤等
-    return { status: 'error', message: '無法連線到伺服器，請檢查網路或權限設定' };
+    return { status: 'error', message: '無法連線到伺服器 (CORS/網路)' };
   }
 }
-
 
 
 async function handleLogin() {
