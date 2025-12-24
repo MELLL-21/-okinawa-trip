@@ -1073,22 +1073,34 @@ function showWelcomeCard() {
   console.log('✅ 按鈕產生完成');
 }
 
-// 🆕 驗證密碼是否正確
+// 🆕 驗證密碼是否正確 (改進版：回傳完整資訊)
 async function validateSecretKey(secretKey) {
   try {
+    // 檢查網址是否已設定
+    if (!GOOGLE_APPS_SCRIPT_URL || GOOGLE_APPS_SCRIPT_URL.includes("SCRIPT_URL")) {
+       return { status: 'error', message: '尚未設定 Google Apps Script 網址' };
+    }
+
     const response = await fetch(
       `${GOOGLE_APPS_SCRIPT_URL}?secretKey=${encodeURIComponent(secretKey)}`
     );
+    
+    // 檢查 HTTP 連線狀態 (例如 404 或 500)
+    if (!response.ok) {
+       return { status: 'error', message: `伺服器連線失敗 (${response.status})` };
+    }
 
+    // 嘗試解析 JSON
     const result = await response.json();
-
-    // 如果 Google Apps Script 返回 error，表示密鑰錯誤
-    return result.status === 'success';
+    return result; // 直接回傳 GAS 回傳的完整 JSON 物件 ({status:..., message:...})
 
   } catch (err) {
-    return false;
+    console.error("驗證過程錯誤:", err);
+    // 捕捉網路斷線、CORS 錯誤等
+    return { status: 'error', message: '無法連線到伺服器，請檢查網路或權限設定' };
   }
 }
+
 
 
 async function handleLogin() {
@@ -1098,6 +1110,7 @@ async function handleLogin() {
   const enteredPwd = pwdInput.value;
   const selectedUser = selectedUserForLogin;  // 已選中的使用者
 
+  // 1. 基本檢查
   if (!selectedUser) {
     alert('❌ 請先選擇使用者');
     return;
@@ -1108,40 +1121,64 @@ async function handleLogin() {
     return;
   }
 
-  // 🆕 驗證密鑰 ！！！
+  // 2. 鎖定按鈕，避免重複點擊
   const btn = document.getElementById('btn-login-confirm');
+  const originalBtnText = btn.textContent; // 記住原本的文字
   btn.textContent = '驗證中...';
   btn.disabled = true;
 
-  const isValid = await validateSecretKey(enteredPwd);
+  // 3. 呼叫新的驗證函式
+  const result = await validateSecretKey(enteredPwd);
 
-  if (!isValid) {
-    alert('❌ 密碼錯誤，請重試');
-    btn.textContent = '確認登入';
+  // 4. 判斷結果
+  if (result.status === 'success') {
+    // ✅ 驗證成功！
+    console.log('✅ 登入驗證通過');
+    
+    currentUser = selectedUser;
+    userEnteredSecret = enteredPwd;
+
+    // 儲存到 LocalStorage
+    localStorage.setItem('expense_user', currentUser);
+    localStorage.setItem('expense_secret_key', userEnteredSecret);
+
+    // 進入應用動畫
+    const wrapper = document.getElementById('welcome-card');
+    wrapper.classList.add('welcome-fade-out');
+
+    updateSubtitleWithUser();
+    renderExpense();
+    renderExpenseCategories();
+    loadExpensesFromSheet();
+
+    setTimeout(() => {
+      wrapper.style.display = 'none';
+      // 成功後才恢復按鈕 (雖然使用者已經看不到了，但為了良好習慣)
+      btn.textContent = originalBtnText;
+      btn.disabled = false;
+    }, 500);
+
+  } else {
+    // ❌ 驗證失敗 (可能是密碼錯，也可能是連線錯)
+    console.error('❌ 登入失敗:', result.message);
+    
+    // 顯示具體錯誤訊息
+    // 如果是密碼錯，result.message 通常是 "密碼錯誤"
+    // 如果是權限錯，result.message 會是我們在 catch 裡寫的 "無法連線..."
+    alert(`❌ 登入失敗：\n${result.message || '未知錯誤'}`);
+    
+    // 恢復按鈕讓使用者重試
+    btn.textContent = originalBtnText;
     btn.disabled = false;
-    return;
+    
+    // 如果是密碼錯，可以貼心地清空輸入框 (選用)
+    if (result.message && result.message.includes('密碼')) {
+        pwdInput.value = '';
+        pwdInput.focus();
+    }
   }
-
-  // ✅ 密鑰正確，才允許登入
-  currentUser = selectedUser;
-  userEnteredSecret = enteredPwd;
-
-  localStorage.setItem('expense_user', currentUser);
-  localStorage.setItem('expense_secret_key', userEnteredSecret);
-
-  // 進入應用
-  const wrapper = document.getElementById('welcome-card');
-  wrapper.classList.add('welcome-fade-out');
-
-  updateSubtitleWithUser();
-  renderExpense();
-  renderExpenseCategories();
-  loadExpensesFromSheet();
-
-  setTimeout(() => {
-    wrapper.style.display = 'none';
-  }, 500);
 }
+
 
 
 
