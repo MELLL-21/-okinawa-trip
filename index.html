@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -839,7 +840,7 @@ async function syncExpenseToSheet(expense) {
         payBy: expense.payBy,
         payMethod: expense.payMethod,
         advanceFor: expense.advanceFor || [],
-        secretKey: userEnteredSecret  // ✅ 改用使用者輸入的值
+        secretKey: localStorage.getItem('expense_secret_key')  // ✅ 改用使用者輸入的值
       })
     });
 
@@ -858,15 +859,25 @@ async function syncExpenseToSheet(expense) {
   }
 }
 
-// 🆕 從 Google Sheets 讀取資料（使用使用者輸入的密鑰）
+// 請將原本的 loadExpensesFromSheet 替換成這個版本
 async function loadExpensesFromSheet() {
   try {
     console.log('📖 正在讀取 Google Sheets 資料...');
+    
+    // 1. 直接從 localStorage 拿密碼，最保險
+    const savedKey = localStorage.getItem('expense_secret_key');
 
+    // 2. 如果沒密碼，就回傳空陣列
+    if (!savedKey) {
+        console.error("❌ 找不到密碼");
+        return [];
+    }
+
+    // 3. 把密碼拼在網址後面
     const response = await fetch(
-      `${GOOGLE_APPS_SCRIPT_URL}?secretKey=${encodeURIComponent(userEnteredSecret)}`  // ✅ 改用使用者輸入的值
+      `${GOOGLE_APPS_SCRIPT_URL}?secretKey=${encodeURIComponent(savedKey)}`
     );
-
+    
     const result = await response.json();
 
     if (result.status === 'success') {
@@ -879,7 +890,7 @@ async function loadExpensesFromSheet() {
       return [];
     }
   } catch (err) {
-    console.log('⚠️ 無法連接 Google Sheets');
+    console.log('⚠️ 無法連接 Google Sheets', err);
     return [];
   }
 }
@@ -1073,34 +1084,20 @@ function showWelcomeCard() {
   console.log('✅ 按鈕產生完成');
 }
 
-// 🆕 驗證密碼是否正確 (改進版：回傳完整資訊)
+// 🆕 驗證密碼是否正確
 async function validateSecretKey(secretKey) {
-   try {
-    if (!GOOGLE_APPS_SCRIPT_URL || GOOGLE_APPS_SCRIPT_URL.includes("SCRIPT_URL")) {
-       return { status: 'error', message: '尚未設定 Google Apps Script 網址' };
-    }
-
-    // 改用 POST，並將資料放在 payload 裡
-    const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
-      method: "POST",
-      //這行很重要，告訴 GAS 這是單純的表單資料，避開複雜的 CORS 預檢 (Preflight)
-      headers: { "Content-Type": "application/x-www-form-urlencoded" }, 
-      body: JSON.stringify({
-        action: "validate", // 告訴後端我要做驗證
-        secretKey: secretKey
-      })
-    });
-    
-    if (!response.ok) {
-       return { status: 'error', message: `伺服器連線失敗 (${response.status})` };
-    }
+  try {
+    const response = await fetch(
+      `${GOOGLE_APPS_SCRIPT_URL}?secretKey=${encodeURIComponent(secretKey)}`
+    );
 
     const result = await response.json();
-    return result;
+
+    // 如果 Google Apps Script 返回 error，表示密鑰錯誤
+    return result.status === 'success';
 
   } catch (err) {
-    console.error("驗證過程錯誤:", err);
-    return { status: 'error', message: '無法連線到伺服器 (CORS/網路)' };
+    return false;
   }
 }
 
@@ -1112,7 +1109,6 @@ async function handleLogin() {
   const enteredPwd = pwdInput.value;
   const selectedUser = selectedUserForLogin;  // 已選中的使用者
 
-  // 1. 基本檢查
   if (!selectedUser) {
     alert('❌ 請先選擇使用者');
     return;
@@ -1123,64 +1119,40 @@ async function handleLogin() {
     return;
   }
 
-  // 2. 鎖定按鈕，避免重複點擊
+  // 🆕 驗證密鑰 ！！！
   const btn = document.getElementById('btn-login-confirm');
-  const originalBtnText = btn.textContent; // 記住原本的文字
   btn.textContent = '驗證中...';
   btn.disabled = true;
 
-  // 3. 呼叫新的驗證函式
-  const result = await validateSecretKey(enteredPwd);
+  const isValid = await validateSecretKey(enteredPwd);
 
-  // 4. 判斷結果
-  if (result.status === 'success') {
-    // ✅ 驗證成功！
-    console.log('✅ 登入驗證通過');
-    
-    currentUser = selectedUser;
-    userEnteredSecret = enteredPwd;
-
-    // 儲存到 LocalStorage
-    localStorage.setItem('expense_user', currentUser);
-    localStorage.setItem('expense_secret_key', userEnteredSecret);
-
-    // 進入應用動畫
-    const wrapper = document.getElementById('welcome-card');
-    wrapper.classList.add('welcome-fade-out');
-
-    updateSubtitleWithUser();
-    renderExpense();
-    renderExpenseCategories();
-    loadExpensesFromSheet();
-
-    setTimeout(() => {
-      wrapper.style.display = 'none';
-      // 成功後才恢復按鈕 (雖然使用者已經看不到了，但為了良好習慣)
-      btn.textContent = originalBtnText;
-      btn.disabled = false;
-    }, 500);
-
-  } else {
-    // ❌ 驗證失敗 (可能是密碼錯，也可能是連線錯)
-    console.error('❌ 登入失敗:', result.message);
-    
-    // 顯示具體錯誤訊息
-    // 如果是密碼錯，result.message 通常是 "密碼錯誤"
-    // 如果是權限錯，result.message 會是我們在 catch 裡寫的 "無法連線..."
-    alert(`❌ 登入失敗：\n${result.message || '未知錯誤'}`);
-    
-    // 恢復按鈕讓使用者重試
-    btn.textContent = originalBtnText;
+  if (!isValid) {
+    alert('❌ 密碼錯誤，請重試');
+    btn.textContent = '確認登入';
     btn.disabled = false;
-    
-    // 如果是密碼錯，可以貼心地清空輸入框 (選用)
-    if (result.message && result.message.includes('密碼')) {
-        pwdInput.value = '';
-        pwdInput.focus();
-    }
+    return;
   }
-}
 
+  // ✅ 密鑰正確，才允許登入
+  currentUser = selectedUser;
+  userEnteredSecret = enteredPwd;
+
+  localStorage.setItem('expense_user', currentUser);
+  localStorage.setItem('expense_secret_key', userEnteredSecret);
+
+  // 進入應用
+  const wrapper = document.getElementById('welcome-card');
+  wrapper.classList.add('welcome-fade-out');
+
+  updateSubtitleWithUser();
+  renderExpense();
+  renderExpenseCategories();
+  loadExpensesFromSheet();
+
+  setTimeout(() => {
+    wrapper.style.display = 'none';
+  }, 500);
+}
 
 
 
@@ -1793,16 +1765,24 @@ if (wrapper) {
         }
 
         function deleteEditingItem() {
-            if(!editingId) return;
-            if(!confirm('確定要刪除這筆消費嗎？')) return;
+    if(!editingId) return;
+    if(!confirm('確定要刪除這筆消費嗎？')) return;
 
-            const idx = EXPENSE[curDay].findIndex(e => e.id === editingId);
-            if(idx >= 0) {
-                EXPENSE[curDay].splice(idx, 1);
-            }
-            cancelEdit();
-            renderExpense();
-        }
+    const idx = EXPENSE[curDay].findIndex(e => e.id === editingId);
+    if(idx >= 0) {
+        // 1. 取得要刪除的 ID
+        const targetId = EXPENSE[curDay][idx].id;
+        
+        // 2. 從畫面移除
+        EXPENSE[curDay].splice(idx, 1);
+        
+        // 3. 呼叫剛剛新增的函式，從 Google Sheets 移除
+        deleteFromSheet(targetId); 
+    }
+    cancelEdit();
+    renderExpense();
+    updateExpenseStats(); // 記得更新統計
+}
 
         function renderExpenseCategories() {
             const grid = document.getElementById('exp-category-grid');
@@ -2450,6 +2430,23 @@ function manualSync() {
   });
 }
 
+		// 新增這個函式來通知後端刪除
+async function deleteFromSheet(id) {
+    const savedKey = localStorage.getItem('expense_secret_key');
+    try {
+        await fetch(GOOGLE_APPS_SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                action: 'delete', // 告訴後端這是刪除動作
+                id: id,
+                secretKey: savedKey
+            })
+        });
+        console.log('✅ Google Sheet 資料已刪除');
+    } catch (e) {
+        console.error('❌ 刪除失敗', e);
+    }
+}
 
 </script>
 </body>
