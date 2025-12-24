@@ -1104,7 +1104,6 @@ async function handleLogin() {
   }
 
   if (!enteredPwd || enteredPwd.trim() === '') {
-    alert('❌ 密鑰不能為空');
     alert('❌ 密碼不能為空');
     return;
   }
@@ -1117,7 +1116,6 @@ async function handleLogin() {
   const isValid = await validateSecretKey(enteredPwd);
 
   if (!isValid) {
-    alert('❌ 密鑰錯誤，請重試');
     alert('❌ 密碼錯誤，請重試');
     btn.textContent = '確認登入';
     btn.disabled = false;
