@@ -1072,22 +1072,38 @@ function showWelcomeCard() {
   console.log('✅ 按鈕產生完成');
 }
 
-// 🆕 驗證密碼是否正確
+
 async function validateSecretKey(secretKey) {
   try {
+    console.log('🔐 正在驗證密鑰:', secretKey.substring(0, 5) + '...');  // 只顯示前5字
+    
     const response = await fetch(
       `${GOOGLE_APPS_SCRIPT_URL}?secretKey=${encodeURIComponent(secretKey)}`
     );
     
+    console.log('📡 HTTP 狀態碼:', response.status);  // 看是否 200
+    
     const result = await response.json();
     
-    // 如果 Google Apps Script 返回 error，表示密鑰錯誤
-    return result.status === 'success';
+    console.log('📥 Apps Script 回傳結果:', result);  // 看完整的 JSON
+    console.log('   - status:', result.status);
+    console.log('   - message:', result.message);
+    
+    // ✅ 改進的判斷邏輯
+    if (result.status === 'success') {
+      console.log('✅ 密鑰驗證成功');
+      return true;
+    } else {
+      console.log('❌ 密鑰驗證失敗:', result.message);
+      return false;
+    }
     
   } catch (err) {
+    console.error('⚠️ 驗證異常:', err);
     return false;
   }
 }
+
 
 		
 async function handleLogin() {
