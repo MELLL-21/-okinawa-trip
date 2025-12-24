@@ -963,35 +963,48 @@ let editingType = null;
 let statMode = 'personal';
 let editingId = null;
 
+// ===== 初始化與登入邏輯 (唯一版本) =====
+
+// 1. 初始化 (自動登入邏輯)
 function init() {
-  console.log('🔍 應用初始化...');
-  
-  const savedUser = localStorage.getItem('expense_user');
-  const savedKey = localStorage.getItem('expense_secret_key');
+console.log('🔍 應用初始化開始...');
+console.log('MEMBERS:', MEMBERS);
 
-  if (savedUser && savedKey) {
-    // ✅ 直接相信 localStorage，不再驗證
-    console.log('✅ 自動登入:', savedUser);
-    
-    currentUser = savedUser;
-    userEnteredSecret = savedKey;
-    
-    updateSubtitleWithUser();
-    
-    // 載入數據
-    setTimeout(async () => {
-      const data = await loadExpensesFromSheet();
-      mergeExpensesFromSheet(data);
-      renderExpense();
-      renderExpenseCategories();
-    }, 500);
-    
-  } else {
-    console.log('🔑 首次進入，請登入');
-    showWelcomeCard();
-  }
-}
+// 嘗試從本地儲存讀取
+const savedUser = localStorage.getItem('expense_user');
+const savedKey = localStorage.getItem('expense_secret_key');
 
+// 如果有使用者紀錄 且 有密碼紀錄
+if (savedUser && savedKey) {
+console.log('✅ 自動登入:', savedUser);
+
+// 1. 恢復全域變數
+currentUser = savedUser;
+userEnteredSecret = savedKey;
+
+// 2. 更新介面
+updateSubtitleWithUser();
+
+// 3. 隱藏歡迎頁
+const wrapper = document.getElementById('welcome-card');
+if (wrapper) wrapper.style.display = 'none';
+
+// 4. 載入資料
+renderDays();
+renderPlan();
+renderWishlist();
+fetchWeather();
+
+// 延遲載入記帳資料
+setTimeout(() => {
+renderExpense();
+renderExpenseCategories();
+loadExpensesFromSheet();
+}, 100);
+
+} else {
+console.log('🔑 首次進入，顯示登入頁');
+showWelcomeCard();
 
 // 背景結構
 renderDays();
@@ -1076,7 +1089,16 @@ return false;
 }
 }
 
-
+async function validateSecretKey(secretKey) {
+    try {
+      const response = await fetch(...);
+      const result = await response.json();
+      return result.status === 'success';
+    } catch (err) {
+      return false;
+    }
+  }
+	
 async function handleLogin() {
 console.log('🔑 開始登入流程...');
 
