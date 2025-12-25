@@ -839,6 +839,7 @@ async function syncExpenseToSheet(expense) {
         payBy: expense.payBy,
         payMethod: expense.payMethod,
         advanceFor: expense.advanceFor || [],
+		splitDetails: expense.splitDetails || null, 
         secretKey: userEnteredSecret  // ✅ 改用使用者輸入的值
       })
     });
