@@ -813,7 +813,7 @@
     </div>
 
     <script>
-	// ===== Google Apps Script 連動（含密鑰驗證）=====
+	// ===== Google Apps Script 連動（含密碼驗證）=====
 
 const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzBhwYQ5YJ49E87CnyxToegFM8v3jjjfPplyv0gyiG-eWqXQLoDjnaFm0mF-qAc-wXB/exec';
 // 👆 替換成你部署後複製的 URL
@@ -822,7 +822,7 @@ let selectedUserForLogin = null; // 暫存目前選中的登入者
 
 let sheetsReady = true;
 
-// 🆕 同步記帳到 Google Sheets（使用使用者輸入的密鑰）
+// 🆕 同步記帳到 Google Sheets（使用使用者輸入的密碼）
 async function syncExpenseToSheet(expense) {
   try {
     console.log('🔄 正在同步記帳到 Google Sheets...');
@@ -858,7 +858,7 @@ async function syncExpenseToSheet(expense) {
   }
 }
 
-// 🆕 從 Google Sheets 讀取資料（使用使用者輸入的密鑰）
+// 🆕 從 Google Sheets 讀取資料（使用使用者輸入的密碼）
 async function loadExpensesFromSheet() {
   try {
     console.log('📖 正在讀取 Google Sheets 資料...');
@@ -1082,7 +1082,7 @@ async function validateSecretKey(secretKey) {
 
     const result = await response.json();
 
-    // 如果 Google Apps Script 返回 error，表示密鑰錯誤
+    // 如果 Google Apps Script 返回 error，表示密碼錯誤
     return result.status === 'success';
 
   } catch (err) {
@@ -1104,46 +1104,72 @@ async function handleLogin() {
   }
 
   if (!enteredPwd || enteredPwd.trim() === '') {
-    alert('❌ 密鑰不能為空');
     alert('❌ 密碼不能為空');
     return;
   }
 
-  // 🆕 驗證密鑰 ！！！
+  // 🆕 驗證密碼
   const btn = document.getElementById('btn-login-confirm');
+  const originalBtnText = btn.textContent; // 暫存按鈕文字
   btn.textContent = '驗證中...';
   btn.disabled = true;
 
   const isValid = await validateSecretKey(enteredPwd);
 
   if (!isValid) {
-    alert('❌ 密鑰錯誤，請重試');
     alert('❌ 密碼錯誤，請重試');
-    btn.textContent = '確認登入';
+    btn.textContent = originalBtnText;
     btn.disabled = false;
     return;
   }
 
-  // ✅ 密鑰正確，才允許登入
+  // ✅ 密碼正確，允許登入
   currentUser = selectedUser;
   userEnteredSecret = enteredPwd;
 
   localStorage.setItem('expense_user', currentUser);
   localStorage.setItem('expense_secret_key', userEnteredSecret);
 
-  // 進入應用
-  const wrapper = document.getElementById('welcome-card');
-  wrapper.classList.add('exit-animation');
+  // --- ✨ 這裡開始是新增的動畫效果 ---
 
-  updateSubtitleWithUser();
-  renderExpense();
-  renderExpenseCategories();
-  loadExpensesFromSheet();
+  // 1. 建立成功訊息小卡片
+  const successMsg = document.createElement('div');
+  successMsg.className = 'login-success-message';
+  successMsg.innerHTML = `
+      <div style="font-size:3rem; margin-bottom:10px;">🎉</div>
+      <div style="font-size:1.2rem; font-weight:900; color:#2C3E50;">登入成功！</div>
+      <div style="font-size:0.9rem; color:#666; margin-top:4px;">歡迎回來，${currentUser}</div>
+  `;
+  document.body.appendChild(successMsg);
 
+  // 2. 隱藏歡迎卡片內原本的內容 (讓背景還在，但按鈕消失，專注看成功訊息)
+  const wrapperInner = document.querySelector('.welcome-card-inner');
+  if(wrapperInner) wrapperInner.classList.add('hide-content');
+
+  // 3. 延遲 1.2 秒後，連同背景一起淡出
   setTimeout(() => {
-    wrapper.style.display = 'none';
-  }, 500);
+    // 讓成功訊息淡出
+    successMsg.style.animation = 'fadeOutMsg 0.4s forwards';
+    
+    // 讓整個歡迎背景淡出 (觸發你的 exit-animation)
+    const wrapper = document.getElementById('welcome-card');
+    wrapper.classList.add('exit-animation');
+
+    // 4. 動畫跑完後，真正移除元素並載入資料
+    setTimeout(() => {
+        wrapper.style.display = 'none';
+        successMsg.remove();
+        
+        // 載入與渲染資料
+        updateSubtitleWithUser();
+        renderExpense();
+        renderExpenseCategories();
+        loadExpensesFromSheet();
+        
+    }, 500); // 配合 CSS exit-animation 的 0.6s 稍微提早一點切換
+  }, 1200); // 讓成功訊息停留 1.2 秒
 }
+
 
 
 
