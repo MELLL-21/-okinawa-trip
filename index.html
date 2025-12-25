@@ -1423,105 +1423,140 @@ async function handleLogin() {
             updateExpenseStats();
         }
 
-        function updateExpenseStats() {
+        // 請用此函式完整覆蓋原本的 updateExpenseStats
+function updateExpenseStats() {
     if (!currentUser) return;
     const summaryContainer = document.getElementById('summary-content');
     if (!summaryContainer) return;
 
-    // A. 初始化統計變數 [memory:11]
-    let totals = { JPY: 0, TWD: 0 };
-    let receivable = { JPY: 0, TWD: 0 };
-    let payable = { JPY: 0, TWD: 0 };
-    const EX_RATE = 0.215; // 統一在此定義一次匯率 [memory:5]
+    // A. 初始化統計變數
+    let totals = { JPY: 0, TWD: 0 };      // 定義：我的實際消費 (Cost)
+    let receivable = { JPY: 0, TWD: 0 };  // 定義：應收 (幫別人墊)
+    let payable = { JPY: 0, TWD: 0 };     // 定義：應付 (欠別人)
+    const EX_RATE = 0.215; // 匯率 (僅供顯示參考)
 
-    // B. 完整計算邏輯 (不可省略)
+    // B. 計算邏輯 (修正為「實際消費」邏輯，與後端 GAS 一致)
     EXPENSE.forEach(dayList => {
         dayList.forEach(item => {
-            const c = item.currency || 'TWD';
-            if (item.payBy === currentUser) {
-                if (!item.advanceFor || item.advanceFor.length === 0) totals[c] += item.amt;
-                else if (item.splitDetails?.amounts) totals[c] += (item.splitDetails.amounts[currentUser] || 0);
-                else totals[c] += Math.floor(item.amt / (item.advanceFor.length));
+            const c = item.currency || 'TWD'; // 預設 TWD
+            
+            // 1. 計算「我的實際消費」 (Cost)
+            // 只要我在分帳名單內，不管誰付錢，這筆都算我的消費
+            if (item.advanceFor && item.advanceFor.includes(currentUser)) {
+                let myShare = 0;
+                if (item.splitDetails && item.splitDetails.amounts) {
+                    // 自訂分帳：取我自己的部分
+                    myShare = item.splitDetails.amounts[currentUser] || 0;
+                } else {
+                    // 平均分帳：總金額 / 人數
+                    myShare = Math.floor(item.amt / item.advanceFor.length);
+                }
+                totals[c] += myShare;
             }
-            if (item.payBy === currentUser && item.advanceFor?.length > 0) {
-                if (item.splitDetails?.amounts) {
+
+            // 2. 計算「應收」 (Receivable)
+            // 條件：是我付錢，且幫別人墊了 (名單裡有別人)
+            if (item.payBy === currentUser && item.advanceFor && item.advanceFor.length > 0) {
+                if (item.splitDetails && item.splitDetails.amounts) {
+                    // 自訂分帳模式：加總所有「非本人」的金額
                     Object.entries(item.splitDetails.amounts).forEach(([name, amt]) => {
-                        if (name !== currentUser && amt > 0 && (!item.settled || !item.settled[name])) receivable[c] += amt;
+                        if (name !== currentUser && amt > 0) {
+                            receivable[c] += amt;
+                        }
                     });
                 } else {
+                    // 平均分帳模式：(平均金額 * 別人人數)
                     const perPerson = Math.floor(item.amt / item.advanceFor.length);
-                    item.advanceFor.forEach(name => {
-                        if (name !== currentUser && (!item.settled || !item.settled[name])) receivable[c] += perPerson;
-                    });
+                    const othersCount = item.advanceFor.filter(name => name !== currentUser).length;
+                    receivable[c] += (perPerson * othersCount);
                 }
             }
-            if (item.payBy !== currentUser && item.advanceFor?.includes(currentUser)) {
-                let myAmt = item.splitDetails?.amounts ? (item.splitDetails.amounts[currentUser] || 0) : Math.floor(item.amt / item.advanceFor.length);
-                if (myAmt > 0 && (!item.settled || !item.settled[currentUser])) payable[c] += myAmt;
+
+            // 3. 計算「應付」 (Payable)
+            // 條件：不是我付錢，但我有在名單裡 (別人幫我墊)
+            if (item.payBy !== currentUser && item.advanceFor && item.advanceFor.includes(currentUser)) {
+                let myOwe = 0;
+                if (item.splitDetails && item.splitDetails.amounts) {
+                    myOwe = item.splitDetails.amounts[currentUser] || 0;
+                } else {
+                    myOwe = Math.floor(item.amt / item.advanceFor.length);
+                }
+                payable[c] += myOwe;
             }
         });
     });
 
-    const combinedTwd = Math.round(totals.TWD + (totals.JPY * EX_RATE));
-    const combinedRec = Math.round(receivable.TWD + (receivable.JPY * EX_RATE));
-    const combinedPay = Math.round(payable.TWD + (payable.JPY * EX_RATE));
-
-    const getCardHtml = (title, jpy, twd, combined, color) => `
-    <div class="swipe-card">
-        <div style="font-size:0.8rem; font-weight:700; color:${color}; margin-bottom:8px; text-align:center;">${title}</div>
-        <div style="display: flex; align-items: center; justify-content: space-between;">
-            <!-- 左側：增加 class="swipe-card-left" -->
-            <div class="swipe-card-left">
-                <div style="margin-bottom: 6px;">
-                    <span style="font-size: 0.65rem; opacity: 0.7; display: block; white-space: nowrap;">🇯🇵 JP 日幣</span>
-                    <span style="font-size: 1.1rem; font-weight: 700;">¥ ${jpy.toLocaleString()}</span>
-                </div>
+    // C. 定義卡片 HTML 生成器 (置中版，移除右側 Total)
+    const getCardHtml = (title, jpy, twd, color) => {
+        // 計算日幣約當台幣 (僅顯示用)
+        const jpyToTwd = Math.round(jpy * EX_RATE);
+        
+        return `
+        <div class="swipe-card" style="text-align: center;">
+            <!-- 卡片標題 -->
+            <div style="font-size:0.9rem; font-weight:700; color:${color}; margin-bottom:12px; opacity:0.9;">${title}</div>
+            
+            <!-- 金額顯示區 (垂直置中排列) -->
+            <div style="display: flex; flex-direction: column; gap: 12px; align-items: center;">
+                
+                <!-- 日幣區塊 -->
                 <div>
-                    <span style="font-size: 0.65rem; opacity: 0.7; display: block; white-space: nowrap;">🇹🇼 TW 台幣</span>
-                    <span style="font-size: 1.1rem; font-weight: 700;">NT$ ${twd.toLocaleString()}</span>
+                    <div style="display: flex; align-items: baseline; justify-content: center; gap: 6px;">
+                        <span style="font-size: 0.7rem; opacity: 0.6; font-weight: 600;">🇯🇵 JP</span>
+                        <span style="font-size: 1.6rem; font-weight: 800;">¥ ${jpy.toLocaleString()}</span>
+                    </div>
+                    <!-- 灰色小字提示約當台幣 -->
+                    <div style="font-size: 0.75rem; color: #aaa; font-weight: 500; margin-top: 2px;">
+                        (約 NT$ ${jpyToTwd.toLocaleString()})
+                    </div>
                 </div>
-            </div>
-            <!-- 右側 -->
-            <div style="flex: 1; text-align: right; padding-right: 5px;">
-                <div style="font-size: 0.6rem; opacity: 0.8; margin-bottom: 2px;">總計約 (Total)</div>
-                <div style="font-size: 1.6rem; font-weight: 900; color: #FFD700;">
-                    <span style="font-size: 0.9rem;">NT$</span> ${combined.toLocaleString()}
+                
+                <!-- 分隔線 -->
+                <div style="width: 40px; height: 1px; background: rgba(255,255,255,0.1);"></div>
+                
+                <!-- 台幣區塊 -->
+                <div>
+                    <div style="display: flex; align-items: baseline; justify-content: center; gap: 6px;">
+                        <span style="font-size: 0.7rem; opacity: 0.6; font-weight: 600;">🇹🇼 TW</span>
+                        <span style="font-size: 1.6rem; font-weight: 800; color: #FFD700;">NT$ ${twd.toLocaleString()}</span>
+                    </div>
                 </div>
+
             </div>
         </div>
-    </div>
-`;
-
+        `;
+    };
 
     // D. 渲染畫面
     summaryContainer.style.overflow = "hidden";
-    // 在 updateExpenseStats 函式末尾的渲染部分
-summaryContainer.innerHTML = `
-    <!-- 滑動內容 -->
-    <div class="stat-swipe-wrapper" id="stat-swipe-wrapper">
-        ${getCardHtml('個人花費總額', totals.JPY, totals.TWD, combinedTwd, '#fff')}
-        ${getCardHtml('待收付款項 (應收)', receivable.JPY, receivable.TWD, combinedRec, '#10b981')}
-        ${getCardHtml('待收付款項 (應付)', payable.JPY, payable.TWD, combinedPay, '#E76F51')}
-    </div>
-    
-    <!-- 滑動指示點：確保在這裡 [image:1] -->
-    <div class="swipe-dots">
-        <span class="dot active"></span>
-        <span class="dot"></span>
-        <span class="dot"></span>
-    </div>
-`;
+    summaryContainer.innerHTML = `
+        <!-- 滑動內容 -->
+        <div class="stat-swipe-wrapper" id="stat-swipe-wrapper">
+            ${getCardHtml('個人花費總額', totals.JPY, totals.TWD, '#fff')}
+            ${getCardHtml('待收付款項 (應收)', receivable.JPY, receivable.TWD, '#10b981')}
+            ${getCardHtml('待收付款項 (應付)', payable.JPY, payable.TWD, '#E76F51')}
+        </div>
+        
+        <!-- 滑動指示點 -->
+        <div class="swipe-dots">
+            <span class="dot active"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+        </div>
+    `;
 
-// 重新綁定滑動監聽 (確保指示點會動)
-const wrapper = document.getElementById('stat-swipe-wrapper');
-if (wrapper) {
-    wrapper.onscroll = function() {
-        const idx = Math.round(this.scrollLeft / this.offsetWidth);
-        const dots = document.querySelectorAll('.dot');
-        dots.forEach((d, i) => d.classList.toggle('active', i === idx));
-    };
+    // E. 重新綁定滑動監聽 (確保指示點會動)
+    const wrapper = document.getElementById('stat-swipe-wrapper');
+    if (wrapper) {
+        wrapper.onscroll = function() {
+            // 計算目前滑到第幾張卡片
+            const idx = Math.round(this.scrollLeft / this.offsetWidth);
+            const dots = document.querySelectorAll('.dot');
+            dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+        };
+    }
 }
-}
+
 
 
 
