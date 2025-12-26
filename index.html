@@ -1694,6 +1694,9 @@ function updateExpenseStats() {
     const payMethod = document.getElementById('quick-pay').value;
     const amt = parseInt(document.getElementById('quick-amt').value || 0);
     const currency = currentCurrency; // 假設這是全域變數 (JPY 或 TWD)
+        // ✅ 改良版 addQuickExpense (含錯誤捕捉)
+function addQuickExpense() {
+    console.log('🚀 開始執行新增記帳...'); // 1. 確認函式有被呼叫
 
     // 抓取分帳模式
     const modeSelect = document.getElementById('quick-split-mode');
@@ -1712,6 +1715,12 @@ function updateExpenseStats() {
         alert('金額必須大於 0');
         return;
     }
+    try {
+        // --- 1. 基礎驗證 ---
+        if (!currentUser) {
+            alert('請先選擇使用者 (登入)');
+            return;
+        }
 
     // 4. 處理分帳邏輯 (核心修改)
     let finalAdvanceFor = [];
@@ -1729,28 +1738,41 @@ function updateExpenseStats() {
         const selected = document.querySelectorAll('#quick-split-persons .split-person-btn.selected');
         // 收集被選中的人名
         selected.forEach(btn => finalAdvanceFor.push(btn.dataset.name));
+        // --- 2. 抓取 DOM ---
+        const dateSelect = document.getElementById('quick-date');
+        const titleInput = document.getElementById('quick-title');
+        const amtInput = document.getElementById('quick-amt');
+        const catInput = document.getElementById('quick-cat');
+        const payInput = document.getElementById('quick-pay');
+        const modeSelect = document.getElementById('quick-split-mode');
 
         // 防呆：如果沒選人，至少要算自己
         if (finalAdvanceFor.length === 0) {
              finalAdvanceFor = [currentUser];
+        // 檢查 DOM 是否存在 (防呆)
+        if (!dateSelect || !titleInput || !amtInput) {
+            console.error('❌ 找不到必要的輸入框，請檢查 HTML ID');
+            return;
         }
         splitDetails = { mode: 'equal' };
 
-    } else if (currentSplitMode === 'custom') {
        } else if (currentSplitMode === 'custom') {
         // 自訂分帳
         let customAmounts = {};
         let totalCustom = 0;
+        const curDay = parseInt(dateSelect.value);
+        // 檢查 DAYS 資料 (關鍵防呆)
+        if (typeof DAYS === 'undefined' || !DAYS[curDay]) {
+            console.error('❌ DAYS 資料未定義或索引錯誤:', curDay);
+            return;
+        }
 
-        // 抓取所有自訂金額輸入框 (請確認 HTML 中的 class 是 quick-custom-amt)
         const inputs = document.querySelectorAll('.quick-custom-amt');
         inputs.forEach(input => {
             const val = parseInt(input.value || 0);
             if (val > 0) {
-                const name = input.dataset.name; // 需確認 input 有 data-name 屬性
                 const name = input.dataset.name; 
                 customAmounts[name] = val;
-                finalAdvanceFor.push(name); // 有出錢的人加入名單
                 // 如果這個人不是使用者，或者即使是使用者但有手動填，都先算進去
                 totalCustom += val;
                 
@@ -1760,12 +1782,53 @@ function updateExpenseStats() {
                 }
             }
         });
+        const dateLabel = DAYS[curDay].label;
+        const title = titleInput.value.trim();
+        const amt = parseInt(amtInput.value || 0);
+        const cat = catInput.value;
+        const payMethod = payInput.value;
+        const currentSplitMode = modeSelect ? modeSelect.value : 'none';
+        const currency = (typeof currentCurrency !== 'undefined') ? currentCurrency : 'JPY'; // 防呆預設
+        const payBy = currentUser;
 
-        // 檢查總額是否吻合 (允許 1 元誤差)
-        if (Math.abs(totalCustom - amt) > 1) {
-            alert(`分帳總額 (${totalCustom}) 與 總金額 (${amt}) 不符，請檢查。`);
+        // --- 3. 欄位檢查 ---
+        if (!title) {
+            alert('請填寫名稱');
+            return;
+        }
+        if (isNaN(amt) || amt <= 0) {
+            alert('金額必須大於 0');
+            return;
+        }
+
         // 💡 智慧邏輯：計算餘額
         const remaining = amt - totalCustom;
+        // --- 4. 分帳邏輯 (含自動補足餘額) ---
+        let finalAdvanceFor = [];
+        let splitDetails = null;
+
+        if (currentSplitMode === 'none') {
+            finalAdvanceFor = [currentUser];
+            splitDetails = { mode: 'none' };
+        } else if (currentSplitMode === 'equal') {
+            const selected = document.querySelectorAll('#quick-split-persons .split-person-btn.selected');
+            selected.forEach(btn => finalAdvanceFor.push(btn.dataset.name));
+            if (finalAdvanceFor.length === 0) finalAdvanceFor = [currentUser];
+            splitDetails = { mode: 'equal' };
+        } else if (currentSplitMode === 'custom') {
+            let customAmounts = {};
+            let totalCustom = 0;
+            
+            const inputs = document.querySelectorAll('.quick-custom-amt');
+            inputs.forEach(input => {
+                const val = parseInt(input.value || 0);
+                if (val > 0) {
+                    const name = input.dataset.name; 
+                    customAmounts[name] = val;
+                    totalCustom += val;
+                    if (!finalAdvanceFor.includes(name)) finalAdvanceFor.push(name);
+                }
+            });
 
         if (remaining < 0) {
             // 防呆：如果輸入總和超過總金額，還是要擋一下
@@ -1780,13 +1843,38 @@ function updateExpenseStats() {
                 customAmounts[currentUser] = remaining;
                 if (!finalAdvanceFor.includes(currentUser)) {
                     finalAdvanceFor.push(currentUser);
+            const remaining = amt - totalCustom;
+            if (remaining < 0) {
+                alert(`分帳金額總和 (${totalCustom}) 超過 總支出 (${amt})`);
+                return;
+            } else if (remaining > 0) {
+                if (customAmounts[currentUser]) customAmounts[currentUser] += remaining;
+                else {
+                    customAmounts[currentUser] = remaining;
+                    if (!finalAdvanceFor.includes(currentUser)) finalAdvanceFor.push(currentUser);
                 }
             }
+            splitDetails = { mode: 'custom', amounts: customAmounts };
         }
 
         splitDetails = { 
             mode: 'custom', 
             amounts: customAmounts 
+        // --- 5. 建立與儲存 ---
+        let targetId = (typeof editingId !== 'undefined' && editingId) ? editingId : Date.now().toString();
+        
+        const expenseObj = {
+            id: targetId,
+            date: dateLabel,
+            cat: cat,
+            title: title,
+            amt: amt,
+            currency: currency,
+            payBy: payBy,
+            payMethod: payMethod,
+            advanceFor: finalAdvanceFor,
+            splitDetails: splitDetails,
+            createdAt: new Date().toISOString()
         };
     }
 
@@ -1794,7 +1882,7 @@ function updateExpenseStats() {
     // 5. 建立記帳物件
     // 判斷是「編輯舊的」還是「新增新的」
     let targetId = editingId ? editingId : Date.now().toString();
-
+    
     const expenseObj = {
         id: targetId,
         date: dateLabel, // 存 "01/06" 格式
@@ -1808,15 +1896,37 @@ function updateExpenseStats() {
         splitDetails: splitDetails,   // J 欄 (這裡一定要有！)
         createdAt: new Date().toISOString()
     };
+        if (typeof EXPENSE === 'undefined') window.EXPENSE = {}; // 防呆
+        if (!EXPENSE[curDay]) EXPENSE[curDay] = [];
 
     // 6. 更新本地資料陣列 (EXPENSE)
     if (!EXPENSE[curDay]) EXPENSE[curDay] = [];
+        if (typeof editingId !== 'undefined' && editingId) {
+            const idx = EXPENSE[curDay].findIndex(e => e.id === editingId);
+            if (idx >= 0) EXPENSE[curDay][idx] = expenseObj;
+            if (typeof cancelEdit === 'function') cancelEdit();
+        } else {
+            EXPENSE[curDay].push(expenseObj);
+        }
 
     if (editingId) {
         // 編輯模式：找到舊的並取代
         const idx = EXPENSE[curDay].findIndex(e => e.id === editingId);
         if (idx >= 0) {
             EXPENSE[curDay][idx] = expenseObj;
+        // --- 6. 更新 UI ---
+        if (typeof renderExpenseList === 'function') renderExpenseList();
+        else if (typeof renderExpense === 'function') renderExpense(); // 相容舊名
+        
+        if (typeof updateExpenseStats === 'function') updateExpenseStats();
+        if (typeof renderExpenseCategories === 'function') renderExpenseCategories();
+        if (typeof resetQuickForm === 'function') resetQuickForm();
+
+        // --- 7. 同步 ---
+        if (typeof syncExpenseToSheet === 'function') {
+            syncExpenseToSheet(expenseObj);
+        } else {
+            console.warn('⚠️ syncExpenseToSheet 函式未定義，無法同步');
         }
         // 退出編輯狀態
         cancelEdit(); 
@@ -1824,12 +1934,14 @@ function updateExpenseStats() {
         // 新增模式：直接 push
         EXPENSE[curDay].push(expenseObj);
     }
+        
+        console.log('✅ 新增成功:', expenseObj);
 
     // 7. 更新 UI
     renderExpenseList();       // 或 renderExpense()，視您的函式名稱而定
     updateExpenseStats();      // 更新統計卡片
     renderExpenseCategories(); // 更新分類統計
-
+    
     // 8. 重置表單
     resetQuickForm(); // 建議抽成一個函式來清空輸入框
     // 或者手動清空：
@@ -1840,9 +1952,14 @@ function updateExpenseStats() {
     // 9. 🚀 同步到 Google Sheet
     // 這裡直接傳入 expenseObj 即可，因為欄位名稱都對應好了
     syncExpenseToSheet(expenseObj);
-
+    
     console.log('✅ 記帳完成並同步中:', expenseObj);
+    } catch (err) {
+        console.error('🔥 addQuickExpense 發生錯誤:', err);
+        alert('程式發生錯誤，請查看 Console');
+    }
 }
+
 
 
 
