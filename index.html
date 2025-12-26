@@ -1635,51 +1635,53 @@ renderQuickCustomAmounts();
 updateQuickSplitPreview();
 }
 
+// 更新分帳預覽文字
 function updateQuickSplitPreview() {
-const previewDiv = document.getElementById('quick-split-preview');
-const modeSelect = document.getElementById('quick-split-mode');
-const mode = modeSelect.value;
-const amtInput = document.getElementById('quick-amt');
-const totalAmt = parseInt(amtInput.value) || 0;
+  const previewDiv = document.getElementById('quick-split-preview');
+  const modeSelect = document.getElementById('quick-split-mode');
+  const mode = modeSelect.value;
+  const amtInput = document.getElementById('quick-amt');
+  const totalAmt = parseInt(amtInput.value) || 0;
 
-if (totalAmt === 0) {
-previewDiv.textContent = '';
-return;
+  if (totalAmt === 0) {
+    previewDiv.textContent = '';
+    return;
+  }
+
+  if (mode === 'equal') {
+    const selected = Array.from(
+      document.querySelectorAll('#quick-split-persons .split-person-btn.selected')
+    );
+    
+    // ✅ 修改處：平均人數 = 選中的其他人 + 使用者自己 (1人)
+    const totalPeople = selected.length + 1;
+    
+    // 計算每人金額 (無條件捨去小數點)
+    const perPerson = Math.floor(totalAmt / totalPeople);
+
+    // ✅ 修改處：顯示更清楚的算式文字
+    previewDiv.innerHTML = `共 NT$${totalAmt} ÷ ${totalPeople} 人 <span style="font-size:0.7rem;opacity:0.7">(含本人)</span> = 每人 NT$${perPerson}`;
+    
+  } else if (mode === 'custom') {
+    const inputs = document.querySelectorAll('.quick-custom-amt');
+    let totalCustom = 0;
+    inputs.forEach(input => {
+      totalCustom += parseInt(input.value) || 0;
+    });
+    const myShare = totalAmt - totalCustom;
+    
+    if (myShare < 0) {
+      previewDiv.style.borderLeftColor = '#ef4444';
+      previewDiv.innerHTML = `<span style="color:#ef4444;font-weight:bold">分帳總額 (${totalCustom}) 超過 總支出 (${totalAmt})</span>`;
+    } else {
+      previewDiv.style.borderLeftColor = 'var(--accent)';
+      previewDiv.innerHTML = `其他人合計 NT$${totalCustom}<br>我需負擔 NT$${myShare}`;
+    }
+  } else {
+    previewDiv.textContent = '';
+  }
 }
 
-if (mode === 'equal') {
-const selected = Array.from(
-document.querySelectorAll('#quick-split-persons .split-person-btn.selected')
-);
-if (selected.length === 0) {
-previewDiv.textContent = '';
-return;
-}
-
-// ✅ 不再 +1，直接用選取的人數
-const totalPeople = selected.length;
-const perPerson = Math.floor(totalAmt / totalPeople);
-
-previewDiv.innerHTML = `共 NT$${totalAmt} ÷ ${totalPeople} 人 = 每人 NT$${perPerson}`;
-} else if (mode === 'custom') {
-// 原本 custom 的邏輯保持不變
-const inputs = document.querySelectorAll('.quick-custom-amt');
-let totalCustom = 0;
-inputs.forEach(input => {
-totalCustom += parseInt(input.value) || 0;
-});
-const myShare = totalAmt - totalCustom;
-if (myShare < 0) {
-previewDiv.style.borderLeftColor = '#ef4444';
-previewDiv.textContent = '分帳總額超過原始金額';
-} else {
-previewDiv.style.borderLeftColor = 'var(--accent)';
-previewDiv.innerHTML = `其他人合計 NT$${totalCustom}<br>我需負擔 NT$${myShare}`;
-}
-} else {
-previewDiv.textContent = '';
-}
-}
 
 
 function addQuickExpense() {
