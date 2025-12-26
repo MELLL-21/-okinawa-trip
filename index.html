@@ -1738,8 +1738,13 @@ function addQuickExpense() {
         } else if (currentSplitMode === 'equal') {
             const selected = document.querySelectorAll('#quick-split-persons .split-person-btn.selected');
             selected.forEach(btn => finalAdvanceFor.push(btn.dataset.name));
-            if (finalAdvanceFor.length === 0) finalAdvanceFor = [currentUser];
+			
+            if (!finalAdvanceFor.includes(currentUser)) {
+                finalAdvanceFor.push(currentUser);
+            }
+            
             splitDetails = { mode: 'equal' };
+			
         } else if (currentSplitMode === 'custom') {
             let customAmounts = {};
             let totalCustom = 0;
