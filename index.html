@@ -1635,13 +1635,17 @@ renderQuickCustomAmounts();
 updateQuickSplitPreview();
 }
 
-// 更新分帳預覽文字
+// 更新分帳預覽文字 (含幣別修正)
 function updateQuickSplitPreview() {
   const previewDiv = document.getElementById('quick-split-preview');
   const modeSelect = document.getElementById('quick-split-mode');
   const mode = modeSelect.value;
   const amtInput = document.getElementById('quick-amt');
   const totalAmt = parseInt(amtInput.value) || 0;
+
+  // ✅ 新增：判斷當前幣別
+  const isJPY = document.getElementById('btn-jpy').classList.contains('active');
+  const currencySymbol = isJPY ? '¥' : 'NT$';
 
   if (totalAmt === 0) {
     previewDiv.textContent = '';
@@ -1653,14 +1657,14 @@ function updateQuickSplitPreview() {
       document.querySelectorAll('#quick-split-persons .split-person-btn.selected')
     );
     
-    // ✅ 修改處：平均人數 = 選中的其他人 + 使用者自己 (1人)
+    // 平均人數 = 選中的其他人 + 使用者自己 (1人)
     const totalPeople = selected.length + 1;
     
     // 計算每人金額 (無條件捨去小數點)
     const perPerson = Math.floor(totalAmt / totalPeople);
 
-    // ✅ 修改處：顯示更清楚的算式文字
-    previewDiv.innerHTML = `共 NT$${totalAmt} ÷ ${totalPeople} 人 <span style="font-size:0.7rem;opacity:0.7">(含本人)</span> = 每人 NT$${perPerson}`;
+    // ✅ 修改處：使用 currencySymbol 變數
+    previewDiv.innerHTML = `共 ${currencySymbol}${totalAmt} ÷ ${totalPeople} 人 <span style="font-size:0.7rem;opacity:0.7">(含本人)</span> = 每人 ${currencySymbol}${perPerson}`;
     
   } else if (mode === 'custom') {
     const inputs = document.querySelectorAll('.quick-custom-amt');
@@ -1672,15 +1676,18 @@ function updateQuickSplitPreview() {
     
     if (myShare < 0) {
       previewDiv.style.borderLeftColor = '#ef4444';
+      // ✅ 修改處：使用 currencySymbol 變數 (錯誤訊息不一定需要符號，但加上比較統一)
       previewDiv.innerHTML = `<span style="color:#ef4444;font-weight:bold">分帳總額 (${totalCustom}) 超過 總支出 (${totalAmt})</span>`;
     } else {
       previewDiv.style.borderLeftColor = 'var(--accent)';
-      previewDiv.innerHTML = `其他人合計 NT$${totalCustom}<br>我需負擔 NT$${myShare}`;
+      // ✅ 修改處：使用 currencySymbol 變數
+      previewDiv.innerHTML = `其他人合計 ${currencySymbol}${totalCustom}<br>我需負擔 ${currencySymbol}${myShare}`;
     }
   } else {
     previewDiv.textContent = '';
   }
 }
+
 
 
 
