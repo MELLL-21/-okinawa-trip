@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -542,10 +543,14 @@ box-shadow: 0 4px 10px rgba(44, 62, 80, 0.2);
 
 <!-- 2. 密碼輸入區 -->
 <div style="margin-bottom: 1rem;">
-<input type="password" id="entry-password" placeholder="輸入通關密碼" 
-<input type="password" id="entry-password" placeholder="請輸入密碼" 
-style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 12px; text-align: center; font-size: 1rem; background: #f9f9f9; outline: none; transition: 0.2s;">
+  <input
+    type="password"
+    id="entry-password"
+    placeholder="請輸入密碼"
+    style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 12px; text-align: center; font-size: 1rem; background: #f9f9f9; outline: none; transition: 0.2s;"
+  >
 </div>
+
 
 <!-- 3. 確認按鈕 -->
 <button id="btn-login-confirm" onclick="handleLogin()" 
@@ -1633,19 +1638,9 @@ updateQuickSplitPreview();
 function updateQuickSplitPreview() {
 const previewDiv = document.getElementById('quick-split-preview');
 const modeSelect = document.getElementById('quick-split-mode');
-  const mode = modeSelect.value;
+const mode = modeSelect.value;
 const amtInput = document.getElementById('quick-amt');
-
-  // 🚨【修正關鍵】：如果在登入畫面找不到這些元素，直接結束函式，避免報錯卡死
-  if (!previewDiv || !modeSelect || !amtInput) {
-    return;
-  }
-
-  const mode = modeSelect.value;
 const totalAmt = parseInt(amtInput.value) || 0;
-
-// 取得當前幣別符號 (若 currentCurrency 未定義，預設 NT$)
-const currencySymbol = (typeof currentCurrency !== 'undefined' && currentCurrency === 'JPY') ? '¥' : 'NT$';
 
 if (totalAmt === 0) {
 previewDiv.textContent = '';
@@ -1656,34 +1651,18 @@ if (mode === 'equal') {
 const selected = Array.from(
 document.querySelectorAll('#quick-split-persons .split-person-btn.selected')
 );
-
-// 取得選取名單
-let selectedNames = selected.map(btn => btn.dataset.name);
-
-    // 🚨 修正邏輯：如果使用者(我)不在名單內，要自動加進去計算
-    // 假設 currentUser 變數存著目前登入的使用者名稱
-    // 邏輯：如果使用者(我)不在名單內，要自動加進去計算
-if (typeof currentUser !== 'undefined' && !selectedNames.includes(currentUser)) {
-selectedNames.push(currentUser);
-}
-
-    // 現在 totalPeople 就是正確的 (選取的人 + 我)
-const totalPeople = selectedNames.length;
-
-    // 防呆：如果真的沒人(理論上至少有我)，就不顯示
-    // 防呆：如果真的沒人，就不顯示
-if (totalPeople === 0) {
+if (selected.length === 0) {
 previewDiv.textContent = '';
 return;
 }
 
+// ✅ 不再 +1，直接用選取的人數
+const totalPeople = selected.length;
 const perPerson = Math.floor(totalAmt / totalPeople);
 
-// 顯示提示文字
-previewDiv.innerHTML = `共 ${currencySymbol}${totalAmt} ÷ ${totalPeople} 人 = 每人 ${currencySymbol}${perPerson}`;
-
+previewDiv.innerHTML = `共 NT$${totalAmt} ÷ ${totalPeople} 人 = 每人 NT$${perPerson}`;
 } else if (mode === 'custom') {
-    // custom 邏輯維持不變
+// 原本 custom 的邏輯保持不變
 const inputs = document.querySelectorAll('.quick-custom-amt');
 let totalCustom = 0;
 inputs.forEach(input => {
@@ -1695,7 +1674,7 @@ previewDiv.style.borderLeftColor = '#ef4444';
 previewDiv.textContent = '分帳總額超過原始金額';
 } else {
 previewDiv.style.borderLeftColor = 'var(--accent)';
-previewDiv.innerHTML = `其他人合計 ${currencySymbol}${totalCustom}<br>我需負擔 ${currencySymbol}${myShare}`;
+previewDiv.innerHTML = `其他人合計 NT$${totalCustom}<br>我需負擔 NT$${myShare}`;
 }
 } else {
 previewDiv.textContent = '';
@@ -1703,156 +1682,151 @@ previewDiv.textContent = '';
 }
 
 
-
-// ✅ 改良版 addQuickExpense (含錯誤捕捉)
 function addQuickExpense() {
-console.log('🚀 開始執行新增記帳...'); // 1. 確認函式有被呼叫
+  // 1) 基礎驗證
+  if (!currentUser) {
+    alert('請先選擇使用者 (登入)');
+    return;
+  }
 
-try {
-// --- 1. 基礎驗證 ---
-if (!currentUser) {
-alert('請先選擇使用者 (登入)');
-return;
+  // 2) 抓取表單資料
+  const dateSelect = document.getElementById('quick-date');
+  const dayIndex = parseInt(dateSelect.value, 10); // 0~4
+  const dateLabel = DAYS[dayIndex].label;          // 例如 "01/06"
+
+  const cat = document.getElementById('quick-cat').value;
+  const title = document.getElementById('quick-title').value.trim();
+  const payMethod = document.getElementById('quick-pay').value;
+  const amt = parseInt(document.getElementById('quick-amt').value || 0, 10);
+  const currency = currentCurrency; // 'JPY' or 'TWD'
+
+  const modeSelect = document.getElementById('quick-split-mode');
+  const currentSplitMode = modeSelect ? modeSelect.value : 'none';
+
+  // 你的流程預設「付款人就是自己」
+  const payBy = currentUser;
+
+  // 3) 欄位檢查
+  if (!title) {
+    alert('請填寫名稱');
+    return;
+  }
+  if (isNaN(amt) || amt <= 0) {
+    alert('金額必須大於 0');
+    return;
+  }
+
+  // 4) 分帳邏輯
+  let finalAdvanceFor = [];
+  let splitDetails = null;
+
+  if (currentSplitMode === 'none') {
+    // 不分帳：代表只有自己參與
+    finalAdvanceFor = [currentUser];
+    splitDetails = { mode: 'none' };
+
+  } else if (currentSplitMode === 'equal') {
+    // 平均分帳：使用者選到的人 = 參與分帳的人
+    const selected = document.querySelectorAll('#quick-split-persons .split-person-btn.selected');
+    selected.forEach(btn => finalAdvanceFor.push(btn.dataset.name));
+
+    // 防呆：若沒選任何人，至少包含自己
+    if (finalAdvanceFor.length === 0) finalAdvanceFor = [currentUser];
+
+    // ✅ 建議：平均分帳通常也要包含自己，否則會變成「只算別人」。
+    // 如果你確定「只分別人」才把下一行註解掉。
+    if (!finalAdvanceFor.includes(currentUser)) finalAdvanceFor.unshift(currentUser);
+
+    splitDetails = { mode: 'equal' };
+
+  } else if (currentSplitMode === 'custom') {
+    // 自訂分帳：每個人輸入金額，剩餘自動補到自己
+    let customAmounts = {};
+    let totalCustom = 0;
+
+    const inputs = document.querySelectorAll('.quick-custom-amt');
+    inputs.forEach(input => {
+      const val = parseInt(input.value || 0, 10);
+      if (val > 0) {
+        const name = input.dataset.name;
+        customAmounts[name] = val;
+        totalCustom += val;
+        if (!finalAdvanceFor.includes(name)) finalAdvanceFor.push(name);
+      }
+    });
+
+    const remaining = amt - totalCustom;
+    if (remaining < 0) {
+      alert(`分帳金額總和 (${totalCustom}) 超過 總支出 (${amt})，請檢查。`);
+      return;
+    }
+
+    if (remaining > 0) {
+      customAmounts[currentUser] = (customAmounts[currentUser] || 0) + remaining;
+      if (!finalAdvanceFor.includes(currentUser)) finalAdvanceFor.push(currentUser);
+    }
+
+    // 若全部都沒填，也至少要包含自己（不然統計會出現怪狀況）
+    if (finalAdvanceFor.length === 0) finalAdvanceFor = [currentUser];
+
+    splitDetails = { mode: 'custom', amounts: customAmounts };
+
+  } else {
+    // 不明模式，回退處理
+    finalAdvanceFor = [currentUser];
+    splitDetails = { mode: 'none' };
+  }
+
+  // 5) 建立記帳物件
+  const targetId = editingId ? editingId : Date.now().toString();
+
+  const expenseObj = {
+    id: targetId,
+    date: dateLabel,
+    cat,
+    title,
+    amt,
+    currency,
+    payBy,
+    payMethod,
+    advanceFor: finalAdvanceFor,
+    splitDetails,
+    createdAt: new Date().toISOString()
+  };
+
+  // 6) 寫入 EXPENSE
+  if (!EXPENSE[dayIndex]) EXPENSE[dayIndex] = [];
+
+  if (editingId) {
+    const idx = EXPENSE[dayIndex].findIndex(e => e.id === editingId);
+    if (idx >= 0) EXPENSE[dayIndex][idx] = expenseObj;
+    cancelEdit();
+  } else {
+    EXPENSE[dayIndex].push(expenseObj);
+  }
+
+  // ✅ 同步目前日期選擇與全域 curDay（確保畫面一致）
+  curDay = dayIndex;
+  renderDays();
+
+  // 7) 更新 UI（用你現有的函式）
+  renderExpense();
+  updateExpenseStats();
+  renderExpenseCategories();
+
+  // 8) 清空表單
+  document.getElementById('quick-title').value = '';
+  document.getElementById('quick-amt').value = '';
+  document.getElementById('quick-hint').textContent = '';
+
+  // 同步提示換算
+  updateConversion();
+
+  // 9) 同步到 Google Sheets
+  syncExpenseToSheet(expenseObj);
+
+  console.log('✅ 記帳完成並同步中:', expenseObj);
 }
-
-// --- 2. 抓取 DOM ---
-const dateSelect = document.getElementById('quick-date');
-const titleInput = document.getElementById('quick-title');
-const amtInput = document.getElementById('quick-amt');
-const catInput = document.getElementById('quick-cat');
-const payInput = document.getElementById('quick-pay');
-const modeSelect = document.getElementById('quick-split-mode');
-
-// 檢查 DOM 是否存在 (防呆)
-if (!dateSelect || !titleInput || !amtInput) {
-console.error('❌ 找不到必要的輸入框，請檢查 HTML ID');
-return;
-}
-
-const curDay = parseInt(dateSelect.value);
-// 檢查 DAYS 資料 (關鍵防呆)
-if (typeof DAYS === 'undefined' || !DAYS[curDay]) {
-console.error('❌ DAYS 資料未定義或索引錯誤:', curDay);
-return;
-}
-
-const dateLabel = DAYS[curDay].label;
-const title = titleInput.value.trim();
-const amt = parseInt(amtInput.value || 0);
-const cat = catInput.value;
-const payMethod = payInput.value;
-const currentSplitMode = modeSelect ? modeSelect.value : 'none';
-const currency = (typeof currentCurrency !== 'undefined') ? currentCurrency : 'JPY'; // 防呆預設
-const payBy = currentUser;
-
-// --- 3. 欄位檢查 ---
-if (!title) {
-alert('請填寫名稱');
-return;
-}
-if (isNaN(amt) || amt <= 0) {
-alert('金額必須大於 0');
-return;
-}
-
-// --- 4. 分帳邏輯 (含自動補足餘額) ---
-let finalAdvanceFor = [];
-let splitDetails = null;
-
-if (currentSplitMode === 'none') {
-finalAdvanceFor = [currentUser];
-splitDetails = { mode: 'none' };
-} else if (currentSplitMode === 'equal') {
-const selected = document.querySelectorAll('#quick-split-persons .split-person-btn.selected');
-selected.forEach(btn => finalAdvanceFor.push(btn.dataset.name));
-
-if (!finalAdvanceFor.includes(currentUser)) {
-finalAdvanceFor.push(currentUser);
-}
-
-splitDetails = { mode: 'equal' };
-} 
-
-} else if (currentSplitMode === 'custom') {
-let customAmounts = {};
-let totalCustom = 0;
-
-const inputs = document.querySelectorAll('.quick-custom-amt');
-inputs.forEach(input => {
-const val = parseInt(input.value || 0);
-if (val > 0) {
-const name = input.dataset.name; 
-customAmounts[name] = val;
-totalCustom += val;
-if (!finalAdvanceFor.includes(name)) finalAdvanceFor.push(name);
-}
-});
-
-const remaining = amt - totalCustom;
-if (remaining < 0) {
-alert(`分帳金額總和 (${totalCustom}) 超過 總支出 (${amt})`);
-return;
-} else if (remaining > 0) {
-if (customAmounts[currentUser]) customAmounts[currentUser] += remaining;
-else {
-customAmounts[currentUser] = remaining;
-if (!finalAdvanceFor.includes(currentUser)) finalAdvanceFor.push(currentUser);
-}
-}
-splitDetails = { mode: 'custom', amounts: customAmounts };
-}
-
-// --- 5. 建立與儲存 ---
-let targetId = (typeof editingId !== 'undefined' && editingId) ? editingId : Date.now().toString();
-
-const expenseObj = {
-id: targetId,
-date: dateLabel,
-cat: cat,
-title: title,
-amt: amt,
-currency: currency,
-payBy: payBy,
-payMethod: payMethod,
-advanceFor: finalAdvanceFor,
-splitDetails: splitDetails,
-createdAt: new Date().toISOString()
-};
-
-if (typeof EXPENSE === 'undefined') window.EXPENSE = {}; // 防呆
-if (!EXPENSE[curDay]) EXPENSE[curDay] = [];
-
-if (typeof editingId !== 'undefined' && editingId) {
-const idx = EXPENSE[curDay].findIndex(e => e.id === editingId);
-if (idx >= 0) EXPENSE[curDay][idx] = expenseObj;
-if (typeof cancelEdit === 'function') cancelEdit();
-} else {
-EXPENSE[curDay].push(expenseObj);
-}
-
-// --- 6. 更新 UI ---
-if (typeof renderExpenseList === 'function') renderExpenseList();
-else if (typeof renderExpense === 'function') renderExpense(); // 相容舊名
-
-if (typeof updateExpenseStats === 'function') updateExpenseStats();
-if (typeof renderExpenseCategories === 'function') renderExpenseCategories();
-if (typeof resetQuickForm === 'function') resetQuickForm();
-
-// --- 7. 同步 ---
-if (typeof syncExpenseToSheet === 'function') {
-syncExpenseToSheet(expenseObj);
-} else {
-console.warn('⚠️ syncExpenseToSheet 函式未定義，無法同步');
-}
-
-console.log('✅ 新增成功:', expenseObj);
-
-} catch (err) {
-console.error('🔥 addQuickExpense 發生錯誤:', err);
-alert('程式發生錯誤，請查看 Console');
-}
-}
-
 
 
 
@@ -2498,7 +2472,7 @@ document.getElementById('btn-twd').classList.toggle('active');
 // 更新輸入框提示與標籤
 const unit = currentCurrency === 'JPY' ? '¥' : 'NT$';
 document.getElementById('quick-amt').placeholder = unit;
-document.getElementById('unit-label').innerText = unit;
+
 
 updateConversion();
 }
