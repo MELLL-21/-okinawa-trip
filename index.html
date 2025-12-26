@@ -2482,6 +2482,7 @@ document.getElementById('btn-twd').classList.toggle('active');
 const unit = currentCurrency === 'JPY' ? '¥' : 'NT$';
 document.getElementById('quick-amt').placeholder = unit;
 
+updateQuickSplitPreview(); 
 
 updateConversion();
 }
