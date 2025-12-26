@@ -1633,8 +1633,14 @@ function updateExpenseStats() {
         function updateQuickSplitPreview() {
   const previewDiv = document.getElementById('quick-split-preview');
   const modeSelect = document.getElementById('quick-split-mode');
-  const mode = modeSelect.value;
   const amtInput = document.getElementById('quick-amt');
+
+  // 🚨【修正關鍵】：如果在登入畫面找不到這些元素，直接結束函式，避免報錯卡死
+  if (!previewDiv || !modeSelect || !amtInput) {
+    return;
+  }
+
+  const mode = modeSelect.value;
   const totalAmt = parseInt(amtInput.value) || 0;
 
   // 取得當前幣別符號 (若 currentCurrency 未定義，預設 NT$)
@@ -1653,16 +1659,14 @@ function updateExpenseStats() {
     // 取得選取名單
     let selectedNames = selected.map(btn => btn.dataset.name);
     
-    // 🚨 修正邏輯：如果使用者(我)不在名單內，要自動加進去計算
-    // 假設 currentUser 變數存著目前登入的使用者名稱
+    // 邏輯：如果使用者(我)不在名單內，要自動加進去計算
     if (typeof currentUser !== 'undefined' && !selectedNames.includes(currentUser)) {
         selectedNames.push(currentUser);
     }
     
-    // 現在 totalPeople 就是正確的 (選取的人 + 我)
     const totalPeople = selectedNames.length;
     
-    // 防呆：如果真的沒人(理論上至少有我)，就不顯示
+    // 防呆：如果真的沒人，就不顯示
     if (totalPeople === 0) {
       previewDiv.textContent = '';
       return;
@@ -1674,7 +1678,6 @@ function updateExpenseStats() {
     previewDiv.innerHTML = `共 ${currencySymbol}${totalAmt} ÷ ${totalPeople} 人 = 每人 ${currencySymbol}${perPerson}`;
     
   } else if (mode === 'custom') {
-    // custom 邏輯維持不變
     const inputs = document.querySelectorAll('.quick-custom-amt');
     let totalCustom = 0;
     inputs.forEach(input => {
@@ -1692,6 +1695,7 @@ function updateExpenseStats() {
     previewDiv.textContent = '';
   }
 }
+
 
 
         // ✅ 改良版 addQuickExpense (含錯誤捕捉)
