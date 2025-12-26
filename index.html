@@ -1736,27 +1736,45 @@ function updateExpenseStats() {
         }
         splitDetails = { mode: 'equal' };
 
-    } else if (currentSplitMode === 'custom') {
+       } else if (currentSplitMode === 'custom') {
         // 自訂分帳
         let customAmounts = {};
         let totalCustom = 0;
         
-        // 抓取所有自訂金額輸入框 (請確認 HTML 中的 class 是 quick-custom-amt)
         const inputs = document.querySelectorAll('.quick-custom-amt');
         inputs.forEach(input => {
             const val = parseInt(input.value || 0);
             if (val > 0) {
-                const name = input.dataset.name; // 需確認 input 有 data-name 屬性
+                const name = input.dataset.name; 
                 customAmounts[name] = val;
-                finalAdvanceFor.push(name); // 有出錢的人加入名單
+                // 如果這個人不是使用者，或者即使是使用者但有手動填，都先算進去
                 totalCustom += val;
+                
+                // 確保有出錢的人都在名單內
+                if (!finalAdvanceFor.includes(name)) {
+                    finalAdvanceFor.push(name);
+                }
             }
         });
 
-        // 檢查總額是否吻合 (允許 1 元誤差)
-        if (Math.abs(totalCustom - amt) > 1) {
-            alert(`分帳總額 (${totalCustom}) 與 總金額 (${amt}) 不符，請檢查。`);
+        // 💡 智慧邏輯：計算餘額
+        const remaining = amt - totalCustom;
+
+        if (remaining < 0) {
+            // 防呆：如果輸入總和超過總金額，還是要擋一下
+            alert(`分帳金額總和 (${totalCustom}) 超過 總支出 (${amt})，請檢查。`);
             return;
+        } else if (remaining > 0) {
+            // 💡 自動補足：剩下的錢算在使用者 (currentUser) 頭上
+            // 如果使用者已經有填數字，就加上去；沒填過就直接設為餘額
+            if (customAmounts[currentUser]) {
+                customAmounts[currentUser] += remaining;
+            } else {
+                customAmounts[currentUser] = remaining;
+                if (!finalAdvanceFor.includes(currentUser)) {
+                    finalAdvanceFor.push(currentUser);
+                }
+            }
         }
 
         splitDetails = { 
@@ -1764,6 +1782,7 @@ function updateExpenseStats() {
             amounts: customAmounts 
         };
     }
+
 
     // 5. 建立記帳物件
     // 判斷是「編輯舊的」還是「新增新的」
