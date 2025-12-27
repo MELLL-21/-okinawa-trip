@@ -901,7 +901,46 @@ style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; paddin
 <div id="debt-modal-footer">總計：<span>NT$0</span></div>
 </div>
 </div>
+	
+<!-- 編輯消費 Modal Gemini編輯用的彈窗 待確認 -->
+<div class="overlay" id="edit-expense-overlay">
+    <div class="modal">
+        <h2 style="margin-bottom:1rem;">編輯消費</h2>
+        
+        <!-- 簡單的編輯表單 -->
+        <div class="form-row">
+            <label>名稱</label>
+            <input type="text" id="edit-title">
+        </div>
+        <div class="form-row">
+            <label>金額</label>
+            <input type="number" id="edit-amt">
+        </div>
+        <div class="form-row">
+            <label>種類</label>
+            <select id="edit-cat">
+                <option value="food">美食</option>
+                <option value="sight">景點</option>
+                <option value="shop">購物</option>
+                <option value="trans">交通</option>
+                <option value="other">其他</option>
+            </select>
+        </div>
+        <div class="form-row">
+            <label>支付方式</label>
+            <select id="edit-pay">
+                <option value="cash">現金</option>
+                <option value="card">信用卡</option>
+            </select>
+        </div>
+        
+        <p style="font-size:0.7rem; color:#999; margin-bottom:1.5rem;">* 如需修改分帳細節，請刪除後重新記帳。</p>
 
+        <button type="button" class="btn-save" onclick="saveEditedExpense()">儲存修改</button>
+        <button type="button" class="btn-del" onclick="softDeleteExpense()">刪除此筆 (可復原)</button>
+    </div>
+</div>
+	
 <script>
 // ===== Google Apps Script 連動（含密碼驗證）=====
 
@@ -2660,44 +2699,5 @@ function setupSwipeObserver(elementId, dotSelector) {
 setupSwipeObserver('cat-swipe-wrapper', '#cat-swipe-dots .dot');
 
 </script>
-	
-<!-- 編輯消費 Modal Gemini編輯用的彈窗 待確認 -->
-<div class="overlay" id="edit-expense-overlay">
-    <div class="modal">
-        <h2 style="margin-bottom:1rem;">編輯消費</h2>
-        
-        <!-- 簡單的編輯表單 -->
-        <div class="form-row">
-            <label>名稱</label>
-            <input type="text" id="edit-title">
-        </div>
-        <div class="form-row">
-            <label>金額</label>
-            <input type="number" id="edit-amt">
-        </div>
-        <div class="form-row">
-            <label>種類</label>
-            <select id="edit-cat">
-                <option value="food">美食</option>
-                <option value="sight">景點</option>
-                <option value="shop">購物</option>
-                <option value="trans">交通</option>
-                <option value="other">其他</option>
-            </select>
-        </div>
-        <div class="form-row">
-            <label>支付方式</label>
-            <select id="edit-pay">
-                <option value="cash">現金</option>
-                <option value="card">信用卡</option>
-            </select>
-        </div>
-        
-        <p style="font-size:0.7rem; color:#999; margin-bottom:1.5rem;">* 如需修改分帳細節，請刪除後重新記帳。</p>
-
-        <button type="button" class="btn-save" onclick="saveEditedExpense()">儲存修改</button>
-        <button type="button" class="btn-del" onclick="softDeleteExpense()">刪除此筆 (可復原)</button>
-    </div>
-</div>
 </body>
 </html> 
