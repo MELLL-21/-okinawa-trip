@@ -2600,103 +2600,57 @@ btn.disabled = false;
 }
 
 // 1. 列表收合  新增「收合列表」、「編輯 Modal」、「軟刪除」Gemini//
+// 1. 列表收合 (加入防錯判斷)
 function toggleExpenseList() {
     const container = document.getElementById('expense-list-container');
     const header = document.querySelector('.list-head');
     
+    if (!container) return; 
+    
     if (container.style.maxHeight) {
-        container.style.maxHeight = null; // 收合
-        header.classList.add('collapsed');
+        container.style.maxHeight = null;
+        if (header) header.classList.add('collapsed');
     } else {
-        container.style.maxHeight = container.scrollHeight + "px"; // 展開
-        header.classList.remove('collapsed');
+        container.style.maxHeight = container.scrollHeight + "px";
+        if (header) header.classList.remove('collapsed');
     }
-}
+} // <--- 檢查這個括號是否存在
 
 // 2. 開啟編輯 Modal
-let editingExpenseId = null; // 暫存正在編輯的 ID
+let editingExpenseId = null;
 
 function openEditModal(id) {
+    if (typeof EXPENSE === 'undefined' || !EXPENSE[curDay]) return;
+    
     const item = EXPENSE[curDay].find(e => e.id === id);
     if (!item) return;
     
     editingExpenseId = id;
     
-    // 填入資料
-    document.getElementById('edit-title').value = item.title;
-    document.getElementById('edit-amt').value = item.amt;
-    document.getElementById('edit-cat').value = item.cat;
-    document.getElementById('edit-pay').value = item.payMethod;
+    const t = document.getElementById('edit-title');
+    const a = document.getElementById('edit-amt');
+    if (t) t.value = item.title;
+    if (a) a.value = item.amt;
     
-    // 顯示 Modal
-    document.getElementById('edit-expense-overlay').classList.add('open');
-}
+    const overlay = document.getElementById('edit-expense-overlay');
+    if (overlay) overlay.classList.add('open');
+} // <--- 檢查這個括號是否存在
 
-// 3. 儲存編輯
-function saveEditedExpense() {
-    if (!editingExpenseId) return;
-    const item = EXPENSE[curDay].find(e => e.id === editingExpenseId);
-    
-    if (item) {
-        item.title = document.getElementById('edit-title').value;
-        item.amt = parseInt(document.getElementById('edit-amt').value);
-        item.cat = document.getElementById('edit-cat').value;
-        item.payMethod = document.getElementById('edit-pay').value;
-        
-        // 關閉 Modal 並重新渲染
-        document.getElementById('edit-expense-overlay').classList.remove('open');
-        renderExpense();
-        renderExpenseCategories(); // 更新統計
-    }
-}
-
-// 4. 軟刪除 (Soft Delete)
-function softDeleteExpense() {
-    if (!editingExpenseId) return;
-    const item = EXPENSE[curDay].find(e => e.id === editingExpenseId);
-    
-    if (item) {
-        item.isDeleted = true; // 標記刪除，不從陣列移除
-        
-        // 關閉 Modal 並重新渲染
-        document.getElementById('edit-expense-overlay').classList.remove('open');
-        renderExpense();
-        renderExpenseCategories(); // 統計會自動過濾掉 isDeleted
-    }
-}
-
-// 5. 復原刪除
-function restoreExpense(id) {
-    const item = EXPENSE[curDay].find(e => e.id === id);
-    if (item) {
-        item.isDeleted = false; // 取消標記
-        renderExpense();
-        renderExpenseCategories(); // 統計加回
-    }
-}
-
-// 6. 綁定滑動監聽 (初始化時呼叫)
-// 請在您的 window.onload 或 init() 函式中加入以下代碼：
-// setupSwipeObserver('cat-swipe-wrapper', '#cat-swipe-dots .dot');
-
+// 6. 綁定滑動監聽
 function setupSwipeObserver(elementId, dotSelector) {
     const el = document.getElementById(elementId);
     if(el) {
         el.addEventListener('scroll', () => {
             const index = Math.round(el.scrollLeft / el.offsetWidth);
             const dots = document.querySelectorAll(dotSelector);
-            dots.forEach((d, i) => d.classList.toggle('active', i === index));
+            if (dots.length > 0) {
+                dots.forEach((d, i) => d.classList.toggle('active', i === index));
+            }
         }, { passive: true });
+    } else {
+        console.warn(`滑動容器 ID: ${elementId} 不存在，跳過監聽。`);
     }
-}
-```
-
-### 最後一步：初始化
-
-請記得在您的 `init()` 或 `window.addEventListener('load', ...)` 的地方，加上這行來啟動新的滑動功能：
-
-```javascript
-setupSwipeObserver('cat-swipe-wrapper', '#cat-swipe-dots .dot');
+} // <--- 檢查這個括號是否存在
 
 </script>
 </body>
