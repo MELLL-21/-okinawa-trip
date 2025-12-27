@@ -34,7 +34,7 @@ h1 { margin: 0; font-family: 'Noto Serif TC', serif; font-size: 2rem; font-weigh
 .tab.active::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: var(--accent); border-radius: 2px; }
 
 /* Main Content */
-main { flex: 1; overflow-y: auto; padding: 1rem 1rem calc(6rem + var(--safe-bottom)) 1rem; -webkit-overflow-scrolling: touch; position: relative; z-index: 1; }
+main { flex: 1; overflow-y: auto; padding: 1rem 1rem calc(6rem + var(--safe-bottom)) 1rem; -webkit-overflow-scrolling: touch; position: relative; z-index: 1;scrollbar-gutter: stable; }
 
 /* Day Scroll */
 .day-scroll { display: flex; gap: 0.8rem; overflow-x: auto; padding: 0.5rem 0 1rem; scroll-snap-type: x mandatory; z-index: 2; position: relative; }
@@ -357,77 +357,52 @@ justify-content: space-between;
 height: 100%; /* 確保高度撐開 */
 }
 
-/* --- 修正滑動容器與亂碼顯示整合版gemini --- */
-
-/* 1. 外層包裹容器：確保在資料載入前有固定高度，防止頁面跳動 */
-.exp-category-card-wrapper {
-    min-height: 180px; /* 這裡關鍵：防止空資料時卡片縮小導致亂碼重疊 */
-    background: rgba(255, 255, 255, 0.1); /* 稍微帶點透明背景 */
-    border-radius: 20px;
-    margin: 15px;
-    padding: 10px 0;
-    position: relative;
-}
-
-/* 2. 滑動區域：整合您的設定並強化強制性 */
 .stat-swipe-wrapper {
-    display: flex !important;
-    overflow-x: auto !important;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    width: 100%;
-    flex: 1;
+flex: 1;
+display: flex;
+overflow-x: auto;
+scroll-snap-type: x mandatory;
+scrollbar-width: none;
+
+/* 新增這行：確保容器寬度明確 */
+width: 100%; 
 }
 
-.stat-swipe-wrapper::-webkit-scrollbar {
-    display: none;
-}
-
-/* 3. 分頁卡片：確保 100% 寬度並防止內容擠壓 */
 .swipe-card {
-    flex: 0 0 100% !important;
-    width: 100% !important;
-    min-width: 100% !important;
-    scroll-snap-align: start;
-    padding: 10px 15px;
-    box-sizing: border-box;
-    /* 確保內容不會溢出導致寬度失效 */
-    overflow: hidden; 
+/* 強制每張卡片寬度為容器的 100%，不允許壓縮或放大 */
+flex: 0 0 100% !important;
+width: 100% !important;
+min-width: 100% !important;
+
+scroll-snap-align: start; /* 滑動時自動對齊起點 */
+padding: 10px 15px;      /* 維持您原本的內距 */
+box-sizing: border-box;  /* 確保 padding 不會撐大寬度 */
 }
 
-/* 4. 指示點容器：位置在卡片底部中央 */
+
+/* 6點鐘方向指示點 [image:1] */
 .swipe-dots {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 0 12px 0;
+display: flex;
+justify-content: center;
+align-items: center;
+gap: 6px;
+padding: 8px 0 12px 0; /* 增加底部間距，使其位於卡片底部中央 */
 }
 
-/* 5. 基礎指示點：維持您的樣式 */
 .dot {
-    width: 5px;
-    height: 5px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
-    transition: all 0.3s ease;
+width: 5px;
+height: 5px;
+background: rgba(255, 255, 255, 0.2);
+border-radius: 50%;
+transition: all 0.3s ease;
 }
 
-/* 6. 啟動狀態點：金黃色與變長效果 */
+/* 啟動狀態的點變長且變亮 */
 .dot.active {
-    background: #FFD700; /* 與總額金黃色統一 */
-    width: 15px;
-    border-radius: 3px;
-    opacity: 1;
-}
-
-/* 7. 內部網格修正：防止內容未載入時的顯示異常 */
-.exp-category-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    min-height: 50px; /* 確保至少有空間顯示載入中 */
+background: #FFD700; /* 與總額金黃色統一 */
+width: 15px;
+border-radius: 3px;
+opacity: 1;
 }
 
 /* 🆕 登入成功動畫 */
@@ -547,68 +522,68 @@ box-shadow: 0 4px 10px rgba(44, 62, 80, 0.2);
 
 /* 1. 滑動卡片容器 (用於消費分類 & 分帳統計) */
 .exp-category-card-wrapper {
-    background: rgba(255,255,255,0.9);
-    border-radius: 1.5rem;
-    padding: 1rem 0; /* 上下留白，左右由內部卡片控制 */
-    margin-bottom: 1rem;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    position: relative;
-    overflow: hidden;
+background: rgba(255,255,255,0.9);
+border-radius: 1.5rem;
+padding: 1rem 0; /* 上下留白，左右由內部卡片控制 */
+margin-bottom: 1rem;
+box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+position: relative;
+overflow: hidden;
 }
 
 /* 2. 支出列表收合動畫容器 */
 #expense-list-container {
-    transition: max-height 0.3s ease-out;
-    overflow: hidden;
+transition: max-height 0.3s ease-out;
+overflow: hidden;
 }
 #expense-list-container.collapsed {
-    max-height: 0;
+max-height: 0;
 }
 .list-head.collapsed h2::after {
-    transform: rotate(-90deg); /* 箭頭旋轉效果 */
+transform: rotate(-90deg); /* 箭頭旋轉效果 */
 }
 .list-head h2::after {
-    content: '▼';
-    font-size: 0.8rem;
-    margin-left: 8px;
-    display: inline-block;
-    transition: transform 0.2s;
-    opacity: 0.5;
+content: '▼';
+font-size: 0.8rem;
+margin-left: 8px;
+display: inline-block;
+transition: transform 0.2s;
+opacity: 0.5;
 }
 
 /* 3. 軟刪除樣式 (淡化 + 刪除線) */
 .expense-row.deleted {
-    opacity: 0.6;
-    background: #f3f4f6;
-    pointer-events: none; /* 刪除後不可點擊展開 */
+opacity: 0.6;
+background: #f3f4f6;
+pointer-events: none; /* 刪除後不可點擊展開 */
 }
 .expense-row.deleted .expense-header {
-    text-decoration: line-through;
-    color: #9ca3af;
+text-decoration: line-through;
+color: #9ca3af;
 }
 .deleted-badge {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%) rotate(-10deg);
-    border: 2px solid #ef4444;
-    color: #ef4444;
-    padding: 4px 12px;
-    font-weight: 900;
-    font-size: 1.2rem;
-    border-radius: 8px;
-    opacity: 0.8;
-    display: none;
-    z-index: 10;
+position: absolute;
+top: 50%; left: 50%;
+transform: translate(-50%, -50%) rotate(-10deg);
+border: 2px solid #ef4444;
+color: #ef4444;
+padding: 4px 12px;
+font-weight: 900;
+font-size: 1.2rem;
+border-radius: 8px;
+opacity: 0.8;
+display: none;
+z-index: 10;
 }
 .expense-row.deleted .deleted-badge {
-    display: block;
+display: block;
 }
 /* 復原按鈕 */
 .btn-restore-inline {
-    width: 100%; margin-top: 10px; padding: 10px;
-    background: #ecfdf5; color: #10b981;
-    border: 1.5px solid #10b981; border-radius: 10px;
-    font-weight: 700; cursor: pointer; pointer-events: auto;
+width: 100%; margin-top: 10px; padding: 10px;
+background: #ecfdf5; color: #10b981;
+border: 1.5px solid #10b981; border-radius: 10px;
+font-weight: 700; cursor: pointer; pointer-events: auto;
 }
 
 
@@ -631,12 +606,12 @@ box-shadow: 0 4px 10px rgba(44, 62, 80, 0.2);
 
 <!-- 2. 密碼輸入區 -->
 <div style="margin-bottom: 1rem;">
-  <input
-    type="password"
-    id="entry-password"
-    placeholder="請輸入密碼"
-    style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 12px; text-align: center; font-size: 1rem; background: #f9f9f9; outline: none; transition: 0.2s;"
-  >
+<input
+type="password"
+id="entry-password"
+placeholder="請輸入密碼"
+style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 12px; text-align: center; font-size: 1rem; background: #f9f9f9; outline: none; transition: 0.2s;"
+>
 </div>
 
 
@@ -661,8 +636,8 @@ style="width: 100%; padding: 12px; background: #E76F51; color: white; border: no
 <!-- 🆕 新增的同步按鈕 (橘色框處) -->
 <button id="btn-header-sync" onclick="manualSync()" 
 style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 8px 12px; 
-                box-shadow: 0 4px 10px rgba(0,0,0,0.05); cursor: pointer; display: flex; align-items: center; gap: 6px; 
-                font-size: 0.8rem; font-weight: 700; color: #4b5563; transition: transform 0.1s;">
+               box-shadow: 0 4px 10px rgba(0,0,0,0.05); cursor: pointer; display: flex; align-items: center; gap: 6px; 
+               font-size: 0.8rem; font-weight: 700; color: #4b5563; transition: transform 0.1s;">
 <span id="sync-icon">🔄</span>
 <span id="sync-text">同步</span>
 </button>
@@ -705,9 +680,8 @@ style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; paddin
 <!-- EXPENSE VIEW -->
 <main id="view-expense" style="display:none">
 <!-- EXPENSE SUMMARY CARD -->
-<div class="exp-summary-card">
-<!-- 請替換 id="summary-content" 內部的內容樣板 -->
-<div id="summary-content" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0;">
+<div class="exp-summary-card" id="exp-summary-container">
+    <div id="summary-content" style="display: flex; flex-direction: column; justify-content: space-between; height: 100%; padding: 10px 0;">
 <!-- 左側：原始幣別分行 -->
 <div style="flex: 1; text-align: left; padding-left: 10px; border-right: 1px solid rgba(255,255,255,0.2);">
 <div style="margin-bottom: 8px;">
@@ -835,38 +809,38 @@ style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; paddin
 
 
 <!-- 將原本的 exp-category-card 替換為此區塊  gemini修改消費分類卡片 -->
-	
+
 <div class="exp-category-card-wrapper">
-    <div class="stat-swipe-wrapper" id="cat-swipe-wrapper" style="display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none;">
-        
-        <!-- 第一頁：消費分類 -->
-        <div class="swipe-card" style="flex: 0 0 100%; min-width: 100%; scroll-snap-align: start; padding: 0 1rem;">
-            <div style="font-size:0.8rem; font-weight:700; color:#666; margin-bottom:0.8rem;">消費分類</div>
-            <div class="exp-category-grid" id="exp-category-grid"></div>
-        </div>
+<div class="stat-swipe-wrapper" id="cat-swipe-wrapper" style="display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none;">
 
-        <!-- 第二頁：分帳對象統計 -->
-        <div class="swipe-card" style="flex: 0 0 100%; min-width: 100%; scroll-snap-align: start; padding: 0 1rem;">
-            <div style="font-size:0.8rem; font-weight:700; color:#666; margin-bottom:0.8rem;">分帳對象統計 (往左滑)</div>
-            <div class="exp-category-grid" id="debtor-grid"></div>
-        </div>
+<!-- 第一頁：消費分類 -->
+<div class="swipe-card" style="flex: 0 0 100%; min-width: 100%; scroll-snap-align: start; padding: 0 1rem;">
+<div style="font-size:0.8rem; font-weight:700; color:#666; margin-bottom:0.8rem;">消費分類</div>
+<div class="exp-category-grid" id="exp-category-grid"></div>
+</div>
 
-    </div>
-    <!-- 指示點 -->
-    <div class="swipe-dots" id="cat-swipe-dots" style="display:flex; justify-content:center; gap:6px; margin-top:8px;">
-        <span class="dot active"></span>
-        <span class="dot"></span>
-    </div>
+<!-- 第二頁：分帳對象統計 -->
+<div class="swipe-card" style="flex: 0 0 100%; min-width: 100%; scroll-snap-align: start; padding: 0 1rem;">
+<div style="font-size:0.8rem; font-weight:700; color:#666; margin-bottom:0.8rem;">分帳對象統計 (往左滑)</div>
+<div class="exp-category-grid" id="debtor-grid"></div>
+</div>
+
+</div>
+<!-- 指示點 -->
+<div class="swipe-dots" id="cat-swipe-dots" style="display:flex; justify-content:center; gap:6px; margin-top:8px;">
+<span class="dot active"></span>
+<span class="dot"></span>
+</div>
 </div>
 
 <!-- Gemini 加入明細收合功能) -->
 <div class="list-head" onclick="toggleExpenseList()">
-    <h2>支出明細</h2>
-    <span class="hint">點擊收合/展開</span>
+<h2>支出明細</h2>
+<span class="hint">點擊收合/展開</span>
 </div>
-	<!-- 包一層 container 用於收合動畫 Gemini 加入明細收合功能 待確認 -->
+<!-- 包一層 container 用於收合動畫 Gemini 加入明細收合功能 待確認 -->
 <div id="expense-list-container">
-    <div id="expense-list"></div>
+<div id="expense-list"></div>
 </div>
 
 <!-- WISHLIST VIEW -->
@@ -926,46 +900,46 @@ style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; paddin
 <div id="debt-modal-footer">總計：<span>NT$0</span></div>
 </div>
 </div>
-	
+
 <!-- 編輯消費 Modal Gemini編輯用的彈窗 待確認 -->
 <div class="overlay" id="edit-expense-overlay">
-    <div class="modal">
-        <h2 style="margin-bottom:1rem;">編輯消費</h2>
-        
-        <!-- 簡單的編輯表單 -->
-        <div class="form-row">
-            <label>名稱</label>
-            <input type="text" id="edit-title">
-        </div>
-        <div class="form-row">
-            <label>金額</label>
-            <input type="number" id="edit-amt">
-        </div>
-        <div class="form-row">
-            <label>種類</label>
-            <select id="edit-cat">
-                <option value="food">美食</option>
-                <option value="sight">景點</option>
-                <option value="shop">購物</option>
-                <option value="trans">交通</option>
-                <option value="other">其他</option>
-            </select>
-        </div>
-        <div class="form-row">
-            <label>支付方式</label>
-            <select id="edit-pay">
-                <option value="cash">現金</option>
-                <option value="card">信用卡</option>
-            </select>
-        </div>
-        
-        <p style="font-size:0.7rem; color:#999; margin-bottom:1.5rem;">* 如需修改分帳細節，請刪除後重新記帳。</p>
+<div class="modal">
+<h2 style="margin-bottom:1rem;">編輯消費</h2>
 
-        <button type="button" class="btn-save" onclick="saveEditedExpense()">儲存修改</button>
-        <button type="button" class="btn-del" onclick="softDeleteExpense()">刪除此筆 (可復原)</button>
-    </div>
+<!-- 簡單的編輯表單 -->
+<div class="form-row">
+<label>名稱</label>
+<input type="text" id="edit-title">
 </div>
-	
+<div class="form-row">
+<label>金額</label>
+<input type="number" id="edit-amt">
+</div>
+<div class="form-row">
+<label>種類</label>
+<select id="edit-cat">
+<option value="food">美食</option>
+<option value="sight">景點</option>
+<option value="shop">購物</option>
+<option value="trans">交通</option>
+<option value="other">其他</option>
+</select>
+</div>
+<div class="form-row">
+<label>支付方式</label>
+<select id="edit-pay">
+<option value="cash">現金</option>
+<option value="card">信用卡</option>
+</select>
+</div>
+
+<p style="font-size:0.7rem; color:#999; margin-bottom:1.5rem;">* 如需修改分帳細節，請刪除後重新記帳。</p>
+
+<button type="button" class="btn-save" onclick="saveEditedExpense()">儲存修改</button>
+<button type="button" class="btn-del" onclick="softDeleteExpense()">刪除此筆 (可復原)</button>
+</div>
+</div>
+
 <script>
 // ===== Google Apps Script 連動（含密碼驗證）=====
 
@@ -1044,19 +1018,11 @@ function updateSyncStatus(message) {
 const statusEl = document.getElementById('sync-status');
 if (statusEl) {
 statusEl.textContent = message;
-// 顯示讀取中狀態 (防亂碼)
-document.getElementById('exp-category-grid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:15px;color:#aaa">同步資料中...</div>';
-document.getElementById('debtor-grid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:15px;color:#aaa">同步資料中...</div>';
-
-// 讀取資料 -> 渲染 -> 啟動滑動
-loadExpensesFromSheet().then(data => {
-    if (typeof mergeExpensesFromSheet === 'function') {
-        mergeExpensesFromSheet(data);
-    }
-    renderExpense();
-    renderExpenseCategories(); // 渲染卡片
-    setupSwipeObserver('cat-swipe-wrapper', '#cat-swipe-dots .dot'); // 啟動滑動監聽
-});
+setTimeout(() => {
+statusEl.textContent = '';
+}, 3000);
+}
+}
 
 // ===== 結束 Google Apps Script 連動 =====
 
@@ -1162,6 +1128,7 @@ fetchWeather();
 // 延遲載入記帳資料
 setTimeout(() => {
 renderExpense();
+updateExpenseStats();  // ← 這個很重要，會動態生成正確的 HTML
 renderExpenseCategories();
 loadExpensesFromSheet();
 }, 100);
@@ -1299,10 +1266,10 @@ localStorage.setItem('expense_secret_key', userEnteredSecret);
 const successMsg = document.createElement('div');
 successMsg.className = 'login-success-message';
 successMsg.innerHTML = `
-     <div style="font-size:3rem; margin-bottom:10px;">✅</div>
-     <div style="font-size:1.2rem; font-weight:900; color:#2C3E50;">登入成功！</div>
-     <div style="font-size:0.9rem; color:#666; margin-top:4px;">Hello，${currentUser}</div>
- `;
+    <div style="font-size:3rem; margin-bottom:10px;">✅</div>
+    <div style="font-size:1.2rem; font-weight:900; color:#2C3E50;">登入成功！</div>
+    <div style="font-size:0.9rem; color:#666; margin-top:4px;">Hello，${currentUser}</div>
+`;
 document.body.appendChild(successMsg);
 
 // 2. 隱藏歡迎卡片內原本的內容 (讓背景還在，但按鈕消失，專注看成功訊息)
@@ -1399,9 +1366,9 @@ renderPlan();
 if(curTab === 'expense') renderExpense();
 };
 div.innerHTML = `
-                   <div class="day-top"><span>Day ${day.num}</span><span class="day-dot"></span></div>
-                   <div class="day-num">${day.label}<span>${day.week}</span></div>
-               `;
+                  <div class="day-top"><span>Day ${day.num}</span><span class="day-dot"></span></div>
+                  <div class="day-num">${day.label}<span>${day.week}</span></div>
+              `;
 dayList.appendChild(div);
 });
 }
@@ -1439,39 +1406,39 @@ wrapper.style.setProperty('--card-color', cat.hex || '#ccc');
 wrapper.style.setProperty('--card-color-light', cat.light || '#eee');
 
 wrapper.innerHTML = `
-           <div class="plan-card" onclick="if(!event.target.closest('.nav-btn')) openModal('plan', PLAN[curDay][${idx}], ${idx})">
-               <div class="plan-left">
-                   <div class="plan-time">${item.time}</div>
-                   <div class="plan-tag" style="background:${cat.hex}">${cat.label}</div>
-                   <div class="plan-title">${item.title}</div>
-                   <div class="plan-loc">
-                       <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-                       ${item.loc}
-                   </div>
-               </div>
-               <div class="plan-actions">
-                   <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.loc)}" target="_blank" style="text-decoration:none">
-                       <button type="button" class="nav-btn">
-                            <svg viewBox="0 0 24 24"><path d="M1 11.6l19.6-9.3a1.3 1.3 0 0 1 1.7 1.7l-9.3 19.6c-.6 1.3-2.5 1.3-3.1 0l-2.7-6.2-6.2-2.7c-1.3-.6-1.3-2.5 0-3.1z"/></svg>
-                           導航
-                       </button>
-                   </a>
-               </div>
-           </div>
+          <div class="plan-card" onclick="if(!event.target.closest('.nav-btn')) openModal('plan', PLAN[curDay][${idx}], ${idx})">
+              <div class="plan-left">
+                  <div class="plan-time">${item.time}</div>
+                  <div class="plan-tag" style="background:${cat.hex}">${cat.label}</div>
+                  <div class="plan-title">${item.title}</div>
+                  <div class="plan-loc">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                      ${item.loc}
+                  </div>
+              </div>
+              <div class="plan-actions">
+                  <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.loc)}" target="_blank" style="text-decoration:none">
+                      <button type="button" class="nav-btn">
+                           <svg viewBox="0 0 24 24"><path d="M1 11.6l19.6-9.3a1.3 1.3 0 0 1 1.7 1.7l-9.3 19.6c-.6 1.3-2.5 1.3-3.1 0l-2.7-6.2-6.2-2.7c-1.3-.6-1.3-2.5 0-3.1z"/></svg>
+                          導航
+                      </button>
+                  </a>
+              </div>
+          </div>
 
-           ${isNotLast ? `
-           <div class="trans-line"></div>
-           <div class="trans-badge">
-               <div class="trans-icon" onclick="openTransModePicker(${idx})">
-                   ${iconSymbol}
-               </div>
-               <div class="trans-time" onclick="openTransTimePicker(${idx})">
-                   ${timeStr}
-               </div>
-           </div>
-           <div class="trans-line"></div>
-           ` : ''} 
-       `;
+          ${isNotLast ? `
+          <div class="trans-line"></div>
+          <div class="trans-badge">
+              <div class="trans-icon" onclick="openTransModePicker(${idx})">
+                  ${iconSymbol}
+              </div>
+              <div class="trans-time" onclick="openTransTimePicker(${idx})">
+                  ${timeStr}
+              </div>
+          </div>
+          <div class="trans-line"></div>
+          ` : ''} 
+      `;
 list.appendChild(wrapper);
 });
 }
@@ -1479,62 +1446,62 @@ list.appendChild(wrapper);
 
 //支援刪除顯示 Gemimi//
 function renderExpense() {
-    const list = document.getElementById('expense-list');
-    list.innerHTML = '';
-    const items = EXPENSE[curDay] || [];
+const list = document.getElementById('expense-list');
+list.innerHTML = '';
+const items = EXPENSE[curDay] || [];
 
-    if (items.length === 0) {
-        list.innerHTML = '<div style="color:#888;text-align:center;margin:2rem 0">尚無消費紀錄</div>';
-        return;
-    }
+if (items.length === 0) {
+list.innerHTML = '<div style="color:#888;text-align:center;margin:2rem 0">尚無消費紀錄</div>';
+return;
+}
 
-    items.forEach(item => {
-        const div = document.createElement('div');
-        // 如果 isDeleted 為真，加上 .deleted 樣式
-        div.className = `expense-row ${item.isDeleted ? 'deleted' : ''}`;
-        
-        const cat = CATEGORIES.find(c => c.key === item.cat) || CATEGORIES[4];
-        
-        // 判斷按鈕內容
-        let actionBtnHtml = '';
-        if (item.isDeleted) {
-            // 復原按鈕 (注意：這裡要加 onclick event stopPropagation 避免觸發收合，但在 .deleted pointer-events:none 下其實還好)
-            actionBtnHtml = `<button type="button" class="btn-restore-inline" style="pointer-events:auto" onclick="restoreExpense('${item.id}')">↩️ 復原此項目</button>`;
-        } else {
-            // 編輯按鈕 -> 改為開啟 Modal
-            actionBtnHtml = `<button type="button" class="btn-edit-inline" onclick="openEditModal('${item.id}')">✏️ 編輯 / 刪除</button>`;
-        }
+items.forEach(item => {
+const div = document.createElement('div');
+// 如果 isDeleted 為真，加上 .deleted 樣式
+div.className = `expense-row ${item.isDeleted ? 'deleted' : ''}`;
 
-        div.innerHTML = `
-            <div class="expense-header" onclick="this.parentElement.classList.toggle('expanded')">
-                <div>
-                    <div style="font-weight:700; color:var(--primary)">${item.title}</div>
-                    <div style="font-size:0.75rem; color:#888; margin-top:4px">
-                        ${cat.label} · ${item.payMethod === 'cash' ? '現金' : '刷卡'}
-                    </div>
-                </div>
-                <div style="font-weight:700; font-size:1.1rem; color:var(--accent)">
-                    ${item.currency === 'JPY' ? '¥' : 'NT$'}${item.amt}
-                </div>
-            </div>
-            
-            <!-- 刪除印章 -->
-            <div class="deleted-badge">已刪除</div>
-            
-            <div class="expense-detail-panel">
-                ${actionBtnHtml}
-            </div>
-        `;
-        list.appendChild(div);
-    });
-    
-    // 渲染完後順便更新列表高度 (如果原本是展開的)
-    const container = document.getElementById('expense-list-container');
-    if (!container.classList.contains('collapsed') && container.style.maxHeight) {
-         container.style.maxHeight = container.scrollHeight + "px";
-    }
-    
-    updateExpenseStats(); // 確保總統計更新
+const cat = CATEGORIES.find(c => c.key === item.cat) || CATEGORIES[4];
+
+// 判斷按鈕內容
+let actionBtnHtml = '';
+if (item.isDeleted) {
+// 復原按鈕 (注意：這裡要加 onclick event stopPropagation 避免觸發收合，但在 .deleted pointer-events:none 下其實還好)
+actionBtnHtml = `<button type="button" class="btn-restore-inline" style="pointer-events:auto" onclick="restoreExpense('${item.id}')">↩️ 復原此項目</button>`;
+} else {
+// 編輯按鈕 -> 改為開啟 Modal
+actionBtnHtml = `<button type="button" class="btn-edit-inline" onclick="openEditModal('${item.id}')">✏️ 編輯 / 刪除</button>`;
+}
+
+div.innerHTML = `
+           <div class="expense-header" onclick="this.parentElement.classList.toggle('expanded')">
+               <div>
+                   <div style="font-weight:700; color:var(--primary)">${item.title}</div>
+                   <div style="font-size:0.75rem; color:#888; margin-top:4px">
+                       ${cat.label} · ${item.payMethod === 'cash' ? '現金' : '刷卡'}
+                   </div>
+               </div>
+               <div style="font-weight:700; font-size:1.1rem; color:var(--accent)">
+                   ${item.currency === 'JPY' ? '¥' : 'NT$'}${item.amt}
+               </div>
+           </div>
+           
+           <!-- 刪除印章 -->
+           <div class="deleted-badge">已刪除</div>
+           
+           <div class="expense-detail-panel">
+               ${actionBtnHtml}
+           </div>
+       `;
+list.appendChild(div);
+});
+
+// 渲染完後順便更新列表高度 (如果原本是展開的)
+const container = document.getElementById('expense-list-container');
+if (!container.classList.contains('collapsed') && container.style.maxHeight) {
+container.style.maxHeight = container.scrollHeight + "px";
+}
+
+updateExpenseStats(); // 確保總統計更新
 }
 
 // 請用此函式完整覆蓋原本的 updateExpenseStats
@@ -1606,58 +1573,58 @@ const getCardHtml = (title, jpy, twd, color) => {
 const jpyToTwd = Math.round(jpy * EX_RATE);
 
 return `
-       <div class="swipe-card" style="text-align: center;">
-           <!-- 卡片標題 -->
-           <div style="font-size:0.9rem; font-weight:700; color:${color}; margin-bottom:12px; opacity:0.9;">${title}</div>
-           
-           <!-- 金額顯示區 (垂直置中排列) -->
-           <div style="display: flex; flex-direction: column; gap: 12px; align-items: center;">
-               
-               <!-- 日幣區塊 -->
-               <div>
-                   <div style="display: flex; align-items: baseline; justify-content: center; gap: 6px;">
-                       <span style="font-size: 0.7rem; opacity: 0.6; font-weight: 600;">🇯🇵 JP</span>
-                       <span style="font-size: 1.6rem; font-weight: 800;">¥ ${jpy.toLocaleString()}</span>
-                   </div>
-                   <!-- 灰色小字提示約當台幣 -->
-                   <div style="font-size: 0.75rem; color: #aaa; font-weight: 500; margin-top: 2px;">
-                       (約 NT$ ${jpyToTwd.toLocaleString()})
-                   </div>
-               </div>
-               
-               <!-- 分隔線 -->
-               <div style="width: 40px; height: 1px; background: rgba(255,255,255,0.1);"></div>
-               
-               <!-- 台幣區塊 -->
-               <div>
-                   <div style="display: flex; align-items: baseline; justify-content: center; gap: 6px;">
-                       <span style="font-size: 0.7rem; opacity: 0.6; font-weight: 600;">🇹🇼 TW</span>
-                       <span style="font-size: 1.6rem; font-weight: 800; color: #FFD700;">NT$ ${twd.toLocaleString()}</span>
-                   </div>
-               </div>
+      <div class="swipe-card" style="text-align: center;">
+          <!-- 卡片標題 -->
+          <div style="font-size:0.9rem; font-weight:700; color:${color}; margin-bottom:12px; opacity:0.9;">${title}</div>
+          
+          <!-- 金額顯示區 (垂直置中排列) -->
+          <div style="display: flex; flex-direction: column; gap: 12px; align-items: center;">
+              
+              <!-- 日幣區塊 -->
+              <div>
+                  <div style="display: flex; align-items: baseline; justify-content: center; gap: 6px;">
+                      <span style="font-size: 0.7rem; opacity: 0.6; font-weight: 600;">🇯🇵 JP</span>
+                      <span style="font-size: 1.6rem; font-weight: 800;">¥ ${jpy.toLocaleString()}</span>
+                  </div>
+                  <!-- 灰色小字提示約當台幣 -->
+                  <div style="font-size: 0.75rem; color: #aaa; font-weight: 500; margin-top: 2px;">
+                      (約 NT$ ${jpyToTwd.toLocaleString()})
+                  </div>
+              </div>
+              
+              <!-- 分隔線 -->
+              <div style="width: 40px; height: 1px; background: rgba(255,255,255,0.1);"></div>
+              
+              <!-- 台幣區塊 -->
+              <div>
+                  <div style="display: flex; align-items: baseline; justify-content: center; gap: 6px;">
+                      <span style="font-size: 0.7rem; opacity: 0.6; font-weight: 600;">🇹🇼 TW</span>
+                      <span style="font-size: 1.6rem; font-weight: 800; color: #FFD700;">NT$ ${twd.toLocaleString()}</span>
+                  </div>
+              </div>
 
-           </div>
-       </div>
-       `;
+          </div>
+      </div>
+      `;
 };
 
 // D. 渲染畫面
 summaryContainer.style.overflow = "hidden";
 summaryContainer.innerHTML = `
-       <!-- 滑動內容 -->
-       <div class="stat-swipe-wrapper" id="stat-swipe-wrapper">
-           ${getCardHtml('個人花費總額', totals.JPY, totals.TWD, '#fff')}
-           ${getCardHtml('待收付款項 (應收)', receivable.JPY, receivable.TWD, '#10b981')}
-           ${getCardHtml('待收付款項 (應付)', payable.JPY, payable.TWD, '#E76F51')}
-       </div>
-       
-       <!-- 滑動指示點 -->
-       <div class="swipe-dots">
-           <span class="dot active"></span>
-           <span class="dot"></span>
-           <span class="dot"></span>
-       </div>
-   `;
+      <!-- 滑動內容 -->
+      <div class="stat-swipe-wrapper" id="stat-swipe-wrapper">
+          ${getCardHtml('個人花費總額', totals.JPY, totals.TWD, '#fff')}
+          ${getCardHtml('待收付款項 (應收)', receivable.JPY, receivable.TWD, '#10b981')}
+          ${getCardHtml('待收付款項 (應付)', payable.JPY, payable.TWD, '#E76F51')}
+      </div>
+      
+      <!-- 滑動指示點 -->
+      <div class="swipe-dots">
+          <span class="dot active"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+      </div>
+  `;
 
 // E. 重新綁定滑動監聽 (確保指示點會動)
 const wrapper = document.getElementById('stat-swipe-wrapper');
@@ -1719,9 +1686,9 @@ others.forEach(name => {
 const row = document.createElement('div');
 row.style.cssText = 'display:grid;grid-template-columns:0.6fr 1.4fr;gap:0.6rem;align-items:center;margin-bottom:0.6rem;';
 row.innerHTML = `
-                   <label style="font-size:0.75rem;font-weight:700;color:#374151;white-space:nowrap;">${name}</label>
-                   <input type="number" class="quick-custom-amt" data-name="${name}" min="0" placeholder="NT$" style="padding:0.5rem 0.6rem;font-size:0.8rem;border:1px solid #e5e7eb;border-radius:0.6rem;" oninput="updateQuickSplitPreview()">
-               `;
+                  <label style="font-size:0.75rem;font-weight:700;color:#374151;white-space:nowrap;">${name}</label>
+                  <input type="number" class="quick-custom-amt" data-name="${name}" min="0" placeholder="NT$" style="padding:0.5rem 0.6rem;font-size:0.8rem;border:1px solid #e5e7eb;border-radius:0.6rem;" oninput="updateQuickSplitPreview()">
+              `;
 container.appendChild(row);
 });
 }
@@ -1745,204 +1712,204 @@ updateQuickSplitPreview();
 
 // 更新分帳預覽文字 (含幣別修正)
 function updateQuickSplitPreview() {
-  const previewDiv = document.getElementById('quick-split-preview');
-  const modeSelect = document.getElementById('quick-split-mode');
-  const mode = modeSelect.value;
-  const amtInput = document.getElementById('quick-amt');
-  const totalAmt = parseInt(amtInput.value) || 0;
+const previewDiv = document.getElementById('quick-split-preview');
+const modeSelect = document.getElementById('quick-split-mode');
+const mode = modeSelect.value;
+const amtInput = document.getElementById('quick-amt');
+const totalAmt = parseInt(amtInput.value) || 0;
 
-  // ✅ 新增：判斷當前幣別
-  const isJPY = document.getElementById('btn-jpy').classList.contains('active');
-  const currencySymbol = isJPY ? '¥' : 'NT$';
+// ✅ 新增：判斷當前幣別
+const isJPY = document.getElementById('btn-jpy').classList.contains('active');
+const currencySymbol = isJPY ? '¥' : 'NT$';
 
-  if (totalAmt === 0) {
-    previewDiv.textContent = '';
-    return;
-  }
+if (totalAmt === 0) {
+previewDiv.textContent = '';
+return;
+}
 
-  if (mode === 'equal') {
-    const selected = Array.from(
-      document.querySelectorAll('#quick-split-persons .split-person-btn.selected')
-    );
-    
-    // 平均人數 = 選中的其他人 + 使用者自己 (1人)
-    const totalPeople = selected.length + 1;
-    
-    // 計算每人金額 (無條件捨去小數點)
-    const perPerson = Math.floor(totalAmt / totalPeople);
+if (mode === 'equal') {
+const selected = Array.from(
+document.querySelectorAll('#quick-split-persons .split-person-btn.selected')
+);
 
-    // ✅ 修改處：使用 currencySymbol 變數
-    previewDiv.innerHTML = `共 ${currencySymbol}${totalAmt} ÷ ${totalPeople} 人 <span style="font-size:0.7rem;opacity:0.7">(含本人)</span> = 每人 ${currencySymbol}${perPerson}`;
-    
-  } else if (mode === 'custom') {
-    const inputs = document.querySelectorAll('.quick-custom-amt');
-    let totalCustom = 0;
-    inputs.forEach(input => {
-      totalCustom += parseInt(input.value) || 0;
-    });
-    const myShare = totalAmt - totalCustom;
-    
-    if (myShare < 0) {
-      previewDiv.style.borderLeftColor = '#ef4444';
-      // ✅ 修改處：使用 currencySymbol 變數 (錯誤訊息不一定需要符號，但加上比較統一)
-      previewDiv.innerHTML = `<span style="color:#ef4444;font-weight:bold">分帳總額 (${totalCustom}) 超過 總支出 (${totalAmt})</span>`;
-    } else {
-      previewDiv.style.borderLeftColor = 'var(--accent)';
-      // ✅ 修改處：使用 currencySymbol 變數
-      previewDiv.innerHTML = `其他人合計 ${currencySymbol}${totalCustom}<br>我需負擔 ${currencySymbol}${myShare}`;
-    }
-  } else {
-    previewDiv.textContent = '';
-  }
+// 平均人數 = 選中的其他人 + 使用者自己 (1人)
+const totalPeople = selected.length + 1;
+
+// 計算每人金額 (無條件捨去小數點)
+const perPerson = Math.floor(totalAmt / totalPeople);
+
+// ✅ 修改處：使用 currencySymbol 變數
+previewDiv.innerHTML = `共 ${currencySymbol}${totalAmt} ÷ ${totalPeople} 人 <span style="font-size:0.7rem;opacity:0.7">(含本人)</span> = 每人 ${currencySymbol}${perPerson}`;
+
+} else if (mode === 'custom') {
+const inputs = document.querySelectorAll('.quick-custom-amt');
+let totalCustom = 0;
+inputs.forEach(input => {
+totalCustom += parseInt(input.value) || 0;
+});
+const myShare = totalAmt - totalCustom;
+
+if (myShare < 0) {
+previewDiv.style.borderLeftColor = '#ef4444';
+// ✅ 修改處：使用 currencySymbol 變數 (錯誤訊息不一定需要符號，但加上比較統一)
+previewDiv.innerHTML = `<span style="color:#ef4444;font-weight:bold">分帳總額 (${totalCustom}) 超過 總支出 (${totalAmt})</span>`;
+} else {
+previewDiv.style.borderLeftColor = 'var(--accent)';
+// ✅ 修改處：使用 currencySymbol 變數
+previewDiv.innerHTML = `其他人合計 ${currencySymbol}${totalCustom}<br>我需負擔 ${currencySymbol}${myShare}`;
+}
+} else {
+previewDiv.textContent = '';
+}
 }
 
 
 
 
 function addQuickExpense() {
-  // 1) 基礎驗證
-  if (!currentUser) {
-    alert('請先選擇使用者 (登入)');
-    return;
-  }
+// 1) 基礎驗證
+if (!currentUser) {
+alert('請先選擇使用者 (登入)');
+return;
+}
 
-  // 2) 抓取表單資料
-  const dateSelect = document.getElementById('quick-date');
-  const dayIndex = parseInt(dateSelect.value, 10); // 0~4
-  const dateLabel = DAYS[dayIndex].label;          // 例如 "01/06"
+// 2) 抓取表單資料
+const dateSelect = document.getElementById('quick-date');
+const dayIndex = parseInt(dateSelect.value, 10); // 0~4
+const dateLabel = DAYS[dayIndex].label;          // 例如 "01/06"
 
-  const cat = document.getElementById('quick-cat').value;
-  const title = document.getElementById('quick-title').value.trim();
-  const payMethod = document.getElementById('quick-pay').value;
-  const amt = parseInt(document.getElementById('quick-amt').value || 0, 10);
-  const currency = currentCurrency; // 'JPY' or 'TWD'
+const cat = document.getElementById('quick-cat').value;
+const title = document.getElementById('quick-title').value.trim();
+const payMethod = document.getElementById('quick-pay').value;
+const amt = parseInt(document.getElementById('quick-amt').value || 0, 10);
+const currency = currentCurrency; // 'JPY' or 'TWD'
 
-  const modeSelect = document.getElementById('quick-split-mode');
-  const currentSplitMode = modeSelect ? modeSelect.value : 'none';
+const modeSelect = document.getElementById('quick-split-mode');
+const currentSplitMode = modeSelect ? modeSelect.value : 'none';
 
-  // 你的流程預設「付款人就是自己」
-  const payBy = currentUser;
+// 你的流程預設「付款人就是自己」
+const payBy = currentUser;
 
-  // 3) 欄位檢查
-  if (!title) {
-    alert('請填寫名稱');
-    return;
-  }
-  if (isNaN(amt) || amt <= 0) {
-    alert('金額必須大於 0');
-    return;
-  }
+// 3) 欄位檢查
+if (!title) {
+alert('請填寫名稱');
+return;
+}
+if (isNaN(amt) || amt <= 0) {
+alert('金額必須大於 0');
+return;
+}
 
-  // 4) 分帳邏輯
-  let finalAdvanceFor = [];
-  let splitDetails = null;
+// 4) 分帳邏輯
+let finalAdvanceFor = [];
+let splitDetails = null;
 
-  if (currentSplitMode === 'none') {
-    // 不分帳：代表只有自己參與
-    finalAdvanceFor = [currentUser];
-    splitDetails = { mode: 'none' };
+if (currentSplitMode === 'none') {
+// 不分帳：代表只有自己參與
+finalAdvanceFor = [currentUser];
+splitDetails = { mode: 'none' };
 
-  } else if (currentSplitMode === 'equal') {
-    // 平均分帳：使用者選到的人 = 參與分帳的人
-    const selected = document.querySelectorAll('#quick-split-persons .split-person-btn.selected');
-    selected.forEach(btn => finalAdvanceFor.push(btn.dataset.name));
+} else if (currentSplitMode === 'equal') {
+// 平均分帳：使用者選到的人 = 參與分帳的人
+const selected = document.querySelectorAll('#quick-split-persons .split-person-btn.selected');
+selected.forEach(btn => finalAdvanceFor.push(btn.dataset.name));
 
-    // 防呆：若沒選任何人，至少包含自己
-    if (finalAdvanceFor.length === 0) finalAdvanceFor = [currentUser];
+// 防呆：若沒選任何人，至少包含自己
+if (finalAdvanceFor.length === 0) finalAdvanceFor = [currentUser];
 
-    // ✅ 建議：平均分帳通常也要包含自己，否則會變成「只算別人」。
-    // 如果你確定「只分別人」才把下一行註解掉。
-    if (!finalAdvanceFor.includes(currentUser)) finalAdvanceFor.unshift(currentUser);
+// ✅ 建議：平均分帳通常也要包含自己，否則會變成「只算別人」。
+// 如果你確定「只分別人」才把下一行註解掉。
+if (!finalAdvanceFor.includes(currentUser)) finalAdvanceFor.unshift(currentUser);
 
-    splitDetails = { mode: 'equal' };
+splitDetails = { mode: 'equal' };
 
-  } else if (currentSplitMode === 'custom') {
-    // 自訂分帳：每個人輸入金額，剩餘自動補到自己
-    let customAmounts = {};
-    let totalCustom = 0;
+} else if (currentSplitMode === 'custom') {
+// 自訂分帳：每個人輸入金額，剩餘自動補到自己
+let customAmounts = {};
+let totalCustom = 0;
 
-    const inputs = document.querySelectorAll('.quick-custom-amt');
-    inputs.forEach(input => {
-      const val = parseInt(input.value || 0, 10);
-      if (val > 0) {
-        const name = input.dataset.name;
-        customAmounts[name] = val;
-        totalCustom += val;
-        if (!finalAdvanceFor.includes(name)) finalAdvanceFor.push(name);
-      }
-    });
+const inputs = document.querySelectorAll('.quick-custom-amt');
+inputs.forEach(input => {
+const val = parseInt(input.value || 0, 10);
+if (val > 0) {
+const name = input.dataset.name;
+customAmounts[name] = val;
+totalCustom += val;
+if (!finalAdvanceFor.includes(name)) finalAdvanceFor.push(name);
+}
+});
 
-    const remaining = amt - totalCustom;
-    if (remaining < 0) {
-      alert(`分帳金額總和 (${totalCustom}) 超過 總支出 (${amt})，請檢查。`);
-      return;
-    }
+const remaining = amt - totalCustom;
+if (remaining < 0) {
+alert(`分帳金額總和 (${totalCustom}) 超過 總支出 (${amt})，請檢查。`);
+return;
+}
 
-    if (remaining > 0) {
-      customAmounts[currentUser] = (customAmounts[currentUser] || 0) + remaining;
-      if (!finalAdvanceFor.includes(currentUser)) finalAdvanceFor.push(currentUser);
-    }
+if (remaining > 0) {
+customAmounts[currentUser] = (customAmounts[currentUser] || 0) + remaining;
+if (!finalAdvanceFor.includes(currentUser)) finalAdvanceFor.push(currentUser);
+}
 
-    // 若全部都沒填，也至少要包含自己（不然統計會出現怪狀況）
-    if (finalAdvanceFor.length === 0) finalAdvanceFor = [currentUser];
+// 若全部都沒填，也至少要包含自己（不然統計會出現怪狀況）
+if (finalAdvanceFor.length === 0) finalAdvanceFor = [currentUser];
 
-    splitDetails = { mode: 'custom', amounts: customAmounts };
+splitDetails = { mode: 'custom', amounts: customAmounts };
 
-  } else {
-    // 不明模式，回退處理
-    finalAdvanceFor = [currentUser];
-    splitDetails = { mode: 'none' };
-  }
+} else {
+// 不明模式，回退處理
+finalAdvanceFor = [currentUser];
+splitDetails = { mode: 'none' };
+}
 
-  // 5) 建立記帳物件
-  const targetId = editingId ? editingId : Date.now().toString();
+// 5) 建立記帳物件
+const targetId = editingId ? editingId : Date.now().toString();
 
-  const expenseObj = {
-    id: targetId,
-    date: dateLabel,
-    cat,
-    title,
-    amt,
-    currency,
-    payBy,
-    payMethod,
-    advanceFor: finalAdvanceFor,
-    splitDetails,
-    createdAt: new Date().toISOString()
-  };
+const expenseObj = {
+id: targetId,
+date: dateLabel,
+cat,
+title,
+amt,
+currency,
+payBy,
+payMethod,
+advanceFor: finalAdvanceFor,
+splitDetails,
+createdAt: new Date().toISOString()
+};
 
-  // 6) 寫入 EXPENSE
-  if (!EXPENSE[dayIndex]) EXPENSE[dayIndex] = [];
+// 6) 寫入 EXPENSE
+if (!EXPENSE[dayIndex]) EXPENSE[dayIndex] = [];
 
-  if (editingId) {
-    const idx = EXPENSE[dayIndex].findIndex(e => e.id === editingId);
-    if (idx >= 0) EXPENSE[dayIndex][idx] = expenseObj;
-    cancelEdit();
-  } else {
-    EXPENSE[dayIndex].push(expenseObj);
-  }
+if (editingId) {
+const idx = EXPENSE[dayIndex].findIndex(e => e.id === editingId);
+if (idx >= 0) EXPENSE[dayIndex][idx] = expenseObj;
+cancelEdit();
+} else {
+EXPENSE[dayIndex].push(expenseObj);
+}
 
-  // ✅ 同步目前日期選擇與全域 curDay（確保畫面一致）
-  curDay = dayIndex;
-  renderDays();
+// ✅ 同步目前日期選擇與全域 curDay（確保畫面一致）
+curDay = dayIndex;
+renderDays();
 
-  // 7) 更新 UI（用你現有的函式）
-  renderExpense();
-  updateExpenseStats();
-  renderExpenseCategories();
+// 7) 更新 UI（用你現有的函式）
+renderExpense();
+updateExpenseStats();
+renderExpenseCategories();
 
-  // 8) 清空表單
-  document.getElementById('quick-title').value = '';
-  document.getElementById('quick-amt').value = '';
-  document.getElementById('quick-hint').textContent = '';
+// 8) 清空表單
+document.getElementById('quick-title').value = '';
+document.getElementById('quick-amt').value = '';
+document.getElementById('quick-hint').textContent = '';
 
-  // 同步提示換算
-  updateConversion();
+// 同步提示換算
+updateConversion();
 
-  // 9) 同步到 Google Sheets
-  syncExpenseToSheet(expenseObj);
+// 9) 同步到 Google Sheets
+syncExpenseToSheet(expenseObj);
 
-  console.log('✅ 記帳完成並同步中:', expenseObj);
+console.log('✅ 記帳完成並同步中:', expenseObj);
 }
 
 
@@ -2012,141 +1979,131 @@ console.error('❌ Google Sheet 刪除同步失敗', e);
 }
 
 
-//新增滑動功能-待確認  21:40 Gemini JS優化//
+//新增滑動功能-待確認//
 function renderExpenseCategories() {
-    const catGrid = document.getElementById('exp-category-grid');
-    const debtorGrid = document.getElementById('debtor-grid');
-    if (!catGrid || !debtorGrid) return;
+const catGrid = document.getElementById('exp-category-grid');
+const debtorGrid = document.getElementById('debtor-grid');
 
-    // 1. 檢查哨：如果還沒確定使用者，就顯示優雅的空狀態或載入中
-    // 這樣就不會跑後面的計算，也就不會出現 undefined 的亂碼
-    if (!currentUser) {
-        catGrid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:20px; color:#ddd;">載入中...</div>';
-        debtorGrid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:20px; color:#ddd;">載入中...</div>';
-        return; 
-    }
+// 如果找不到容器則退出
+if (!catGrid || !debtorGrid) return;
 
-    // 2. 清空原本內容，準備放入計算後的資料
-    catGrid.innerHTML = '';
-    debtorGrid.innerHTML = '';
+// 清空內容
+catGrid.innerHTML = '';
+debtorGrid.innerHTML = '';
 
-    // ... 接下來跑您原本的統計邏輯 ...
-    // 因為有了上面的檢查，這裡的 currentUser 絕對有值，不會再報 undefined
-};
+if (!currentUser) return;
 
-    if (!currentUser) return;
+// --- 1. 計算「消費分類」統計 (保留您原本的計算邏輯) ---
+let catStats = {};
+CATEGORIES.forEach(c => {
+catStats[c.key] = { JPY: 0, TWD: 0, count: 0, color: c.color, label: c.label };
+});
 
-    // --- 1. 計算「消費分類」統計 (保留您原本的計算邏輯) ---
-    let catStats = {};
-    CATEGORIES.forEach(c => {
-        catStats[c.key] = { JPY: 0, TWD: 0, count: 0, color: c.color, label: c.label };
-    });
+// --- 2. 計算「分帳對象」統計 (保留您原本的計算邏輯) ---
+const debtorStats = {};
 
-    // --- 2. 計算「分帳對象」統計 (保留您原本的計算邏輯) ---
-    const debtorStats = {};
+EXPENSE.forEach(dayList => {
+dayList.forEach(item => {
+if (!item || item.amt === 0 || item.isDeleted) return;
 
-    EXPENSE.forEach(dayList => {
-        dayList.forEach(item => {
-            if (!item || item.amt === 0 || item.isDeleted) return;
+// --- 消費分類計算邏輯 ---
+let myShare = 0;
+if (item.payBy === currentUser) {
+if (!item.advanceFor || item.advanceFor.length === 0) {
+myShare = item.amt;
+} else if (item.splitDetails && item.splitDetails.amounts) {
+myShare = item.splitDetails.amounts[currentUser] || 0;
+} else {
+myShare = Math.floor(item.amt / item.advanceFor.length);
+}
+} else if (item.advanceFor && item.advanceFor.includes(currentUser)) {
+if (item.splitDetails && item.splitDetails.amounts) {
+myShare = item.splitDetails.amounts[currentUser] || 0;
+} else {
+myShare = Math.floor(item.amt / item.advanceFor.length);
+}
+}
 
-            // --- 消費分類計算邏輯 ---
-            let myShare = 0;
-            if (item.payBy === currentUser) {
-                if (!item.advanceFor || item.advanceFor.length === 0) {
-                    myShare = item.amt;
-                } else if (item.splitDetails && item.splitDetails.amounts) {
-                    myShare = item.splitDetails.amounts[currentUser] || 0;
-                } else {
-                    myShare = Math.floor(item.amt / item.advanceFor.length);
-                }
-            } else if (item.advanceFor && item.advanceFor.includes(currentUser)) {
-                if (item.splitDetails && item.splitDetails.amounts) {
-                    myShare = item.splitDetails.amounts[currentUser] || 0;
-                } else {
-                    myShare = Math.floor(item.amt / item.advanceFor.length);
-                }
-            }
+if (myShare > 0) {
+const catKey = item.cat || 'other';
+const c = item.currency || 'TWD';
+catStats[catKey][c] += myShare;
+catStats[catKey].count += 1;
+}
 
-            if (myShare > 0) {
-                const catKey = item.cat || 'other';
-                const c = item.currency || 'TWD';
-                catStats[catKey][c] += myShare;
-                catStats[catKey].count += 1;
-            }
+// --- 分帳對象計算邏輯 ---
+if (item.payBy === currentUser && item.advanceFor && item.advanceFor.length > 0) {
+if (item.splitDetails && item.splitDetails.amounts) {
+Object.entries(item.splitDetails.amounts).forEach(([name, amt]) => {
+if (name === currentUser || amt <= 0) return;
+if (item.settled && item.settled[name]) return;
 
-            // --- 分帳對象計算邏輯 ---
-            if (item.payBy === currentUser && item.advanceFor && item.advanceFor.length > 0) {
-                if (item.splitDetails && item.splitDetails.amounts) {
-                    Object.entries(item.splitDetails.amounts).forEach(([name, amt]) => {
-                        if (name === currentUser || amt <= 0) return;
-                        if (item.settled && item.settled[name]) return;
+if (!debtorStats[name]) debtorStats[name] = { label: name, JPY: 0, TWD: 0, count: 0 };
+const c = item.currency || 'TWD';
+debtorStats[name][c] += amt;
+debtorStats[name].count += 1;
+});
+} else {
+const othersInThisSplit = item.advanceFor.filter(name => name !== currentUser);
+const perPerson = othersInThisSplit.length > 0 
+? Math.floor(item.amt / (othersInThisSplit.length + 1)) 
+: item.amt;
 
-                        if (!debtorStats[name]) debtorStats[name] = { label: name, JPY: 0, TWD: 0, count: 0 };
-                        const c = item.currency || 'TWD';
-                        debtorStats[name][c] += amt;
-                        debtorStats[name].count += 1;
-                    });
-                } else {
-                    const othersInThisSplit = item.advanceFor.filter(name => name !== currentUser);
-                    const perPerson = othersInThisSplit.length > 0 
-                        ? Math.floor(item.amt / (othersInThisSplit.length + 1)) 
-                        : item.amt;
+othersInThisSplit.forEach(name => {
+if (perPerson <= 0) return;
+if (item.settled && item.settled[name]) return;
 
-                    othersInThisSplit.forEach(name => {
-                        if (perPerson <= 0) return;
-                        if (item.settled && item.settled[name]) return;
+if (!debtorStats[name]) debtorStats[name] = { label: name, JPY: 0, TWD: 0, count: 0 };
+const c = item.currency || 'TWD';
+debtorStats[name][c] += perPerson;
+debtorStats[name].count += 1;
+});
+}
+}
+});
+});
 
-                        if (!debtorStats[name]) debtorStats[name] = { label: name, JPY: 0, TWD: 0, count: 0 };
-                        const c = item.currency || 'TWD';
-                        debtorStats[name][c] += perPerson;
-                        debtorStats[name].count += 1;
-                    });
-                }
-            }
-        });
-    });
+// --- 3. 渲染消費分類 UI ---
+CATEGORIES.forEach(cat => {
+const s = catStats[cat.key];
+if (!s || (s.JPY === 0 && s.TWD === 0)) return;
 
-    // --- 3. 渲染消費分類 UI ---
-    CATEGORIES.forEach(cat => {
-        const s = catStats[cat.key];
-        if (!s || (s.JPY === 0 && s.TWD === 0)) return;
+const itemDiv = document.createElement('div');
+itemDiv.className = `exp-category-item ${cat.color}`;
+let amountHtml = '';
+if (s.JPY > 0) amountHtml += `<div style="font-size:1.1rem; font-weight:900;">¥${s.JPY.toLocaleString()}</div>`;
+if (s.TWD > 0) amountHtml += `<div style="font-size:0.8rem; opacity:0.8;">NT$${s.TWD.toLocaleString()}</div>`;
 
-        const itemDiv = document.createElement('div');
-        itemDiv.className = `exp-category-item ${cat.color}`;
-        let amountHtml = '';
-        if (s.JPY > 0) amountHtml += `<div style="font-size:1.1rem; font-weight:900;">¥${s.JPY.toLocaleString()}</div>`;
-        if (s.TWD > 0) amountHtml += `<div style="font-size:0.8rem; opacity:0.8;">NT$${s.TWD.toLocaleString()}</div>`;
+itemDiv.innerHTML = `
+           <span style="font-size:0.85rem; margin-bottom:4px; display:block;">${cat.label}</span>
+           ${amountHtml}
+           <span style="font-size:0.7rem; margin-top:4px; display:block;">${s.count}筆</span>
+       `;
+catGrid.appendChild(itemDiv);
+});
+if (catGrid.innerHTML === '') catGrid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#888; padding:10px;">沒有支出</div>';
 
-        itemDiv.innerHTML = `
-            <span style="font-size:0.85rem; margin-bottom:4px; display:block;">${cat.label}</span>
-            ${amountHtml}
-            <span style="font-size:0.7rem; margin-top:4px; display:block;">${s.count}筆</span>
-        `;
-        catGrid.appendChild(itemDiv);
-    });
-    if (catGrid.innerHTML === '') catGrid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#888; padding:10px;">沒有支出</div>';
+// --- 4. 渲染分帳對象 UI ---
+Object.values(debtorStats).forEach(s => {
+if (s.JPY === 0 && s.TWD === 0) return;
 
-    // --- 4. 渲染分帳對象 UI ---
-    Object.values(debtorStats).forEach(s => {
-        if (s.JPY === 0 && s.TWD === 0) return;
+const itemDiv = document.createElement('div');
+itemDiv.className = 'exp-category-item bg-other';
+itemDiv.style.cursor = 'pointer';
+itemDiv.onclick = () => openDebtModal(s.label);
 
-        const itemDiv = document.createElement('div');
-        itemDiv.className = 'exp-category-item bg-other';
-        itemDiv.style.cursor = 'pointer';
-        itemDiv.onclick = () => openDebtModal(s.label);
+let amtHtml = '';
+if (s.JPY > 0) amtHtml += `<div style="font-size:1.1rem; font-weight:900;">¥${s.JPY.toLocaleString()}</div>`;
+if (s.TWD > 0) amtHtml += `<div style="font-size:0.8rem; opacity:0.8;">NT$${s.TWD.toLocaleString()}</div>`;
 
-        let amtHtml = '';
-        if (s.JPY > 0) amtHtml += `<div style="font-size:1.1rem; font-weight:900;">¥${s.JPY.toLocaleString()}</div>`;
-        if (s.TWD > 0) amtHtml += `<div style="font-size:0.8rem; opacity:0.8;">NT$${s.TWD.toLocaleString()}</div>`;
-
-        itemDiv.innerHTML = `
-            <span style="font-size:0.85rem; margin-bottom:4px; display:block;">${s.label}</span>
-            ${amtHtml}
-            <span style="font-size:0.7rem; margin-top:4px; display:block;">${s.count}筆紀錄</span>
-        `;
-        debtorGrid.appendChild(itemDiv);
-    });
-    if (debtorGrid.innerHTML === '') debtorGrid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#888; padding:10px;">目前尚無分帳紀錄 🎉</div>';
+itemDiv.innerHTML = `
+           <span style="font-size:0.85rem; margin-bottom:4px; display:block;">${s.label}</span>
+           ${amtHtml}
+           <span style="font-size:0.7rem; margin-top:4px; display:block;">${s.count}筆紀錄</span>
+       `;
+debtorGrid.appendChild(itemDiv);
+});
+if (debtorGrid.innerHTML === '') debtorGrid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#888; padding:10px;">目前尚無分帳紀錄 🎉</div>';
 }
 
 
@@ -2190,41 +2147,41 @@ if (!isSettled) unpaidTotal += debtAmt;
 
 const row = document.createElement('div');
 row.style.cssText = `
-                           display:flex; 
-                           justify-content:space-between; 
-                           align-items:center; 
-                           padding:10px 0; 
-                           border-bottom:1px dashed #eee;
-                           ${isSettled ? 'opacity:0.5;' : ''}
-                       `;
+                          display:flex; 
+                          justify-content:space-between; 
+                          align-items:center; 
+                          padding:10px 0; 
+                          border-bottom:1px dashed #eee;
+                          ${isSettled ? 'opacity:0.5;' : ''}
+                      `;
 
 row.innerHTML = `
-                           <div>
-                               <div style="font-weight:700; font-size:0.9rem;">
-                                   ${item.title}
-                                   ${isSettled ? '<span style="color:#10b981; font-size:0.7rem; margin-left:6px;">✓</span>' : ''}
-                               </div>
-                               <div style="font-size:0.75rem; color:#888;">
-                                   ${DAYS[dayIdx].label}
-                               </div>
-                           </div>
-                           <div style="text-align:right;">
-                               <div style="font-weight:700; color:#E76F51; margin-bottom:4px;">NT$${debtAmt}</div>
-                               ${isSettled 
-                                   ? '<span style="background:#10b981; color:#fff; padding:4px 8px; border-radius:12px; font-size:0.7rem; font-weight:700;">已還款</span>'
-                                   : `<button type="button" style="background:#10b981; color:#fff; border:none; padding:4px 8px; border-radius:12px; font-size:0.7rem; cursor:pointer;" onclick="settleSingleDebt(${dayIdx}, '${item.id}', '${debtorName}')">標記還款</button>`
-                               }
-                           </div>
-                       `;
+                          <div>
+                              <div style="font-weight:700; font-size:0.9rem;">
+                                  ${item.title}
+                                  ${isSettled ? '<span style="color:#10b981; font-size:0.7rem; margin-left:6px;">✓</span>' : ''}
+                              </div>
+                              <div style="font-size:0.75rem; color:#888;">
+                                  ${DAYS[dayIdx].label}
+                              </div>
+                          </div>
+                          <div style="text-align:right;">
+                              <div style="font-weight:700; color:#E76F51; margin-bottom:4px;">NT$${debtAmt}</div>
+                              ${isSettled 
+                                  ? '<span style="background:#10b981; color:#fff; padding:4px 8px; border-radius:12px; font-size:0.7rem; font-weight:700;">已還款</span>'
+                                  : `<button type="button" style="background:#10b981; color:#fff; border:none; padding:4px 8px; border-radius:12px; font-size:0.7rem; cursor:pointer;" onclick="settleSingleDebt(${dayIdx}, '${item.id}', '${debtorName}')">標記還款</button>`
+                              }
+                          </div>
+                      `;
 listEl.appendChild(row);
 }
 });
 });
 
 footerEl.innerHTML = `
-               <span style="font-size:0.7rem; color:#888; font-weight:600;">總計：NT$${total}</span><br>
-               未還款：<span style="color:#E76F51;">NT$${unpaidTotal}</span>
-           `;
+              <span style="font-size:0.7rem; color:#888; font-weight:600;">總計：NT$${total}</span><br>
+              未還款：<span style="color:#E76F51;">NT$${unpaidTotal}</span>
+          `;
 
 if (total === 0) {
 listEl.innerHTML = '<div style="text-align:center; color:#ccc; padding:20px;">目前沒有欠款紀錄</div>';
@@ -2402,16 +2359,16 @@ if(e.target.closest('.wish-check')) return;
 openModal('wish', item, idx);
 };
 div.innerHTML = `
-                   <div class="wish-check ${item.checked?'checked':''}'' onclick="toggleWish(${idx})">
-                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                           ${item.checked ? '<polyline points="20 6 9 17 4 12"></polyline>' : ''}
-                       </svg>
-                   </div>
-                   ${item.img ? `<img src="${item.img}" class="wish-img">` : '<div class="wish-img" style="display:flex;align-items:center;justify-content:center;color:#ccc"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg></div>'}
-                   <div class="wish-content">
-                       <div style="font-weight:700; font-size:0.9rem; margin-bottom:4px; ${item.checked?'text-decoration:line-through;color:#aaa':''}">${item.title}</div>
-                   </div>
-               `;
+                  <div class="wish-check ${item.checked?'checked':''}'' onclick="toggleWish(${idx})">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                          ${item.checked ? '<polyline points="20 6 9 17 4 12"></polyline>' : ''}
+                      </svg>
+                  </div>
+                  ${item.img ? `<img src="${item.img}" class="wish-img">` : '<div class="wish-img" style="display:flex;align-items:center;justify-content:center;color:#ccc"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg></div>'}
+                  <div class="wish-content">
+                      <div style="font-weight:700; font-size:0.9rem; margin-bottom:4px; ${item.checked?'text-decoration:line-through;color:#aaa':''}">${item.title}</div>
+                  </div>
+              `;
 list.appendChild(div);
 });
 }
@@ -2445,11 +2402,11 @@ const options = [
 let itemsHtml = '';
 options.forEach(opt => {
 itemsHtml += `
-           <div class="trans-option" onclick="saveTransMode(${idx}, '${opt.key}')">
-               <span class="trans-opt-icon">${opt.icon}</span>
-               <span class="trans-opt-label">${opt.label}</span>
-           </div>
-       `;
+          <div class="trans-option" onclick="saveTransMode(${idx}, '${opt.key}')">
+              <span class="trans-opt-icon">${opt.icon}</span>
+              <span class="trans-opt-label">${opt.label}</span>
+          </div>
+      `;
 });
 
 const menu = document.createElement('div');
@@ -2457,10 +2414,10 @@ const menu = document.createElement('div');
 menu.style.cssText = 'width:100%;background:white;border-radius:1.5rem 1.5rem 0 0;padding:1.2rem;padding-bottom:calc(1.5rem + env(safe-area-inset-bottom));animation:slideUp 0.2s ease-out;';
 
 menu.innerHTML = `
-       <h3 style="margin:0 0 1rem 0;text-align:center;color:#334155;font-size:1rem;">選擇交通方式</h3>
-       <div class="trans-grid">${itemsHtml}</div>
-       <button onclick="this.closest('.temp-overlay').remove()" style="width:100%;padding:10px;border:none;background:#f1f5f9;color:#64748b;border-radius:12px;font-weight:700;font-size:0.9rem;">取消</button>
-   `;
+      <h3 style="margin:0 0 1rem 0;text-align:center;color:#334155;font-size:1rem;">選擇交通方式</h3>
+      <div class="trans-grid">${itemsHtml}</div>
+      <button onclick="this.closest('.temp-overlay').remove()" style="width:100%;padding:10px;border:none;background:#f1f5f9;color:#64748b;border-radius:12px;font-weight:700;font-size:0.9rem;">取消</button>
+  `;
 
 overlay.appendChild(menu);
 document.body.appendChild(overlay);
@@ -2487,31 +2444,31 @@ const menu = document.createElement('div');
 menu.style.cssText = 'width:100%;background:white;border-radius:1.5rem 1.5rem 0 0;padding:1.5rem;padding-bottom:calc(2rem + env(safe-area-inset-bottom));animation:slideUp 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);';
 
 menu.innerHTML = `
-       <h3 style="margin:0 0 1.5rem 0;text-align:center;color:#334155;">交通時間</h3>
-       <div style="display:flex;gap:12px;align-items:center;margin-bottom:1.5rem;">
-           <div style="flex:1;">
-               <label style="display:block;text-align:center;font-size:0.75rem;color:#94a3b8;margin-bottom:6px;font-weight:700;">小時</label>
-               <div style="position:relative;">
-                   <select id="pk-hour" style="width:100%;padding:12px;border-radius:12px;border:1px solid #e2e8f0;font-size:1.4rem;text-align:center;font-weight:800;color:#334155;background:#f8fafc;appearance:none;">
-                       <option value="0">0</option>
-                       <option value="1">1</option>
-                       <option value="2">2</option>
-                       <option value="3">3</option>
-                   </select>
-               </div>
-           </div>
-           <div style="font-weight:900;color:#cbd5e1;font-size:1.5rem;margin-top:1.2rem">:</div>
-           <div style="flex:1;">
-               <label style="display:block;text-align:center;font-size:0.75rem;color:#94a3b8;margin-bottom:6px;font-weight:700;">分鐘</label>
-               <div style="position:relative;">
-                   <select id="pk-min" style="width:100%;padding:12px;border-radius:12px;border:1px solid #e2e8f0;font-size:1.4rem;text-align:center;font-weight:800;color:#334155;background:#f8fafc;appearance:none;">
-                       ${minOptions}
-                   </select>
-               </div>
-           </div>
-       </div>
-       <button id="btn-save-time" style="width:100%;padding:14px;border:none;background:var(--primary);color:white;border-radius:12px;font-weight:700;font-size:1rem;box-shadow:0 4px 12px rgba(44,62,80,0.2);">確定修改</button>
-   `;
+      <h3 style="margin:0 0 1.5rem 0;text-align:center;color:#334155;">交通時間</h3>
+      <div style="display:flex;gap:12px;align-items:center;margin-bottom:1.5rem;">
+          <div style="flex:1;">
+              <label style="display:block;text-align:center;font-size:0.75rem;color:#94a3b8;margin-bottom:6px;font-weight:700;">小時</label>
+              <div style="position:relative;">
+                  <select id="pk-hour" style="width:100%;padding:12px;border-radius:12px;border:1px solid #e2e8f0;font-size:1.4rem;text-align:center;font-weight:800;color:#334155;background:#f8fafc;appearance:none;">
+                      <option value="0">0</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                  </select>
+              </div>
+          </div>
+          <div style="font-weight:900;color:#cbd5e1;font-size:1.5rem;margin-top:1.2rem">:</div>
+          <div style="flex:1;">
+              <label style="display:block;text-align:center;font-size:0.75rem;color:#94a3b8;margin-bottom:6px;font-weight:700;">分鐘</label>
+              <div style="position:relative;">
+                  <select id="pk-min" style="width:100%;padding:12px;border-radius:12px;border:1px solid #e2e8f0;font-size:1.4rem;text-align:center;font-weight:800;color:#334155;background:#f8fafc;appearance:none;">
+                      ${minOptions}
+                  </select>
+              </div>
+          </div>
+      </div>
+      <button id="btn-save-time" style="width:100%;padding:14px;border:none;background:var(--primary);color:white;border-radius:12px;font-weight:700;font-size:1rem;box-shadow:0 4px 12px rgba(44,62,80,0.2);">確定修改</button>
+  `;
 
 overlay.appendChild(menu);
 document.body.appendChild(overlay);
@@ -2577,17 +2534,17 @@ updateConversion();
 
 /// 只換算日幣 -> 台幣 Gemini ///
 function updateConversion() {
-    const val = parseFloat(document.getElementById('quick-amt').value) || 0;
-    const hint = document.getElementById('conversion-hint');
-    
-    // 只有當幣別是 JPY 且金額大於 0 時，才顯示台幣換算
-    if (currentCurrency === 'JPY' && val > 0) {
-        // EX_RATE 請確認您的全域變數設定 (例如 0.215)
-        const twd = Math.round(val * 0.215); 
-        hint.innerText = `約 NT$ ${twd.toLocaleString()}`;
-    } else {
-        hint.innerText = ''; // 台幣模式或無金額時，清空提示
-    }
+const val = parseFloat(document.getElementById('quick-amt').value) || 0;
+const hint = document.getElementById('conversion-hint');
+
+// 只有當幣別是 JPY 且金額大於 0 時，才顯示台幣換算
+if (currentCurrency === 'JPY' && val > 0) {
+// EX_RATE 請確認您的全域變數設定 (例如 0.215)
+const twd = Math.round(val * 0.215); 
+hint.innerText = `約 NT$ ${twd.toLocaleString()}`;
+} else {
+hint.innerText = ''; // 台幣模式或無金額時，清空提示
+}
 }
 
 document.getElementById('summary-content').addEventListener('scroll', function(e) {
@@ -2645,66 +2602,126 @@ btn.disabled = false;
 // 1. 列表收合  新增「收合列表」、「編輯 Modal」、「軟刪除」Gemini//
 // 1. 列表收合 (加入防錯判斷)
 function toggleExpenseList() {
-    const container = document.getElementById('expense-list-container');
-    const header = document.querySelector('.list-head');
-    
+const container = document.getElementById('expense-list-container');
+const header = document.querySelector('.list-head');
+
     if (!container) return; 
     
-    if (container.style.maxHeight) {
+if (container.style.maxHeight) {
+        container.style.maxHeight = null; // 收合
+        header.classList.add('collapsed');
         container.style.maxHeight = null;
         if (header) header.classList.add('collapsed');
-    } else {
+} else {
+        container.style.maxHeight = container.scrollHeight + "px"; // 展開
+        header.classList.remove('collapsed');
         container.style.maxHeight = container.scrollHeight + "px";
         if (header) header.classList.remove('collapsed');
-    }
+}
+}
 } // <--- 檢查這個括號是否存在
 
 // 2. 開啟編輯 Modal
+let editingExpenseId = null; // 暫存正在編輯的 ID
 let editingExpenseId = null;
 
 function openEditModal(id) {
     if (typeof EXPENSE === 'undefined' || !EXPENSE[curDay]) return;
     
-    const item = EXPENSE[curDay].find(e => e.id === id);
-    if (!item) return;
-    
-    editingExpenseId = id;
-    
+const item = EXPENSE[curDay].find(e => e.id === id);
+if (!item) return;
+
+editingExpenseId = id;
+
+    // 填入資料
+    document.getElementById('edit-title').value = item.title;
+    document.getElementById('edit-amt').value = item.amt;
+    document.getElementById('edit-cat').value = item.cat;
+    document.getElementById('edit-pay').value = item.payMethod;
     const t = document.getElementById('edit-title');
     const a = document.getElementById('edit-amt');
     if (t) t.value = item.title;
     if (a) a.value = item.amt;
+
+    // 顯示 Modal
+    document.getElementById('edit-expense-overlay').classList.add('open');
+}
+
+// 3. 儲存編輯
+function saveEditedExpense() {
+    if (!editingExpenseId) return;
+    const item = EXPENSE[curDay].find(e => e.id === editingExpenseId);
     
+    if (item) {
+        item.title = document.getElementById('edit-title').value;
+        item.amt = parseInt(document.getElementById('edit-amt').value);
+        item.cat = document.getElementById('edit-cat').value;
+        item.payMethod = document.getElementById('edit-pay').value;
+        
+        // 關閉 Modal 並重新渲染
+        document.getElementById('edit-expense-overlay').classList.remove('open');
+        renderExpense();
+        renderExpenseCategories(); // 更新統計
+    }
+}
+
+// 4. 軟刪除 (Soft Delete)
+function softDeleteExpense() {
+    if (!editingExpenseId) return;
+    const item = EXPENSE[curDay].find(e => e.id === editingExpenseId);
+    
+    if (item) {
+        item.isDeleted = true; // 標記刪除，不從陣列移除
+        
+        // 關閉 Modal 並重新渲染
+        document.getElementById('edit-expense-overlay').classList.remove('open');
+        renderExpense();
+        renderExpenseCategories(); // 統計會自動過濾掉 isDeleted
+    }
+}
+
+// 5. 復原刪除
+function restoreExpense(id) {
+    const item = EXPENSE[curDay].find(e => e.id === id);
+    if (item) {
+        item.isDeleted = false; // 取消標記
+        renderExpense();
+        renderExpenseCategories(); // 統計加回
+    }
+}
+
+// 6. 綁定滑動監聽 (初始化時呼叫)
+// 請在您的 window.onload 或 init() 函式中加入以下代碼：
+// setupSwipeObserver('cat-swipe-wrapper', '#cat-swipe-dots .dot');
     const overlay = document.getElementById('edit-expense-overlay');
     if (overlay) overlay.classList.add('open');
 } // <--- 檢查這個括號是否存在
 
-// 增加了 handleScroll 的獨立定義，並確保在綁定前先嘗試移除舊的，防止記帳後重複觸發。
+// 6. 綁定滑動監聽
 function setupSwipeObserver(elementId, dotSelector) {
-    const el = document.getElementById(elementId);
-    if (!el) {
-        console.warn(`找不到 ID 為 ${elementId} 的元素，滑動監聽未啟動。`);
-        return;
-    }
-
-    // 定義滾動處理邏輯
-    const handleScroll = () => {
-        const index = Math.round(el.scrollLeft / el.offsetWidth);
-        const dots = document.querySelectorAll(dotSelector);
-        if (dots.length > 0) {
-            dots.forEach((dot, i) => {
-                dot.classList.toggle('active', i === index);
-            });
-        }
-    };
-
-    // 先移除舊的，再重新監聽 (防止多次渲染後，同一個容器疊加多個監聽器)
-    el.removeEventListener('scroll', handleScroll);
-    el.addEventListener('scroll', handleScroll, { passive: true });
-    
-    // 初始化時先手動跑一次，確保第一個點是亮的
-    handleScroll();
+const el = document.getElementById(elementId);
+if(el) {
+el.addEventListener('scroll', () => {
+const index = Math.round(el.scrollLeft / el.offsetWidth);
+const dots = document.querySelectorAll(dotSelector);
+            dots.forEach((d, i) => d.classList.toggle('active', i === index));
+            if (dots.length > 0) {
+                dots.forEach((d, i) => d.classList.toggle('active', i === index));
+            }
+}, { passive: true });
+    } else {
+        console.warn(`滑動容器 ID: ${elementId} 不存在，跳過監聽。`);
 }
+}
+```
+
+### 最後一步：初始化
+
+請記得在您的 `init()` 或 `window.addEventListener('load', ...)` 的地方，加上這行來啟動新的滑動功能：
+
+```javascript
+setupSwipeObserver('cat-swipe-wrapper', '#cat-swipe-dots .dot');
+} // <--- 檢查這個括號是否存在
 
 </script>
 </body>
