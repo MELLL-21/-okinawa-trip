@@ -357,52 +357,77 @@ justify-content: space-between;
 height: 100%; /* 確保高度撐開 */
 }
 
+/* --- 修正滑動容器與亂碼顯示整合版gemini --- */
+
+/* 1. 外層包裹容器：確保在資料載入前有固定高度，防止頁面跳動 */
+.exp-category-card-wrapper {
+    min-height: 180px; /* 這裡關鍵：防止空資料時卡片縮小導致亂碼重疊 */
+    background: rgba(255, 255, 255, 0.1); /* 稍微帶點透明背景 */
+    border-radius: 20px;
+    margin: 15px;
+    padding: 10px 0;
+    position: relative;
+}
+
+/* 2. 滑動區域：整合您的設定並強化強制性 */
 .stat-swipe-wrapper {
-flex: 1;
-display: flex;
-overflow-x: auto;
-scroll-snap-type: x mandatory;
-scrollbar-width: none;
-
-/* 新增這行：確保容器寬度明確 */
-width: 100%; 
+    display: flex !important;
+    overflow-x: auto !important;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    width: 100%;
+    flex: 1;
 }
 
+.stat-swipe-wrapper::-webkit-scrollbar {
+    display: none;
+}
+
+/* 3. 分頁卡片：確保 100% 寬度並防止內容擠壓 */
 .swipe-card {
-/* 強制每張卡片寬度為容器的 100%，不允許壓縮或放大 */
-flex: 0 0 100% !important;
-width: 100% !important;
-min-width: 100% !important;
-
-scroll-snap-align: start; /* 滑動時自動對齊起點 */
-padding: 10px 15px;      /* 維持您原本的內距 */
-box-sizing: border-box;  /* 確保 padding 不會撐大寬度 */
+    flex: 0 0 100% !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    scroll-snap-align: start;
+    padding: 10px 15px;
+    box-sizing: border-box;
+    /* 確保內容不會溢出導致寬度失效 */
+    overflow: hidden; 
 }
 
-
-/* 6點鐘方向指示點 [image:1] */
+/* 4. 指示點容器：位置在卡片底部中央 */
 .swipe-dots {
-display: flex;
-justify-content: center;
-align-items: center;
-gap: 6px;
-padding: 8px 0 12px 0; /* 增加底部間距，使其位於卡片底部中央 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 0 12px 0;
 }
 
+/* 5. 基礎指示點：維持您的樣式 */
 .dot {
-width: 5px;
-height: 5px;
-background: rgba(255, 255, 255, 0.2);
-border-radius: 50%;
-transition: all 0.3s ease;
+    width: 5px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transition: all 0.3s ease;
 }
 
-/* 啟動狀態的點變長且變亮 */
+/* 6. 啟動狀態點：金黃色與變長效果 */
 .dot.active {
-background: #FFD700; /* 與總額金黃色統一 */
-width: 15px;
-border-radius: 3px;
-opacity: 1;
+    background: #FFD700; /* 與總額金黃色統一 */
+    width: 15px;
+    border-radius: 3px;
+    opacity: 1;
+}
+
+/* 7. 內部網格修正：防止內容未載入時的顯示異常 */
+.exp-category-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    min-height: 50px; /* 確保至少有空間顯示載入中 */
 }
 
 /* 🆕 登入成功動畫 */
@@ -1019,11 +1044,19 @@ function updateSyncStatus(message) {
 const statusEl = document.getElementById('sync-status');
 if (statusEl) {
 statusEl.textContent = message;
-setTimeout(() => {
-statusEl.textContent = '';
-}, 3000);
-}
-}
+// 顯示讀取中狀態 (防亂碼)
+document.getElementById('exp-category-grid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:15px;color:#aaa">同步資料中...</div>';
+document.getElementById('debtor-grid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:15px;color:#aaa">同步資料中...</div>';
+
+// 讀取資料 -> 渲染 -> 啟動滑動
+loadExpensesFromSheet().then(data => {
+    if (typeof mergeExpensesFromSheet === 'function') {
+        mergeExpensesFromSheet(data);
+    }
+    renderExpense();
+    renderExpenseCategories(); // 渲染卡片
+    setupSwipeObserver('cat-swipe-wrapper', '#cat-swipe-dots .dot'); // 啟動滑動監聽
+});
 
 // ===== 結束 Google Apps Script 連動 =====
 
@@ -1979,17 +2012,27 @@ console.error('❌ Google Sheet 刪除同步失敗', e);
 }
 
 
-//新增滑動功能-待確認//
+//新增滑動功能-待確認  21:40 Gemini JS優化//
 function renderExpenseCategories() {
     const catGrid = document.getElementById('exp-category-grid');
     const debtorGrid = document.getElementById('debtor-grid');
-    
-    // 如果找不到容器則退出
     if (!catGrid || !debtorGrid) return;
 
-    // 清空內容
+    // 1. 檢查哨：如果還沒確定使用者，就顯示優雅的空狀態或載入中
+    // 這樣就不會跑後面的計算，也就不會出現 undefined 的亂碼
+    if (!currentUser) {
+        catGrid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:20px; color:#ddd;">載入中...</div>';
+        debtorGrid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:20px; color:#ddd;">載入中...</div>';
+        return; 
+    }
+
+    // 2. 清空原本內容，準備放入計算後的資料
     catGrid.innerHTML = '';
     debtorGrid.innerHTML = '';
+
+    // ... 接下來跑您原本的統計邏輯 ...
+    // 因為有了上面的檢查，這裡的 currentUser 絕對有值，不會再報 undefined
+};
 
     if (!currentUser) return;
 
@@ -2636,21 +2679,32 @@ function openEditModal(id) {
     if (overlay) overlay.classList.add('open');
 } // <--- 檢查這個括號是否存在
 
-// 6. 綁定滑動監聽
+// 增加了 handleScroll 的獨立定義，並確保在綁定前先嘗試移除舊的，防止記帳後重複觸發。
 function setupSwipeObserver(elementId, dotSelector) {
     const el = document.getElementById(elementId);
-    if(el) {
-        el.addEventListener('scroll', () => {
-            const index = Math.round(el.scrollLeft / el.offsetWidth);
-            const dots = document.querySelectorAll(dotSelector);
-            if (dots.length > 0) {
-                dots.forEach((d, i) => d.classList.toggle('active', i === index));
-            }
-        }, { passive: true });
-    } else {
-        console.warn(`滑動容器 ID: ${elementId} 不存在，跳過監聽。`);
+    if (!el) {
+        console.warn(`找不到 ID 為 ${elementId} 的元素，滑動監聽未啟動。`);
+        return;
     }
-} // <--- 檢查這個括號是否存在
+
+    // 定義滾動處理邏輯
+    const handleScroll = () => {
+        const index = Math.round(el.scrollLeft / el.offsetWidth);
+        const dots = document.querySelectorAll(dotSelector);
+        if (dots.length > 0) {
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+        }
+    };
+
+    // 先移除舊的，再重新監聽 (防止多次渲染後，同一個容器疊加多個監聽器)
+    el.removeEventListener('scroll', handleScroll);
+    el.addEventListener('scroll', handleScroll, { passive: true });
+    
+    // 初始化時先手動跑一次，確保第一個點是亮的
+    handleScroll();
+}
 
 </script>
 </body>
