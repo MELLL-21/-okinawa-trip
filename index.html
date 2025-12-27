@@ -17,7 +17,14 @@
 --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 }
 * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
-html, body { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; font-family: 'Inter', sans-serif; background: var(--bg-gradient); color: var(--primary); }
+html, body {margin: 0;
+    padding: 0;
+    height: 100%;        /* 舊瀏覽器兼容 */
+    height: 100dvh;      /* 針對手機動態視窗高度優化 */
+    width: 100%;
+    overflow: hidden;    /* 禁止 body 捲動 */
+    overscroll-behavior: none; /* 關鍵：禁止手機滑動到底部的回彈效果 */
+    position: fixed;     /* 強制固定，避免整體頁面被拖動 */ font-family: 'Inter', sans-serif; background: var(--bg-gradient); color: var(--primary); }
 body { display: flex; flex-direction: column; }
 
 /* Header */
@@ -34,7 +41,7 @@ h1 { margin: 0; font-family: 'Noto Serif TC', serif; font-size: 2rem; font-weigh
 .tab.active::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: var(--accent); border-radius: 2px; }
 
 /* Main Content */
-main { flex: 1; overflow-y: auto; padding: 1rem 1rem calc(6rem + var(--safe-bottom)) 1rem; -webkit-overflow-scrolling: touch; position: relative; z-index: 1;scrollbar-gutter: stable; }
+main { flex: 1; overflow-y: auto; padding: 1rem 1rem calc(6rem + var(--safe-bottom)) 1rem; -webkit-overflow-scrolling: touch; position: relative; z-index: 1; }
 
 /* Day Scroll */
 .day-scroll { display: flex; gap: 0.8rem; overflow-x: auto; padding: 0.5rem 0 1rem; scroll-snap-type: x mandatory; z-index: 2; position: relative; }
@@ -680,17 +687,18 @@ style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; paddin
 <!-- EXPENSE VIEW -->
 <main id="view-expense" style="display:none">
 <!-- EXPENSE SUMMARY CARD -->
-<div class="exp-summary-card" id="exp-summary-container">
-    <div id="summary-content" style="display: flex; flex-direction: column; justify-content: space-between; height: 100%; padding: 10px 0;">
+<div class="exp-summary-card">
+<!-- 請替換 id="summary-content" 內部的內容樣板 -->
+<div id="summary-content" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0;">
 <!-- 左側：原始幣別分行 -->
 <div style="flex: 1; text-align: left; padding-left: 10px; border-right: 1px solid rgba(255,255,255,0.2);">
 <div style="margin-bottom: 8px;">
 <span style="font-size: 0.75rem; opacity: 0.8; display: block; margin-bottom: 2px;">🇯🇵 日幣消費</span>
-<span style="font-size: 1.2rem; font-weight: 700;">¥ ${totals.JPY.toLocaleString()}</span>
+<span style="font-size: 1.2rem; font-weight: 700;">¥ 0</span>
 </div>
 <div>
 <span style="font-size: 0.75rem; opacity: 0.8; display: block; margin-bottom: 2px;">🇹🇼 台幣消費</span>
-<span style="font-size: 1.2rem; font-weight: 700;">NT$ ${totals.TWD.toLocaleString()}</span>
+<span style="font-size: 1.2rem; font-weight: 700;">NT$ 0</span>
 </div>
 </div>
 
@@ -698,7 +706,7 @@ style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; paddin
 <div style="flex: 1; text-align: center;">
 <div style="font-size: 0.75rem; opacity: 0.8; margin-bottom: 4px;">總計約 (Total)</div>
 <div style="font-size: 1.8rem; font-weight: 900; color: #FFD700;"> <!-- 使用金黃色強調總額 -->
-<span style="font-size: 1rem; margin-right: 2px;">NT$</span>${combinedTwd.toLocaleString()}
+<span style="font-size: 1rem; margin-right: 2px;">NT$</span>0
 </div>
 </div>
 </div>
@@ -1128,7 +1136,6 @@ fetchWeather();
 // 延遲載入記帳資料
 setTimeout(() => {
 renderExpense();
-updateExpenseStats();  // ← 這個很重要，會動態生成正確的 HTML
 renderExpenseCategories();
 loadExpensesFromSheet();
 }, 100);
