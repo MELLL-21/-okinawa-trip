@@ -2629,7 +2629,6 @@ if (container.style.maxHeight) {
 
 // 2. 開啟編輯 Modal
 let editingExpenseId = null; // 暫存正在編輯的 ID
-let editingExpenseId = null;
 
 function openEditModal(id) {
     if (typeof EXPENSE === 'undefined' || !EXPENSE[curDay]) return;
@@ -2719,13 +2718,7 @@ const dots = document.querySelectorAll(dotSelector);
         console.warn(`滑動容器 ID: ${elementId} 不存在，跳過監聽。`);
 }
 }
-```
 
-### 最後一步：初始化
-
-請記得在您的 `init()` 或 `window.addEventListener('load', ...)` 的地方，加上這行來啟動新的滑動功能：
-
-```javascript
 setupSwipeObserver('cat-swipe-wrapper', '#cat-swipe-dots .dot');
 } // <--- 檢查這個括號是否存在
 
