@@ -1453,64 +1453,108 @@ list.appendChild(wrapper);
 
 
 //支援刪除顯示 Gemimi//
+// ✅ 請將這整段複製，完全覆蓋原本的 renderExpense 函式
 function renderExpense() {
-const list = document.getElementById('expense-list');
-list.innerHTML = '';
-const items = EXPENSE[curDay] || [];
+    const list = document.getElementById('expense-list');
+    if (!list) return;
+    
+    list.innerHTML = ''; // 清空列表
+    const items = EXPENSE[curDay] || []; // 取得當天的記帳資料
 
-if (items.length === 0) {
-list.innerHTML = '<div style="color:#888;text-align:center;margin:2rem 0">尚無消費紀錄</div>';
-return;
+    // 1. 如果沒有資料，顯示提示
+    if (items.length === 0) {
+        list.innerHTML = '<div style="color:#888;text-align:center;margin:2rem 0">尚無消費紀錄</div>';
+        updateExpenseStats(); // 即使沒資料也要更新統計歸零
+        return;
+    }
+
+    // 2. 遍歷每一筆資料並產生 HTML
+    items.forEach(item => {
+        const div = document.createElement('div');
+        
+        // 判斷是否已刪除，加入對應的 class
+        const isDeleted = item.isDeleted ? ' deleted' : '';
+        div.className = `expense-row${isDeleted}`;
+
+        const cat = CATEGORIES.find(c => c.key === item.cat) || CATEGORIES[4]; // 預設為其他
+
+        // 判斷按鈕顯示邏輯
+        let actionBtnHtml = '';
+        if (item.isDeleted) {
+             // 復原按鈕 (加入 stopPropagation 防止觸發收合)
+            actionBtnHtml = `<button type="button" class="btn-restore-inline" style="pointer-events:auto" onclick="event.stopPropagation(); restoreExpense(${item.id})">↩️ 復原此項目</button>`;
+        } else {
+            // 編輯按鈕 (加入 stopPropagation 防止觸發收合)
+            actionBtnHtml = `<button type="button" class="btn-edit-inline" onclick="event.stopPropagation(); openEditModal(${item.id})">✏️ 編輯 / 刪除</button>`;
+        }
+
+        // 3. 處理代墊人顯示 (您原本缺少的部分)
+        let advanceHtml = '';
+        if (item.advanceFor && item.advanceFor.length > 0) {
+            advanceHtml = `<span class="advance-badge">代墊: ${item.advanceFor.join(', ')}</span>`;
+        }
+
+        // 4. 處理金額顯示 (加上逗號分隔)
+        const currencySymbol = item.currency === 'JPY' ? '¥' : 'NT$';
+        const displayAmt = item.amt.toLocaleString();
+
+        div.innerHTML = `
+            <div class="expense-header" onclick="this.parentElement.classList.toggle('expanded')">
+                <div>
+                    <div style="font-weight:700; color:var(--primary)">${item.title || '未命名'}</div>
+                    <div style="font-size:0.75rem; color:#888; margin-top:4px; display:flex; align-items:center; flex-wrap:wrap; gap:4px;">
+                        ${cat.label} · ${item.payMethod === 'cash' ? '現金' : '信用卡'}
+                        ${advanceHtml} <!-- ✅ 補回代墊徽章 -->
+                    </div>
+                </div>
+                <div>
+                    <div style="font-weight:700; font-size:1.1rem; color:var(--accent); text-align:right;">
+                        ${currencySymbol} ${displayAmt}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 已刪除徽章 -->
+            <div class="deleted-badge">已刪除</div>
+            
+            <!-- 展開後的詳細面板 -->
+            <div class="expense-detail-panel">
+                <!-- ✅ 補回分帳明細 -->
+                ${renderSplitDetails(item)} 
+                
+                <!-- 操作按鈕 -->
+                ${actionBtnHtml}
+            </div>
+        `;
+        list.appendChild(div);
+    });
+
+    // 5. 渲染完後更新列表高度 (保留您原本的邏輯)
+    const container = document.getElementById('expense-list-container');
+    if (container && !container.classList.contains('collapsed') && container.style.maxHeight) {
+        container.style.maxHeight = container.scrollHeight + "px";
+    }
+
+    updateExpenseStats(); // 確保總統計更新
 }
 
-items.forEach(item => {
-const div = document.createElement('div');
-// 如果 isDeleted 為真，加上 .deleted 樣式
-div.className = `expense-row ${item.isDeleted ? 'deleted' : ''}`;
-
-const cat = CATEGORIES.find(c => c.key === item.cat) || CATEGORIES[4];
-
-// 判斷按鈕內容
-let actionBtnHtml = '';
-if (item.isDeleted) {
-// 復原按鈕 (注意：這裡要加 onclick event stopPropagation 避免觸發收合，但在 .deleted pointer-events:none 下其實還好)
-actionBtnHtml = `<button type="button" class="btn-restore-inline" style="pointer-events:auto" onclick="restoreExpense('${item.id}')">↩️ 復原此項目</button>`;
-} else {
-// 編輯按鈕 -> 改為開啟 Modal
-actionBtnHtml = `<button type="button" class="btn-edit-inline" onclick="openEditModal('${item.id}')">✏️ 編輯 / 刪除</button>`;
+// ✅ 記得也要確保有這個輔助函式 (如果沒有請加上)
+function renderSplitDetails(item) {
+    if (!item.splitDetails || item.splitDetails.length === 0) return '';
+    
+    let html = '<div style="margin-bottom:10px; border-bottom:1px dashed #eee; padding-bottom:8px;">';
+    item.splitDetails.forEach(detail => {
+        html += `
+            <div class="detail-list-item">
+                <span class="detail-user-name debtor">${detail.user}</span>
+                <span class="detail-amount">¥${detail.amount}</span>
+            </div>
+        `;
+    });
+    html += '</div>';
+    return html;
 }
 
-div.innerHTML = `
-          <div class="expense-header" onclick="this.parentElement.classList.toggle('expanded')">
-              <div>
-                  <div style="font-weight:700; color:var(--primary)">${item.title}</div>
-                  <div style="font-size:0.75rem; color:#888; margin-top:4px">
-                      ${cat.label} · ${item.payMethod === 'cash' ? '現金' : '刷卡'}
-                  </div>
-              </div>
-              <div style="font-weight:700; font-size:1.1rem; color:var(--accent)">
-                  ${item.currency === 'JPY' ? '¥' : 'NT$'}${item.amt}
-              </div>
-          </div>
-          
-          <!-- 刪除印章 -->
-          <div class="deleted-badge">已刪除</div>
-          
-          <div class="expense-detail-panel">
-              ${actionBtnHtml}
-          </div>
-      `;
-list.appendChild(div);
-});
-
-// 渲染完後順便更新列表高度 (如果原本是展開的)
-const container = document.getElementById('expense-list-container');
-if (!container.classList.contains('collapsed') && container.style.maxHeight) {
-container.style.maxHeight = container.scrollHeight + "px";
-}
-
-updateExpenseStats(); // 確保總統計更新
-}
 
 // 請用此函式完整覆蓋原本的 updateExpenseStats
 function updateExpenseStats() {
