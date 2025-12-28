@@ -2623,6 +2623,7 @@ if (container.style.maxHeight) {
 
 // 2. 開啟編輯 Modal
 let editingExpenseId = null; // 暫存正在編輯的 ID
+let editingExpenseId = null;
 
 function openEditModal(id) {
     if (typeof EXPENSE === 'undefined' || !EXPENSE[curDay]) return;
