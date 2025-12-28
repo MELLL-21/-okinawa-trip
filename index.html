@@ -2651,22 +2651,19 @@ btn.disabled = false;
 });
 }
 
-// --- 請用這段取代最後面所有混亂的程式碼 ---
-
-// 收合/展開 expense-list
 function toggleExpenseList() {
-    const header = document.querySelector('.list-head');
-    const container = document.getElementById('expense-list-container');
-    
-    if (!container) return; 
-    
-    if (container.style.maxHeight && container.style.maxHeight !== '0px') {
-        container.style.maxHeight = null;
-        if (header) header.classList.add('collapsed');
-    } else {
-        container.style.maxHeight = container.scrollHeight + "px";
-        if (header) header.classList.remove('collapsed');
-    }
+  const container = document.getElementById('expense-list-container');
+  const headerEl = document.querySelector('#view-expense .list-head'); // 避免抓到其他頁的 .list-head
+  if (!container) return;
+
+  const expanded = container.style.maxHeight && container.style.maxHeight !== '0px';
+  if (expanded) {
+    container.style.maxHeight = null;
+    if (headerEl) headerEl.classList.add('collapsed');
+  } else {
+    container.style.maxHeight = container.scrollHeight + 'px';
+    if (headerEl) headerEl.classList.remove('collapsed');
+  }
 }
 
 // 編輯 Modal - 全域變數只宣告一次
