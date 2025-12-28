@@ -1721,7 +1721,7 @@ payable[c] += myOwe;
 });
 });
 
-// C. 定義卡片 HTML 生成器 (最終版：左日幣、右台幣、同大小、全白)
+// C. 定義卡片 HTML 生成器 (最終確認版：垂直線 + 台幣小0.2rem + 不換行)
 const getCardHtml = (title, jpy, twd, color) => {
     // 計算日幣約當台幣
     const jpyToTwd = Math.round(jpy * EX_RATE);
@@ -1732,29 +1732,29 @@ const getCardHtml = (title, jpy, twd, color) => {
         <div style="font-size:0.9rem; font-weight:700; color:${color}; margin-bottom:12px; opacity:0.9;">${title}</div>
         
         <!-- 內容區 -->
-        <div style="display: flex; align-items: flex-start; justify-content: center; gap: 20px;">
+        <div style="display: flex; align-items: flex-start; justify-content: center; gap: 15px;">
             
-            <!-- 左側：日幣 (JP) - 加粗顯示 -->
+            <!-- 左側：日幣 (JP) -->
             <div style="flex: 1; text-align: right;">
                 <div style="display: flex; flex-direction: column; align-items: flex-end;">
                     <div style="font-size: 0.7rem; opacity: 0.6; font-weight: 600; margin-bottom: 2px;">🇯🇵 JP</div>
-                    <!-- 字重設為 900 (Black)，純白 -->
-                    <div style="font-size: 1.6rem; font-weight: 900; color: #FFFFFF; line-height: 1.2;">¥ ${jpy.toLocaleString()}</div>
-                    <div style="font-size: 0.75rem; color: #aaa; font-weight: 500; margin-top: 4px;">
+                    <!-- 日幣字體 1.6rem，加粗 -->
+                    <div style="font-size: 1.6rem; font-weight: 900; color: #FFFFFF; line-height: 1.2; white-space: nowrap;">¥ ${jpy.toLocaleString()}</div>
+                    <div style="font-size: 0.75rem; color: #aaa; font-weight: 500; margin-top: 4px; white-space: nowrap;">
                         (約 NT$ ${jpyToTwd.toLocaleString()})
                     </div>
                 </div>
             </div>
 
-            <!-- 分隔線 -->
+            <!-- 垂直分隔線 -->
             <div style="width: 1px; height: 50px; background: rgba(255,255,255,0.2); margin-top: 5px;"></div>
 
-            <!-- 右側：台幣 (TW) - 字體一樣大，但字重正常 -->
+            <!-- 右側：台幣 (TW) -->
             <div style="flex: 1; text-align: left;">
                 <div style="display: flex; flex-direction: column; align-items: flex-start;">
                     <div style="font-size: 0.7rem; opacity: 0.6; font-weight: 600; margin-bottom: 2px;">🇹🇼 TW</div>
-                    <!-- 字重設為 700 (Bold)，純白，大小與日幣一致 -->
-                    <div style="font-size: 1.6rem; font-weight: 700; color: #FFFFFF; line-height: 1.2;">NT$ ${twd.toLocaleString()}</div>
+                    <!-- 台幣字體 1.4rem (小0.2rem)，強制不換行 -->
+                    <div style="font-size: 1.4rem; font-weight: 700; color: #FFFFFF; line-height: 1.2; white-space: nowrap;">NT$ ${twd.toLocaleString()}</div>
                 </div>
             </div>
 
@@ -1762,6 +1762,7 @@ const getCardHtml = (title, jpy, twd, color) => {
     </div>
     `;
 };
+
 
 
 // D. 渲染畫面
