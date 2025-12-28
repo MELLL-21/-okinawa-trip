@@ -1521,21 +1521,70 @@ function renderExpense() {
     updateExpenseStats();
 }
 
-// ✅ renderSplitDetails 函式
+// ✅ 修正後的 renderSplitDetails 函式
 function renderSplitDetails(item) {
-    if (!item.splitDetails || item.splitDetails.length === 0) return '';
+    // 1. 如果沒有 splitDetails，直接返回空字串
+    if (!item.splitDetails) return '';
     
-    let html = '<div style="margin-bottom:10px; border-bottom:1px dashed #eee; padding-bottom:8px;">';
-    item.splitDetails.forEach(detail => {
-        html += `
-            <div class="detail-list-item">
-                <span class="detail-user-name debtor">${detail.user}</span>
-                <span class="detail-amount">¥${detail.amount}</span>
-            </div>
-        `;
-    });
-    html += '</div>';
-    return html;
+    // 2. 如果是物件
+    if (typeof item.splitDetails === 'object' && !Array.isArray(item.splitDetails)) {
+        const mode = item.splitDetails.mode;
+        
+        // ✅ 只有 'none' 時不顯示詳細清單（個人消費）
+        if (mode === 'none') {
+            return '';
+        }
+        
+        // ✅ 'equal' 和 'custom' 都要顯示分帳詳情
+        let html = '<div style="margin-bottom:10px; border-bottom:1px dashed #eee; padding-bottom:8px;">';
+        const symbol = item.currency === 'JPY' ? '¥' : 'NT$';
+        
+        if (mode === 'equal' && item.advanceFor) {
+            // 平均分帳：計算每人金額
+            const perPerson = Math.floor(item.amt / item.advanceFor.length);
+            item.advanceFor.forEach(name => {
+                html += `
+                    <div class="detail-list-item" style="display:flex; justify-content:space-between; padding:4px 0;">
+                        <span class="detail-user-name" style="font-weight:700;">${name}</span>
+                        <span class="detail-amount" style="color:var(--accent);">${symbol}${perPerson}</span>
+                    </div>
+                `;
+            });
+        } else if (mode === 'custom' && item.splitDetails.amounts) {
+            // 自訂分帳：顯示每人的自訂金額
+            Object.entries(item.splitDetails.amounts).forEach(([name, amount]) => {
+                if (amount > 0) {
+                    html += `
+                        <div class="detail-list-item" style="display:flex; justify-content:space-between; padding:4px 0;">
+                            <span class="detail-user-name" style="font-weight:700;">${name}</span>
+                            <span class="detail-amount" style="color:var(--accent);">${symbol}${amount}</span>
+                        </div>
+                    `;
+                }
+            });
+        }
+        
+        html += '</div>';
+        return html;
+    }
+    
+    // 3. 如果是陣列（舊版本相容）
+    if (Array.isArray(item.splitDetails) && item.splitDetails.length > 0) {
+        let html = '<div style="margin-bottom:10px; border-bottom:1px dashed #eee; padding-bottom:8px;">';
+        const symbol = item.currency === 'JPY' ? '¥' : 'NT$';
+        item.splitDetails.forEach(detail => {
+            html += `
+                <div class="detail-list-item" style="display:flex; justify-content:space-between; padding:4px 0;">
+                    <span class="detail-user-name" style="font-weight:700;">${detail.user}</span>
+                    <span class="detail-amount" style="color:var(--accent);">${symbol}${detail.amount}</span>
+                </div>
+            `;
+        });
+        html += '</div>';
+        return html;
+    }
+    
+    return '';
 }
 
 
