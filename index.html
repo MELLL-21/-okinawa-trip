@@ -2700,121 +2700,113 @@ btn.disabled = false;
 }, 2000);
 });
 }
-// --- 修正後的 JavaScript 區塊 (請替換檔案末端的混亂程式碼) ---
 
-// 收合/展開 expense-list
+  
 function toggleExpenseList() {
-const header = document.querySelector('.list-head');
-const container = document.getElementById('expense-list-container');
+  const container = document.getElementById('expense-list-container');
+  const headerEl = document.querySelector('#view-expense .list-head'); // 避免抓到其他頁的 .list-head
+  if (!container) return;
 
-if (!container) return; 
-
-if (container.style.maxHeight && container.style.maxHeight !== '0px') {
-// 目前展開，收合它
-container.style.maxHeight = null;
-if (header) header.classList.add('collapsed');
-} else {
-// 目前收合，展開它
-container.style.maxHeight = container.scrollHeight + "px";
-if (header) header.classList.remove('collapsed');
-}
+  const expanded = container.style.maxHeight && container.style.maxHeight !== '0px';
+  if (expanded) {
+    container.style.maxHeight = null;
+    if (headerEl) headerEl.classList.add('collapsed');
+  } else {
+    container.style.maxHeight = container.scrollHeight + 'px';
+    if (headerEl) headerEl.classList.remove('collapsed');
+  }
 }
 
 // 編輯 Modal - 全域變數只宣告一次
 let editingExpenseId = null;
 
 function openEditModal(id) {
-if (typeof EXPENSE === 'undefined' || !EXPENSE[curDay]) return;
-
-const item = EXPENSE[curDay].find(e => e.id === id);
-if (!item) return;
-
-editingExpenseId = id;
-
-// 填入資料
-const titleInput = document.getElementById('edit-title');
-const amtInput = document.getElementById('edit-amt');
-const catSelect = document.getElementById('edit-cat');
-const paySelect = document.getElementById('edit-pay');
-
-if (titleInput) titleInput.value = item.title;
-if (amtInput) amtInput.value = item.amt;
-if (catSelect) catSelect.value = item.cat;
-if (paySelect) paySelect.value = item.payMethod;
-
-// 顯示 Modal
-const overlay = document.getElementById('edit-expense-overlay');
-if (overlay) overlay.classList.add('open');
+    if (typeof EXPENSE === 'undefined' || !EXPENSE[curDay]) return;
+    
+    const item = EXPENSE[curDay].find(e => e.id === id);
+    if (!item) return;
+    
+    editingExpenseId = id;
+    
+    // 填入資料
+    const titleInput = document.getElementById('edit-title');
+    const amtInput = document.getElementById('edit-amt');
+    const catSelect = document.getElementById('edit-cat');
+    const paySelect = document.getElementById('edit-pay');
+    
+    if (titleInput) titleInput.value = item.title;
+    if (amtInput) amtInput.value = item.amt;
+    if (catSelect) catSelect.value = item.cat;
+    if (paySelect) paySelect.value = item.payMethod;
+    
+    // 顯示 Modal
+    const overlay = document.getElementById('edit-expense-overlay');
+    if (overlay) overlay.classList.add('open');
 }
 
 // 儲存編輯
 function saveEditedExpense() {
-if (!editingExpenseId) return;
-const item = EXPENSE[curDay].find(e => e.id === editingExpenseId);
-
-if (item) {
-item.title = document.getElementById('edit-title').value;
-item.amt = parseInt(document.getElementById('edit-amt').value);
-item.cat = document.getElementById('edit-cat').value;
-item.payMethod = document.getElementById('edit-pay').value;
-
-// 關閉 Modal
-const overlay = document.getElementById('edit-expense-overlay');
-if (overlay) overlay.classList.remove('open');
-
-// 重新渲染
-renderExpense();
-renderExpenseCategories();
-updateExpenseStats();
-}
+    if (!editingExpenseId) return;
+    const item = EXPENSE[curDay].find(e => e.id === editingExpenseId);
+    
+    if (item) {
+        item.title = document.getElementById('edit-title').value;
+        item.amt = parseInt(document.getElementById('edit-amt').value);
+        item.cat = document.getElementById('edit-cat').value;
+        item.payMethod = document.getElementById('edit-pay').value;
+        
+        // 關閉 Modal
+        const overlay = document.getElementById('edit-expense-overlay');
+        if (overlay) overlay.classList.remove('open');
+        
+        // 重新渲染
+        renderExpense();
+        renderExpenseCategories();
+        updateExpenseStats();
+    }
 }
 
 // 軟刪除
 function softDeleteExpense() {
-if (!editingExpenseId) return;
-const item = EXPENSE[curDay].find(e => e.id === editingExpenseId);
-
-if (item) {
-item.isDeleted = true;
-
-// 關閉 Modal
-const overlay = document.getElementById('edit-expense-overlay');
-if (overlay) overlay.classList.remove('open');
-
-// 重新渲染
-renderExpense();
-renderExpenseCategories();
-updateExpenseStats();
-}
+    if (!editingExpenseId) return;
+    const item = EXPENSE[curDay].find(e => e.id === editingExpenseId);
+    
+    if (item) {
+        item.isDeleted = true;
+        
+        // 關閉 Modal
+        const overlay = document.getElementById('edit-expense-overlay');
+        if (overlay) overlay.classList.remove('open');
+        
+        // 重新渲染
+        renderExpense();
+        renderExpenseCategories();
+        updateExpenseStats();
+    }
 }
 
 // 復原刪除
 function restoreExpense(id) {
-const item = EXPENSE[curDay].find(e => e.id === id);
-if (item) {
-item.isDeleted = false;
-renderExpense();
-renderExpenseCategories();
-updateExpenseStats();
-}
+    const item = EXPENSE[curDay].find(e => e.id === id);
+    if (item) {
+        item.isDeleted = false;
+        renderExpense();
+        renderExpenseCategories();
+        updateExpenseStats();
+    }
 }
 
 // 初始化滑動監聽
 function setupSwipeObserver(elementId, dotSelector) {
-const el = document.getElementById(elementId);
-if(!el) {
-// 如果元素不存在，靜默失敗或只顯示警告
-// console.warn(`滑動容器 ID: ${elementId} 不存在`);
-return;
+    const el = document.getElementById(elementId);
+    if(!el) return;
+    
+    el.addEventListener('scroll', () => {
+        const index = Math.round(el.scrollLeft / el.offsetWidth);
+        const dots = document.querySelectorAll(dotSelector);
+        dots.forEach((d, i) => d.classList.toggle('active', i === index));
+    }, { passive: true });
 }
-
-el.addEventListener('scroll', () => {
-const index = Math.round(el.scrollLeft / el.offsetWidth);
-const dots = document.querySelectorAll(dotSelector);
-dots.forEach((d, i) => d.classList.toggle('active', i === index));
-}, { passive: true });
-}
-
 
 </script>
 </body>
