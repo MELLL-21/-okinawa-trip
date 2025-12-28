@@ -652,19 +652,37 @@ style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; paddin
 
 
 <div class="tabs">
-<div class="tab active" onclick="switchTab(this, 'itinerary')">
-<svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zm-7 5h5v5h-5v-5z"/></svg>
-行程
+  <!-- 行程 -->
+  <div class="tab active" onclick="switchTab(this, 'itinerary')">
+    <svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zm-7 5h5v5h-5v-5z"/></svg>
+    行程
+  </div>
+
+  <!-- 記帳 -->
+  <div class="tab" onclick="switchTab(this, 'expense')">
+    <svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+    記帳
+  </div>
+
+  <!-- 明細 (新增) -->
+  <div class="tab" onclick="switchTab(this, 'breakdown')">
+    <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+    明細
+  </div>
+
+  <!-- 清單 (原願望清單) -->
+  <div class="tab" onclick="switchTab(this, 'wishlist')">
+    <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+    清單
+  </div>
+
+  <!-- 資訊 (新增) -->
+  <div class="tab" onclick="switchTab(this, 'info')">
+    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+    資訊
+  </div>
 </div>
-<div class="tab" onclick="switchTab(this, 'expense')">
-<svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
-記帳
-</div>
-<div class="tab" onclick="switchTab(this, 'wishlist')">
-<svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-願望清單
-</div>
-</div>
+
 
 <!-- ITINERARY VIEW -->
 <main id="view-itinerary">
@@ -841,24 +859,65 @@ style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; paddin
 </div>
 </div>
 
-<!-- Gemini 加入明細收合功能) -->
-<div class="list-head" onclick="toggleExpenseList()">
-<h2>支出明細</h2>
-<span class="hint">點擊收合/展開</span>
-</div>
-<!-- 包一層 container 用於收合動畫 Gemini 加入明細收合功能 待確認 -->
-<div id="expense-list-container">
-<div id="expense-list"></div>
-</div>
+<!-- 🆕 明細 VIEW -->
+<main id="view-breakdown" style="display:none">
+  <div class="list-head">
+    <h2>支付明細統計</h2>
+    <span class="hint">點擊查看詳細分帳</span>
+  </div>
+  <div id="expense-list-container">
+    <div id="expense-list"></div>
+  </div>
+</main>
 
-<!-- WISHLIST VIEW -->
+
+  
+<!-- 清單 VIEW (原願望清單) -->
 <main id="view-wishlist" style="display:none">
 <div class="list-head">
-<h2>願望清單</h2>
+<h2>購物清單</h2>
 <span class="hint">點擊打勾 / 新增照片</span>
 </div>
 <div class="wish-grid" id="wish-list"></div>
 </main>
+
+<!-- 🆕 資訊 VIEW -->
+<main id="view-info" style="display:none">
+  <div style="padding: 1rem 0;">
+    <div class="list-head">
+      <h2>應用資訊</h2>
+    </div>
+    
+    <!-- 使用者資訊 -->
+    <div class="quick-expense-card">
+      <div style="font-size:0.8rem; font-weight:700; margin-bottom:0.8rem;">👤 目前使用者</div>
+      <div style="font-size:1.2rem; font-weight:900; color:var(--primary);" id="info-current-user">未登入</div>
+    </div>
+    
+    <!-- 統計摘要 -->
+    <div class="quick-expense-card">
+      <div style="font-size:0.8rem; font-weight:700; margin-bottom:1rem;">📊 行程統計</div>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
+        <div style="text-align:center;">
+          <div style="font-size:0.75rem; color:#888; margin-bottom:4px;">總天數</div>
+          <div style="font-size:1.6rem; font-weight:900; color:var(--primary);">5</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:0.75rem; color:#888; margin-bottom:4px;">參與人數</div>
+          <div style="font-size:1.6rem; font-weight:900; color:var(--accent);" id="info-member-count">5</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 操作選項 -->
+    <div class="quick-expense-card">
+      <div style="font-size:0.8rem; font-weight:700; margin-bottom:1rem;">⚙️ 操作</div>
+      <button onclick="clearAllData()" style="width:100%; padding:0.8rem; background:#fee2e2; color:#ef4444; border:1px solid #fecaca; border-radius:0.8rem; font-weight:700; cursor:pointer;">清空所有紀錄</button>
+      <button onclick="logoutUser()" style="width:100%; padding:0.8rem; background:white; color:var(--primary); border:1px solid #cbd5e1; border-radius:0.8rem; font-weight:700; cursor:pointer; margin-top:0.8rem;">登出</button>
+    </div>
+  </div>
+</main>
+
 
 <!-- FAB & MODAL -->
 <div class="fab" id="btn-add" onclick="openModal()">
@@ -1338,27 +1397,36 @@ document.getElementById('clothing-advice').textContent = advice;
 }
 
 // --- TABS ---
+// --- TABS ---
 function switchTab(tabBtn, name) {
-document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-tabBtn.classList.add('active');
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tabBtn.classList.add('active');
 
-document.getElementById('view-itinerary').style.display = 'none';
-document.getElementById('view-expense').style.display = 'none';
-document.getElementById('view-wishlist').style.display = 'none';
+    document.getElementById('view-itinerary').style.display = 'none';
+    document.getElementById('view-expense').style.display = 'none';
+    document.getElementById('view-breakdown').style.display = 'none';
+    document.getElementById('view-wishlist').style.display = 'none';
+    document.getElementById('view-info').style.display = 'none';
 
-document.getElementById('view-' + name).style.display = 'block';
-curTab = name;
+    document.getElementById('view-' + name).style.display = 'block';
+    curTab = name;
 
-const fab = document.getElementById('btn-add');
-fab.style.display = (name === 'expense') ? 'none' : 'flex';
+    const fab = document.getElementById('btn-add');
+    fab.style.display = (name === 'expense') ? 'none' : 'flex';
 
-if(name === 'expense') {
-renderExpense();
-renderExpenseCategories();
-} else if(name === 'wishlist') {
-renderWishlist();
+    if(name === 'expense') {
+        renderExpense();
+        renderExpenseCategories();
+    } else if(name === 'breakdown') {
+        renderExpense();
+        renderExpenseCategories();
+    } else if(name === 'wishlist') {
+        renderWishlist();
+    } else if(name === 'info') {
+        updateInfoView();
+    }
 }
-}
+
 
 // --- ITINERARY ---
 function renderDays() {
@@ -2790,6 +2858,45 @@ function setupSwipeObserver(elementId, dotSelector) {
     }, { passive: true });
 }
 
+ // 🆕 更新資訊頁面
+function updateInfoView() {
+    const userEl = document.getElementById('info-current-user');
+    const countEl = document.getElementById('info-member-count');
+    
+    if(userEl && currentUser) {
+        userEl.textContent = currentUser;
+    }
+    
+    if(countEl && MEMBERS) {
+        countEl.textContent = MEMBERS.length;
+    }
+}
+
+// 🆕 清空所有紀錄
+function clearAllData() {
+    if (!confirm('⚠️ 確定要清空所有紀錄嗎？此操作無法復原！')) return;
+    
+    EXPENSE.forEach(dayExp => dayExp.length = 0);
+    renderExpense();
+    updateExpenseStats();
+    
+    alert('✅ 已清空所有紀錄');
+}
+
+// 🆕 登出
+function logoutUser() {
+    if (!confirm('確定要登出嗎？')) return;
+    
+    currentUser = null;
+    userEnteredSecret = '';
+    editingId = null;
+    
+    localStorage.removeItem('expense_user');
+    localStorage.removeItem('expense_secret_key');
+    
+    location.reload();
+}
+ 
 </script>
 </body>
 </html> 
