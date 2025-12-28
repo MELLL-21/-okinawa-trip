@@ -17,14 +17,7 @@
 --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 }
 * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
-html, body {margin: 0;
-padding: 0;
-height: 100%;        /* 舊瀏覽器兼容 */
-height: 100dvh;      /* 針對手機動態視窗高度優化 */
-width: 100%;
-overflow: hidden;    /* 禁止 body 捲動 */
-overscroll-behavior: none; /* 關鍵：禁止手機滑動到底部的回彈效果 */
-position: fixed;     /* 強制固定，避免整體頁面被拖動 */ font-family: 'Inter', sans-serif; background: var(--bg-gradient); color: var(--primary); }
+html, body { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; font-family: 'Inter', sans-serif; background: var(--bg-gradient); color: var(--primary); }
 body { display: flex; flex-direction: column; }
 
 /* Header */
@@ -643,8 +636,8 @@ style="width: 100%; padding: 12px; background: #E76F51; color: white; border: no
 <!-- 🆕 新增的同步按鈕 (橘色框處) -->
 <button id="btn-header-sync" onclick="manualSync()" 
 style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 8px 12px; 
-              box-shadow: 0 4px 10px rgba(0,0,0,0.05); cursor: pointer; display: flex; align-items: center; gap: 6px; 
-              font-size: 0.8rem; font-weight: 700; color: #4b5563; transition: transform 0.1s;">
+               box-shadow: 0 4px 10px rgba(0,0,0,0.05); cursor: pointer; display: flex; align-items: center; gap: 6px; 
+               font-size: 0.8rem; font-weight: 700; color: #4b5563; transition: transform 0.1s;">
 <span id="sync-icon">🔄</span>
 <span id="sync-text">同步</span>
 </button>
@@ -694,11 +687,11 @@ style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; paddin
 <div style="flex: 1; text-align: left; padding-left: 10px; border-right: 1px solid rgba(255,255,255,0.2);">
 <div style="margin-bottom: 8px;">
 <span style="font-size: 0.75rem; opacity: 0.8; display: block; margin-bottom: 2px;">🇯🇵 日幣消費</span>
-<span style="font-size: 1.2rem; font-weight: 700;">¥ 0</span>
+<span style="font-size: 1.2rem; font-weight: 700;">¥ ${totals.JPY.toLocaleString()}</span>
 </div>
 <div>
 <span style="font-size: 0.75rem; opacity: 0.8; display: block; margin-bottom: 2px;">🇹🇼 台幣消費</span>
-<span style="font-size: 1.2rem; font-weight: 700;">NT$ 0</span>
+<span style="font-size: 1.2rem; font-weight: 700;">NT$ ${totals.TWD.toLocaleString()}</span>
 </div>
 </div>
 
@@ -706,7 +699,7 @@ style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; paddin
 <div style="flex: 1; text-align: center;">
 <div style="font-size: 0.75rem; opacity: 0.8; margin-bottom: 4px;">總計約 (Total)</div>
 <div style="font-size: 1.8rem; font-weight: 900; color: #FFD700;"> <!-- 使用金黃色強調總額 -->
-<span style="font-size: 1rem; margin-right: 2px;">NT$</span>0
+<span style="font-size: 1rem; margin-right: 2px;">NT$</span>${combinedTwd.toLocaleString()}
 </div>
 </div>
 </div>
@@ -1150,7 +1143,6 @@ renderPlan();
 renderWishlist();
 fetchWeather();
 }
-setupSwipeObserver('cat-swipe-wrapper', '#cat-swipe-dots .dot');
 }
 
 // 2. 顯示歡迎頁 (產生選人按鈕)
@@ -1274,9 +1266,9 @@ localStorage.setItem('expense_secret_key', userEnteredSecret);
 const successMsg = document.createElement('div');
 successMsg.className = 'login-success-message';
 successMsg.innerHTML = `
-   <div style="font-size:3rem; margin-bottom:10px;">✅</div>
-   <div style="font-size:1.2rem; font-weight:900; color:#2C3E50;">登入成功！</div>
-   <div style="font-size:0.9rem; color:#666; margin-top:4px;">Hello，${currentUser}</div>
+    <div style="font-size:3rem; margin-bottom:10px;">✅</div>
+    <div style="font-size:1.2rem; font-weight:900; color:#2C3E50;">登入成功！</div>
+    <div style="font-size:0.9rem; color:#666; margin-top:4px;">Hello，${currentUser}</div>
 `;
 document.body.appendChild(successMsg);
 
@@ -1374,9 +1366,9 @@ renderPlan();
 if(curTab === 'expense') renderExpense();
 };
 div.innerHTML = `
-                 <div class="day-top"><span>Day ${day.num}</span><span class="day-dot"></span></div>
-                 <div class="day-num">${day.label}<span>${day.week}</span></div>
-             `;
+                  <div class="day-top"><span>Day ${day.num}</span><span class="day-dot"></span></div>
+                  <div class="day-num">${day.label}<span>${day.week}</span></div>
+              `;
 dayList.appendChild(div);
 });
 }
@@ -1414,39 +1406,39 @@ wrapper.style.setProperty('--card-color', cat.hex || '#ccc');
 wrapper.style.setProperty('--card-color-light', cat.light || '#eee');
 
 wrapper.innerHTML = `
-         <div class="plan-card" onclick="if(!event.target.closest('.nav-btn')) openModal('plan', PLAN[curDay][${idx}], ${idx})">
-             <div class="plan-left">
-                 <div class="plan-time">${item.time}</div>
-                 <div class="plan-tag" style="background:${cat.hex}">${cat.label}</div>
-                 <div class="plan-title">${item.title}</div>
-                 <div class="plan-loc">
-                     <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-                     ${item.loc}
-                 </div>
-             </div>
-             <div class="plan-actions">
-                 <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.loc)}" target="_blank" style="text-decoration:none">
-                     <button type="button" class="nav-btn">
-                          <svg viewBox="0 0 24 24"><path d="M1 11.6l19.6-9.3a1.3 1.3 0 0 1 1.7 1.7l-9.3 19.6c-.6 1.3-2.5 1.3-3.1 0l-2.7-6.2-6.2-2.7c-1.3-.6-1.3-2.5 0-3.1z"/></svg>
-                         導航
-                     </button>
-                 </a>
-             </div>
-         </div>
+          <div class="plan-card" onclick="if(!event.target.closest('.nav-btn')) openModal('plan', PLAN[curDay][${idx}], ${idx})">
+              <div class="plan-left">
+                  <div class="plan-time">${item.time}</div>
+                  <div class="plan-tag" style="background:${cat.hex}">${cat.label}</div>
+                  <div class="plan-title">${item.title}</div>
+                  <div class="plan-loc">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                      ${item.loc}
+                  </div>
+              </div>
+              <div class="plan-actions">
+                  <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.loc)}" target="_blank" style="text-decoration:none">
+                      <button type="button" class="nav-btn">
+                           <svg viewBox="0 0 24 24"><path d="M1 11.6l19.6-9.3a1.3 1.3 0 0 1 1.7 1.7l-9.3 19.6c-.6 1.3-2.5 1.3-3.1 0l-2.7-6.2-6.2-2.7c-1.3-.6-1.3-2.5 0-3.1z"/></svg>
+                          導航
+                      </button>
+                  </a>
+              </div>
+          </div>
 
-         ${isNotLast ? `
-         <div class="trans-line"></div>
-         <div class="trans-badge">
-             <div class="trans-icon" onclick="openTransModePicker(${idx})">
-                 ${iconSymbol}
-             </div>
-             <div class="trans-time" onclick="openTransTimePicker(${idx})">
-                 ${timeStr}
-             </div>
-         </div>
-         <div class="trans-line"></div>
-         ` : ''} 
-     `;
+          ${isNotLast ? `
+          <div class="trans-line"></div>
+          <div class="trans-badge">
+              <div class="trans-icon" onclick="openTransModePicker(${idx})">
+                  ${iconSymbol}
+              </div>
+              <div class="trans-time" onclick="openTransTimePicker(${idx})">
+                  ${timeStr}
+              </div>
+          </div>
+          <div class="trans-line"></div>
+          ` : ''} 
+      `;
 list.appendChild(wrapper);
 });
 }
@@ -1481,25 +1473,25 @@ actionBtnHtml = `<button type="button" class="btn-edit-inline" onclick="openEdit
 }
 
 div.innerHTML = `
-          <div class="expense-header" onclick="this.parentElement.classList.toggle('expanded')">
-              <div>
-                  <div style="font-weight:700; color:var(--primary)">${item.title}</div>
-                  <div style="font-size:0.75rem; color:#888; margin-top:4px">
-                      ${cat.label} · ${item.payMethod === 'cash' ? '現金' : '刷卡'}
-                  </div>
-              </div>
-              <div style="font-weight:700; font-size:1.1rem; color:var(--accent)">
-                  ${item.currency === 'JPY' ? '¥' : 'NT$'}${item.amt}
-              </div>
-          </div>
-          
-          <!-- 刪除印章 -->
-          <div class="deleted-badge">已刪除</div>
-          
-          <div class="expense-detail-panel">
-              ${actionBtnHtml}
-          </div>
-      `;
+           <div class="expense-header" onclick="this.parentElement.classList.toggle('expanded')">
+               <div>
+                   <div style="font-weight:700; color:var(--primary)">${item.title}</div>
+                   <div style="font-size:0.75rem; color:#888; margin-top:4px">
+                       ${cat.label} · ${item.payMethod === 'cash' ? '現金' : '刷卡'}
+                   </div>
+               </div>
+               <div style="font-weight:700; font-size:1.1rem; color:var(--accent)">
+                   ${item.currency === 'JPY' ? '¥' : 'NT$'}${item.amt}
+               </div>
+           </div>
+           
+           <!-- 刪除印章 -->
+           <div class="deleted-badge">已刪除</div>
+           
+           <div class="expense-detail-panel">
+               ${actionBtnHtml}
+           </div>
+       `;
 list.appendChild(div);
 });
 
@@ -1581,58 +1573,58 @@ const getCardHtml = (title, jpy, twd, color) => {
 const jpyToTwd = Math.round(jpy * EX_RATE);
 
 return `
-     <div class="swipe-card" style="text-align: center;">
-         <!-- 卡片標題 -->
-         <div style="font-size:0.9rem; font-weight:700; color:${color}; margin-bottom:12px; opacity:0.9;">${title}</div>
-         
-         <!-- 金額顯示區 (垂直置中排列) -->
-         <div style="display: flex; flex-direction: column; gap: 12px; align-items: center;">
-             
-             <!-- 日幣區塊 -->
-             <div>
-                 <div style="display: flex; align-items: baseline; justify-content: center; gap: 6px;">
-                     <span style="font-size: 0.7rem; opacity: 0.6; font-weight: 600;">🇯🇵 JP</span>
-                     <span style="font-size: 1.6rem; font-weight: 800;">¥ ${jpy.toLocaleString()}</span>
-                 </div>
-                 <!-- 灰色小字提示約當台幣 -->
-                 <div style="font-size: 0.75rem; color: #aaa; font-weight: 500; margin-top: 2px;">
-                     (約 NT$ ${jpyToTwd.toLocaleString()})
-                 </div>
-             </div>
-             
-             <!-- 分隔線 -->
-             <div style="width: 40px; height: 1px; background: rgba(255,255,255,0.1);"></div>
-             
-             <!-- 台幣區塊 -->
-             <div>
-                 <div style="display: flex; align-items: baseline; justify-content: center; gap: 6px;">
-                     <span style="font-size: 0.7rem; opacity: 0.6; font-weight: 600;">🇹🇼 TW</span>
-                     <span style="font-size: 1.6rem; font-weight: 800; color: #FFD700;">NT$ ${twd.toLocaleString()}</span>
-                 </div>
-             </div>
+      <div class="swipe-card" style="text-align: center;">
+          <!-- 卡片標題 -->
+          <div style="font-size:0.9rem; font-weight:700; color:${color}; margin-bottom:12px; opacity:0.9;">${title}</div>
+          
+          <!-- 金額顯示區 (垂直置中排列) -->
+          <div style="display: flex; flex-direction: column; gap: 12px; align-items: center;">
+              
+              <!-- 日幣區塊 -->
+              <div>
+                  <div style="display: flex; align-items: baseline; justify-content: center; gap: 6px;">
+                      <span style="font-size: 0.7rem; opacity: 0.6; font-weight: 600;">🇯🇵 JP</span>
+                      <span style="font-size: 1.6rem; font-weight: 800;">¥ ${jpy.toLocaleString()}</span>
+                  </div>
+                  <!-- 灰色小字提示約當台幣 -->
+                  <div style="font-size: 0.75rem; color: #aaa; font-weight: 500; margin-top: 2px;">
+                      (約 NT$ ${jpyToTwd.toLocaleString()})
+                  </div>
+              </div>
+              
+              <!-- 分隔線 -->
+              <div style="width: 40px; height: 1px; background: rgba(255,255,255,0.1);"></div>
+              
+              <!-- 台幣區塊 -->
+              <div>
+                  <div style="display: flex; align-items: baseline; justify-content: center; gap: 6px;">
+                      <span style="font-size: 0.7rem; opacity: 0.6; font-weight: 600;">🇹🇼 TW</span>
+                      <span style="font-size: 1.6rem; font-weight: 800; color: #FFD700;">NT$ ${twd.toLocaleString()}</span>
+                  </div>
+              </div>
 
-         </div>
-     </div>
-     `;
+          </div>
+      </div>
+      `;
 };
 
 // D. 渲染畫面
 summaryContainer.style.overflow = "hidden";
 summaryContainer.innerHTML = `
-     <!-- 滑動內容 -->
-     <div class="stat-swipe-wrapper" id="stat-swipe-wrapper">
-         ${getCardHtml('個人花費總額', totals.JPY, totals.TWD, '#fff')}
-         ${getCardHtml('待收付款項 (應收)', receivable.JPY, receivable.TWD, '#10b981')}
-         ${getCardHtml('待收付款項 (應付)', payable.JPY, payable.TWD, '#E76F51')}
-     </div>
-     
-     <!-- 滑動指示點 -->
-     <div class="swipe-dots">
-         <span class="dot active"></span>
-         <span class="dot"></span>
-         <span class="dot"></span>
-     </div>
- `;
+      <!-- 滑動內容 -->
+      <div class="stat-swipe-wrapper" id="stat-swipe-wrapper">
+          ${getCardHtml('個人花費總額', totals.JPY, totals.TWD, '#fff')}
+          ${getCardHtml('待收付款項 (應收)', receivable.JPY, receivable.TWD, '#10b981')}
+          ${getCardHtml('待收付款項 (應付)', payable.JPY, payable.TWD, '#E76F51')}
+      </div>
+      
+      <!-- 滑動指示點 -->
+      <div class="swipe-dots">
+          <span class="dot active"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+      </div>
+  `;
 
 // E. 重新綁定滑動監聽 (確保指示點會動)
 const wrapper = document.getElementById('stat-swipe-wrapper');
@@ -1694,9 +1686,9 @@ others.forEach(name => {
 const row = document.createElement('div');
 row.style.cssText = 'display:grid;grid-template-columns:0.6fr 1.4fr;gap:0.6rem;align-items:center;margin-bottom:0.6rem;';
 row.innerHTML = `
-                 <label style="font-size:0.75rem;font-weight:700;color:#374151;white-space:nowrap;">${name}</label>
-                 <input type="number" class="quick-custom-amt" data-name="${name}" min="0" placeholder="NT$" style="padding:0.5rem 0.6rem;font-size:0.8rem;border:1px solid #e5e7eb;border-radius:0.6rem;" oninput="updateQuickSplitPreview()">
-             `;
+                  <label style="font-size:0.75rem;font-weight:700;color:#374151;white-space:nowrap;">${name}</label>
+                  <input type="number" class="quick-custom-amt" data-name="${name}" min="0" placeholder="NT$" style="padding:0.5rem 0.6rem;font-size:0.8rem;border:1px solid #e5e7eb;border-radius:0.6rem;" oninput="updateQuickSplitPreview()">
+              `;
 container.appendChild(row);
 });
 }
@@ -2083,10 +2075,10 @@ if (s.JPY > 0) amountHtml += `<div style="font-size:1.1rem; font-weight:900;">¥
 if (s.TWD > 0) amountHtml += `<div style="font-size:0.8rem; opacity:0.8;">NT$${s.TWD.toLocaleString()}</div>`;
 
 itemDiv.innerHTML = `
-          <span style="font-size:0.85rem; margin-bottom:4px; display:block;">${cat.label}</span>
-          ${amountHtml}
-          <span style="font-size:0.7rem; margin-top:4px; display:block;">${s.count}筆</span>
-      `;
+           <span style="font-size:0.85rem; margin-bottom:4px; display:block;">${cat.label}</span>
+           ${amountHtml}
+           <span style="font-size:0.7rem; margin-top:4px; display:block;">${s.count}筆</span>
+       `;
 catGrid.appendChild(itemDiv);
 });
 if (catGrid.innerHTML === '') catGrid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#888; padding:10px;">沒有支出</div>';
@@ -2105,10 +2097,10 @@ if (s.JPY > 0) amtHtml += `<div style="font-size:1.1rem; font-weight:900;">¥${s
 if (s.TWD > 0) amtHtml += `<div style="font-size:0.8rem; opacity:0.8;">NT$${s.TWD.toLocaleString()}</div>`;
 
 itemDiv.innerHTML = `
-          <span style="font-size:0.85rem; margin-bottom:4px; display:block;">${s.label}</span>
-          ${amtHtml}
-          <span style="font-size:0.7rem; margin-top:4px; display:block;">${s.count}筆紀錄</span>
-      `;
+           <span style="font-size:0.85rem; margin-bottom:4px; display:block;">${s.label}</span>
+           ${amtHtml}
+           <span style="font-size:0.7rem; margin-top:4px; display:block;">${s.count}筆紀錄</span>
+       `;
 debtorGrid.appendChild(itemDiv);
 });
 if (debtorGrid.innerHTML === '') debtorGrid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#888; padding:10px;">目前尚無分帳紀錄 🎉</div>';
@@ -2155,41 +2147,41 @@ if (!isSettled) unpaidTotal += debtAmt;
 
 const row = document.createElement('div');
 row.style.cssText = `
-                         display:flex; 
-                         justify-content:space-between; 
-                         align-items:center; 
-                         padding:10px 0; 
-                         border-bottom:1px dashed #eee;
-                         ${isSettled ? 'opacity:0.5;' : ''}
-                     `;
+                          display:flex; 
+                          justify-content:space-between; 
+                          align-items:center; 
+                          padding:10px 0; 
+                          border-bottom:1px dashed #eee;
+                          ${isSettled ? 'opacity:0.5;' : ''}
+                      `;
 
 row.innerHTML = `
-                         <div>
-                             <div style="font-weight:700; font-size:0.9rem;">
-                                 ${item.title}
-                                 ${isSettled ? '<span style="color:#10b981; font-size:0.7rem; margin-left:6px;">✓</span>' : ''}
-                             </div>
-                             <div style="font-size:0.75rem; color:#888;">
-                                 ${DAYS[dayIdx].label}
-                             </div>
-                         </div>
-                         <div style="text-align:right;">
-                             <div style="font-weight:700; color:#E76F51; margin-bottom:4px;">NT$${debtAmt}</div>
-                             ${isSettled 
-                                 ? '<span style="background:#10b981; color:#fff; padding:4px 8px; border-radius:12px; font-size:0.7rem; font-weight:700;">已還款</span>'
-                                 : `<button type="button" style="background:#10b981; color:#fff; border:none; padding:4px 8px; border-radius:12px; font-size:0.7rem; cursor:pointer;" onclick="settleSingleDebt(${dayIdx}, '${item.id}', '${debtorName}')">標記還款</button>`
-                             }
-                         </div>
-                     `;
+                          <div>
+                              <div style="font-weight:700; font-size:0.9rem;">
+                                  ${item.title}
+                                  ${isSettled ? '<span style="color:#10b981; font-size:0.7rem; margin-left:6px;">✓</span>' : ''}
+                              </div>
+                              <div style="font-size:0.75rem; color:#888;">
+                                  ${DAYS[dayIdx].label}
+                              </div>
+                          </div>
+                          <div style="text-align:right;">
+                              <div style="font-weight:700; color:#E76F51; margin-bottom:4px;">NT$${debtAmt}</div>
+                              ${isSettled 
+                                  ? '<span style="background:#10b981; color:#fff; padding:4px 8px; border-radius:12px; font-size:0.7rem; font-weight:700;">已還款</span>'
+                                  : `<button type="button" style="background:#10b981; color:#fff; border:none; padding:4px 8px; border-radius:12px; font-size:0.7rem; cursor:pointer;" onclick="settleSingleDebt(${dayIdx}, '${item.id}', '${debtorName}')">標記還款</button>`
+                              }
+                          </div>
+                      `;
 listEl.appendChild(row);
 }
 });
 });
 
 footerEl.innerHTML = `
-             <span style="font-size:0.7rem; color:#888; font-weight:600;">總計：NT$${total}</span><br>
-             未還款：<span style="color:#E76F51;">NT$${unpaidTotal}</span>
-         `;
+              <span style="font-size:0.7rem; color:#888; font-weight:600;">總計：NT$${total}</span><br>
+              未還款：<span style="color:#E76F51;">NT$${unpaidTotal}</span>
+          `;
 
 if (total === 0) {
 listEl.innerHTML = '<div style="text-align:center; color:#ccc; padding:20px;">目前沒有欠款紀錄</div>';
@@ -2367,16 +2359,16 @@ if(e.target.closest('.wish-check')) return;
 openModal('wish', item, idx);
 };
 div.innerHTML = `
-                 <div class="wish-check ${item.checked?'checked':''}'' onclick="toggleWish(${idx})">
-                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                         ${item.checked ? '<polyline points="20 6 9 17 4 12"></polyline>' : ''}
-                     </svg>
-                 </div>
-                 ${item.img ? `<img src="${item.img}" class="wish-img">` : '<div class="wish-img" style="display:flex;align-items:center;justify-content:center;color:#ccc"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg></div>'}
-                 <div class="wish-content">
-                     <div style="font-weight:700; font-size:0.9rem; margin-bottom:4px; ${item.checked?'text-decoration:line-through;color:#aaa':''}">${item.title}</div>
-                 </div>
-             `;
+                  <div class="wish-check ${item.checked?'checked':''}'' onclick="toggleWish(${idx})">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                          ${item.checked ? '<polyline points="20 6 9 17 4 12"></polyline>' : ''}
+                      </svg>
+                  </div>
+                  ${item.img ? `<img src="${item.img}" class="wish-img">` : '<div class="wish-img" style="display:flex;align-items:center;justify-content:center;color:#ccc"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg></div>'}
+                  <div class="wish-content">
+                      <div style="font-weight:700; font-size:0.9rem; margin-bottom:4px; ${item.checked?'text-decoration:line-through;color:#aaa':''}">${item.title}</div>
+                  </div>
+              `;
 list.appendChild(div);
 });
 }
@@ -2410,11 +2402,11 @@ const options = [
 let itemsHtml = '';
 options.forEach(opt => {
 itemsHtml += `
-         <div class="trans-option" onclick="saveTransMode(${idx}, '${opt.key}')">
-             <span class="trans-opt-icon">${opt.icon}</span>
-             <span class="trans-opt-label">${opt.label}</span>
-         </div>
-     `;
+          <div class="trans-option" onclick="saveTransMode(${idx}, '${opt.key}')">
+              <span class="trans-opt-icon">${opt.icon}</span>
+              <span class="trans-opt-label">${opt.label}</span>
+          </div>
+      `;
 });
 
 const menu = document.createElement('div');
@@ -2422,10 +2414,10 @@ const menu = document.createElement('div');
 menu.style.cssText = 'width:100%;background:white;border-radius:1.5rem 1.5rem 0 0;padding:1.2rem;padding-bottom:calc(1.5rem + env(safe-area-inset-bottom));animation:slideUp 0.2s ease-out;';
 
 menu.innerHTML = `
-     <h3 style="margin:0 0 1rem 0;text-align:center;color:#334155;font-size:1rem;">選擇交通方式</h3>
-     <div class="trans-grid">${itemsHtml}</div>
-     <button onclick="this.closest('.temp-overlay').remove()" style="width:100%;padding:10px;border:none;background:#f1f5f9;color:#64748b;border-radius:12px;font-weight:700;font-size:0.9rem;">取消</button>
- `;
+      <h3 style="margin:0 0 1rem 0;text-align:center;color:#334155;font-size:1rem;">選擇交通方式</h3>
+      <div class="trans-grid">${itemsHtml}</div>
+      <button onclick="this.closest('.temp-overlay').remove()" style="width:100%;padding:10px;border:none;background:#f1f5f9;color:#64748b;border-radius:12px;font-weight:700;font-size:0.9rem;">取消</button>
+  `;
 
 overlay.appendChild(menu);
 document.body.appendChild(overlay);
@@ -2452,31 +2444,31 @@ const menu = document.createElement('div');
 menu.style.cssText = 'width:100%;background:white;border-radius:1.5rem 1.5rem 0 0;padding:1.5rem;padding-bottom:calc(2rem + env(safe-area-inset-bottom));animation:slideUp 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);';
 
 menu.innerHTML = `
-     <h3 style="margin:0 0 1.5rem 0;text-align:center;color:#334155;">交通時間</h3>
-     <div style="display:flex;gap:12px;align-items:center;margin-bottom:1.5rem;">
-         <div style="flex:1;">
-             <label style="display:block;text-align:center;font-size:0.75rem;color:#94a3b8;margin-bottom:6px;font-weight:700;">小時</label>
-             <div style="position:relative;">
-                 <select id="pk-hour" style="width:100%;padding:12px;border-radius:12px;border:1px solid #e2e8f0;font-size:1.4rem;text-align:center;font-weight:800;color:#334155;background:#f8fafc;appearance:none;">
-                     <option value="0">0</option>
-                     <option value="1">1</option>
-                     <option value="2">2</option>
-                     <option value="3">3</option>
-                 </select>
-             </div>
-         </div>
-         <div style="font-weight:900;color:#cbd5e1;font-size:1.5rem;margin-top:1.2rem">:</div>
-         <div style="flex:1;">
-             <label style="display:block;text-align:center;font-size:0.75rem;color:#94a3b8;margin-bottom:6px;font-weight:700;">分鐘</label>
-             <div style="position:relative;">
-                 <select id="pk-min" style="width:100%;padding:12px;border-radius:12px;border:1px solid #e2e8f0;font-size:1.4rem;text-align:center;font-weight:800;color:#334155;background:#f8fafc;appearance:none;">
-                     ${minOptions}
-                 </select>
-             </div>
-         </div>
-     </div>
-     <button id="btn-save-time" style="width:100%;padding:14px;border:none;background:var(--primary);color:white;border-radius:12px;font-weight:700;font-size:1rem;box-shadow:0 4px 12px rgba(44,62,80,0.2);">確定修改</button>
- `;
+      <h3 style="margin:0 0 1.5rem 0;text-align:center;color:#334155;">交通時間</h3>
+      <div style="display:flex;gap:12px;align-items:center;margin-bottom:1.5rem;">
+          <div style="flex:1;">
+              <label style="display:block;text-align:center;font-size:0.75rem;color:#94a3b8;margin-bottom:6px;font-weight:700;">小時</label>
+              <div style="position:relative;">
+                  <select id="pk-hour" style="width:100%;padding:12px;border-radius:12px;border:1px solid #e2e8f0;font-size:1.4rem;text-align:center;font-weight:800;color:#334155;background:#f8fafc;appearance:none;">
+                      <option value="0">0</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                  </select>
+              </div>
+          </div>
+          <div style="font-weight:900;color:#cbd5e1;font-size:1.5rem;margin-top:1.2rem">:</div>
+          <div style="flex:1;">
+              <label style="display:block;text-align:center;font-size:0.75rem;color:#94a3b8;margin-bottom:6px;font-weight:700;">分鐘</label>
+              <div style="position:relative;">
+                  <select id="pk-min" style="width:100%;padding:12px;border-radius:12px;border:1px solid #e2e8f0;font-size:1.4rem;text-align:center;font-weight:800;color:#334155;background:#f8fafc;appearance:none;">
+                      ${minOptions}
+                  </select>
+              </div>
+          </div>
+      </div>
+      <button id="btn-save-time" style="width:100%;padding:14px;border:none;background:var(--primary);color:white;border-radius:12px;font-weight:700;font-size:1rem;box-shadow:0 4px 12px rgba(44,62,80,0.2);">確定修改</button>
+  `;
 
 overlay.appendChild(menu);
 document.body.appendChild(overlay);
@@ -2613,48 +2605,35 @@ function toggleExpenseList() {
 const container = document.getElementById('expense-list-container');
 const header = document.querySelector('.list-head');
 
-    const header = document.querySelector('.list-head');
-    const container = document.getElementById('expense-list-container');
+    if (!container) return; 
     
-if (!container) return; 
-
 if (container.style.maxHeight) {
         container.style.maxHeight = null; // 收合
         header.classList.add('collapsed');
-    if (container.style.maxHeight && container.style.maxHeight !== '0px') {
-        // 目前展開，收合它
-container.style.maxHeight = null;
-if (header) header.classList.add('collapsed');
+        container.style.maxHeight = null;
+        if (header) header.classList.add('collapsed');
 } else {
         container.style.maxHeight = container.scrollHeight + "px"; // 展開
         header.classList.remove('collapsed');
-    } else {
-        // 目前收合，展開它
-container.style.maxHeight = container.scrollHeight + "px";
-if (header) header.classList.remove('collapsed');
-    }
+        container.style.maxHeight = container.scrollHeight + "px";
+        if (header) header.classList.remove('collapsed');
 }
-}      // <--- 檢查這個括號是否存在
+}
+} // <--- 檢查這個括號是否存在
 
 // 2. 開啟編輯 Modal
 let editingExpenseId = null; // 暫存正在編輯的 ID
-// 編輯 Modal - 只宣告一次
 let editingExpenseId = null;
 
 function openEditModal(id) {
-if (typeof EXPENSE === 'undefined' || !EXPENSE[curDay]) return;
-
+    if (typeof EXPENSE === 'undefined' || !EXPENSE[curDay]) return;
+    
 const item = EXPENSE[curDay].find(e => e.id === id);
 if (!item) return;
 
 editingExpenseId = id;
 
-    const item = EXPENSE[curDay].find(e => e.id === id);
-    if (!item) return;
-    
-    editingExpenseId = id;
-    
-// 填入資料
+    // 填入資料
     document.getElementById('edit-title').value = item.title;
     document.getElementById('edit-amt').value = item.amt;
     document.getElementById('edit-cat').value = item.cat;
@@ -2664,84 +2643,51 @@ editingExpenseId = id;
     if (t) t.value = item.title;
     if (a) a.value = item.amt;
 
-    const titleInput = document.getElementById('edit-title');
-    const amtInput = document.getElementById('edit-amt');
-    const catSelect = document.getElementById('edit-cat');
-    const paySelect = document.getElementById('edit-pay');
-    
-    if (titleInput) titleInput.value = item.title;
-    if (amtInput) amtInput.value = item.amt;
-    if (catSelect) catSelect.value = item.cat;
-    if (paySelect) paySelect.value = item.payMethod;
-    
-// 顯示 Modal
+    // 顯示 Modal
     document.getElementById('edit-expense-overlay').classList.add('open');
-    const overlay = document.getElementById('edit-expense-overlay');
-    if (overlay) overlay.classList.add('open');
 }
 
 // 3. 儲存編輯
-// 儲存編輯
 function saveEditedExpense() {
-if (!editingExpenseId) return;
-const item = EXPENSE[curDay].find(e => e.id === editingExpenseId);
-
-if (item) {
-item.title = document.getElementById('edit-title').value;
-item.amt = parseInt(document.getElementById('edit-amt').value);
-item.cat = document.getElementById('edit-cat').value;
-item.payMethod = document.getElementById('edit-pay').value;
-
+    if (!editingExpenseId) return;
+    const item = EXPENSE[curDay].find(e => e.id === editingExpenseId);
+    
+    if (item) {
+        item.title = document.getElementById('edit-title').value;
+        item.amt = parseInt(document.getElementById('edit-amt').value);
+        item.cat = document.getElementById('edit-cat').value;
+        item.payMethod = document.getElementById('edit-pay').value;
+        
         // 關閉 Modal 並重新渲染
         document.getElementById('edit-expense-overlay').classList.remove('open');
-        // 關閉 Modal
-        const overlay = document.getElementById('edit-expense-overlay');
-        if (overlay) overlay.classList.remove('open');
-        
-        // 重新渲染
-renderExpense();
+        renderExpense();
         renderExpenseCategories(); // 更新統計
-        renderExpenseCategories();
-        updateExpenseStats();
-}
+    }
 }
 
 // 4. 軟刪除 (Soft Delete)
-// 軟刪除
 function softDeleteExpense() {
-if (!editingExpenseId) return;
-const item = EXPENSE[curDay].find(e => e.id === editingExpenseId);
-
-if (item) {
+    if (!editingExpenseId) return;
+    const item = EXPENSE[curDay].find(e => e.id === editingExpenseId);
+    
+    if (item) {
         item.isDeleted = true; // 標記刪除，不從陣列移除
-        item.isDeleted = true;
         
-        // 關閉 Modal
-        const overlay = document.getElementById('edit-expense-overlay');
-        if (overlay) overlay.classList.remove('open');
-
         // 關閉 Modal 並重新渲染
         document.getElementById('edit-expense-overlay').classList.remove('open');
-        // 重新渲染
-renderExpense();
+        renderExpense();
         renderExpenseCategories(); // 統計會自動過濾掉 isDeleted
-        renderExpenseCategories();
-        updateExpenseStats();
-}
+    }
 }
 
 // 5. 復原刪除
-// 復原刪除
 function restoreExpense(id) {
-const item = EXPENSE[curDay].find(e => e.id === id);
-if (item) {
+    const item = EXPENSE[curDay].find(e => e.id === id);
+    if (item) {
         item.isDeleted = false; // 取消標記
-        item.isDeleted = false;
-renderExpense();
+        renderExpense();
         renderExpenseCategories(); // 統計加回
-        renderExpenseCategories();
-        updateExpenseStats();
-}
+    }
 }
 
 // 6. 綁定滑動監聽 (初始化時呼叫)
@@ -2752,7 +2698,6 @@ renderExpense();
 } // <--- 檢查這個括號是否存在
 
 // 6. 綁定滑動監聽
-// 初始化滑動監聽
 function setupSwipeObserver(elementId, dotSelector) {
 const el = document.getElementById(elementId);
 if(el) {
@@ -2767,19 +2712,14 @@ const dots = document.querySelectorAll(dotSelector);
     } else {
         console.warn(`滑動容器 ID: ${elementId} 不存在，跳過監聽。`);
 }
-    const el = document.getElementById(elementId);
-    if(!el) {
-        console.warn(`滑動容器 ID: ${elementId} 不存在`);
-        return;
-    }
-    
-    el.addEventListener('scroll', () => {
-        const index = Math.round(el.scrollLeft / el.offsetWidth);
-        const dots = document.querySelectorAll(dotSelector);
-        dots.forEach((d, i) => d.classList.toggle('active', i === index));
-    }, { passive: true });
 }
+```
 
+### 最後一步：初始化
+
+請記得在您的 `init()` 或 `window.addEventListener('load', ...)` 的地方，加上這行來啟動新的滑動功能：
+
+```javascript
 setupSwipeObserver('cat-swipe-wrapper', '#cat-swipe-dots .dot');
 } // <--- 檢查這個括號是否存在
 
