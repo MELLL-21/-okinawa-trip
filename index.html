@@ -136,7 +136,20 @@ fill: currentColor; /* 讓圖標跟隨文字顏色變成白色 */
 .btn-delete-inline { color: #ef4444; border-color: #fee2e2; background: #fef2f2; }
 
 /* Expense List */
-.expense-row { background: white; padding: 0.8rem 1rem; border-radius: 1rem; margin-bottom: 0.8rem; display: block; box-shadow: 0 2px 8px rgba(0,0,0,0.03); cursor: pointer; transition: transform 0.1s; }
+.expense-row { 
+    background: white; 
+    padding: 0.8rem 1rem; 
+    border-radius: 1rem; 
+    margin-bottom: 0.8rem; 
+    display: block; 
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03); 
+    cursor: pointer; 
+    transition: transform 0.1s;
+    
+    /* ⚠️ 務必加入這兩行，這是解決跑位的關鍵 */
+    position: relative; 
+    overflow: hidden; 
+}
 .expense-row:active { transform: scale(0.98); }
 .expense-header { display: flex; justify-content: space-between; align-items: center; }
 .expense-detail-panel { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px dashed #e5e7eb; animation: slideDown 0.2s ease-out; }
@@ -568,29 +581,250 @@ pointer-events: none; /* 刪除後不可點擊展開 */
 text-decoration: line-through;
 color: #9ca3af;
 }
+/* 修改後的刪除印章樣式 */
 .deleted-badge {
-position: absolute;
-top: 50%; left: 50%;
-transform: translate(-50%, -50%) rotate(-10deg);
-border: 2px solid #ef4444;
-color: #ef4444;
-padding: 4px 12px;
-font-weight: 900;
-font-size: 1.2rem;
-border-radius: 8px;
-opacity: 0.8;
-display: none;
-z-index: 10;
+    position: absolute;
+    /* 改用 inset 0 + flex 居中，確保永遠在卡片正中央 */
+    inset: 0; 
+    display: none; /* 預設隱藏 */
+    align-items: center;
+    justify-content: center;
+    pointer-events: none; /* 讓點擊事件穿透，不影響編輯按鈕 */
+    z-index: 10;
+    overflow: hidden; /* 防止旋轉後超出邊界 */
+    border-radius: 1rem; /* 配合卡片圓角 */
 }
+
+/* 印章本體 (文字框) */
+.deleted-badge-inner {
+    border: 3px solid #ef4444;
+    color: #ef4444;
+    padding: 6px 16px;
+    font-weight: 900;
+    font-size: 1.5rem;
+    border-radius: 12px;
+    opacity: 0.8;
+    transform: rotate(-15deg); /* 這裡做旋轉 */
+    background: rgba(255, 255, 255, 0.6); /* 半透明背景增加層次感 */
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+/* 當有 deleted class 時顯示 */
 .expense-row.deleted .deleted-badge {
-display: block;
+    display: flex; /* 改用 flex 讓內部居中 */
 }
+
 /* 復原按鈕 */
 .btn-restore-inline {
 width: 100%; margin-top: 10px; padding: 10px;
 background: #ecfdf5; color: #10b981;
 border: 1.5px solid #10b981; border-radius: 10px;
 font-weight: 700; cursor: pointer; pointer-events: auto;
+}
+
+/* 清單切換 Tab 樣式 */
+.wish-tab.active {
+    background: white;
+    color: var(--primary);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+/* 行李清單項目樣式 */
+.luggage-category {
+    margin-bottom: 1.2rem;
+}
+.luggage-cat-title {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--primary);
+    margin-bottom: 8px;
+    opacity: 0.8;
+    padding-left: 4px;
+    border-left: 3px solid var(--accent);
+}
+.luggage-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.luggage-item {
+    background: white;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #4b5563;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+}
+/* 選中狀態：變暗、有刪除線 */
+.luggage-item.checked {
+    background: #f1f5f9;
+    color: #cbd5e1;
+    text-decoration: line-through;
+    box-shadow: none;
+}
+/* 自訂項目標記 */
+.luggage-item.custom {
+    border-color: #e2e8f0;
+    border-style: dashed;
+}
+
+/* --- 旅遊資訊頁樣式 --- */
+
+.info-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-bottom: 2rem;
+}
+
+.info-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden; /* 關鍵：隱藏收合的內容 */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+/* 展開時加深陰影或改變邊框 */
+.info-card:not(.collapsed) {
+    box-shadow: 0 8px 24px rgba(44,62,80,0.12);
+    border-color: rgba(44,62,80,0.1);
+}
+
+.info-header {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    cursor: pointer;
+    background: white;
+    position: relative;
+    z-index: 2; /* 確保標題層級較高 */
+}
+
+.info-icon {
+    font-size: 1.4rem;
+    margin-right: 12px;
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1));
+}
+
+.info-title {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--primary);
+    flex: 1;
+}
+
+.info-arrow {
+    font-size: 0.8rem;
+    color: #9ca3af;
+    transition: transform 0.3s ease;
+}
+
+/* 展開時箭頭旋轉 */
+.info-card:not(.collapsed) .info-arrow {
+    transform: rotate(180deg);
+}
+
+/* 內容區塊動畫 */
+.info-content {
+    background: #f8fafc;
+    padding: 0 16px;
+    max-height: 500px; /* 設定一個足夠大的高度 */
+    opacity: 1;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+/* 收合狀態 */
+.info-card.collapsed .info-content {
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    opacity: 0;
+}
+
+/* 內容排版 */
+.info-block {
+    padding: 16px 4px;
+}
+
+.info-sub-title {
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--accent);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+    border-bottom: 1px dashed #e2e8f0;
+    padding-bottom: 4px;
+}
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-row span:first-child {
+    color: #64748b;
+    font-weight: 600;
+}
+.info-row span:last-child {
+    color: #334151;
+    font-weight: 700;
+    text-align: right;
+    max-width: 70%;
+}
+
+.info-divider {
+    border: none;
+    border-top: 1px solid #e2e8f0;
+    margin: 0;
+}
+
+.info-text {
+    font-size: 0.85rem;
+    color: #475569;
+    line-height: 1.6;
+    background: #fff;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.info-link-btn {
+    display: block;
+    width: 100%;
+    text-align: center;
+    background: white;
+    border: 1px solid #cbd5e1;
+    color: #475569;
+    padding: 10px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.85rem;
+    margin-top: 12px;
+    transition: 0.2s;
+}
+.info-link-btn:active {
+    background: #f1f5f9;
+    transform: scale(0.98);
 }
 
 
@@ -876,47 +1110,154 @@ style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; paddin
   
 <!-- 清單 VIEW (原願望清單) -->
 <main id="view-wishlist" style="display:none">
-<div class="list-head">
-<h2>購物清單</h2>
-<span class="hint">點擊打勾 / 新增照片</span>
-</div>
-<div class="wish-grid" id="wish-list"></div>
+    <div class="list-head" style="margin-bottom: 0.5rem;">
+        <h2>清單管理</h2>
+    </div>
+
+    <!-- 頂部切換器 -->
+    <div class="wishlist-tabs" style="display:flex; background:rgba(255,255,255,0.5); padding:4px; border-radius:12px; margin-bottom:1rem;">
+        <div class="wish-tab active" onclick="switchWishTab('luggage')" style="flex:1; text-align:center; padding:8px; font-weight:700; font-size:0.9rem; border-radius:10px; cursor:pointer; transition:0.2s;">🧳 行李清單</div>
+        <div class="wish-tab" onclick="switchWishTab('shopping')" style="flex:1; text-align:center; padding:8px; font-weight:700; font-size:0.9rem; border-radius:10px; cursor:pointer; transition:0.2s; color:#888;">🛍️ 購物清單</div>
+    </div>
+
+    <!-- 行李清單區塊 -->
+    <div id="wish-view-luggage">
+        <div class="hint" style="margin-bottom:10px; display:inline-block;">點擊文字可刪除自訂項目</div>
+        <!-- 預設分類區塊 -->
+        <div id="luggage-list-container"></div>
+        
+        <!-- 新增按鈕 (只針對行李) -->
+        <div style="margin-top:1rem; display:flex; gap:8px;">
+            <input type="text" id="new-luggage-item" placeholder="新增行李項目..." style="flex:1; padding:10px; border-radius:10px; border:1px solid #ddd;">
+            <button onclick="addLuggageItem()" style="padding:0 16px; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:700;">＋</button>
+        </div>
+    </div>
+
+    <!-- 購物清單區塊 (原本的 wish-grid) -->
+    <div id="wish-view-shopping" style="display:none;">
+        <div class="hint" style="margin-bottom:10px; display:inline-block;">點擊卡片編輯 / 打勾標記已購</div>
+        <div class="wish-grid" id="wish-list"></div>
+    </div>
 </main>
 
-<!-- 🆕 資訊 VIEW -->
+
+<!-- 🆕 資訊 VIEW (改版：旅遊重要資訊) -->
 <main id="view-info" style="display:none">
-  <div style="padding: 1rem 0;">
-    <div class="list-head">
-      <h2>應用資訊</h2>
-    </div>
+  <div class="list-head" style="margin-bottom: 0.5rem;">
+    <h2>旅遊資訊</h2>
+  </div>
+
+  <div class="info-container">
     
-    <!-- 使用者資訊 -->
-    <div class="quick-expense-card">
-      <div style="font-size:0.8rem; font-weight:700; margin-bottom:0.8rem;">👤 目前使用者</div>
-      <div style="font-size:1.2rem; font-weight:900; color:var(--primary);" id="info-current-user">未登入</div>
-    </div>
-    
-    <!-- 統計摘要 -->
-    <div class="quick-expense-card">
-      <div style="font-size:0.8rem; font-weight:700; margin-bottom:1rem;">📊 行程統計</div>
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
-        <div style="text-align:center;">
-          <div style="font-size:0.75rem; color:#888; margin-bottom:4px;">總天數</div>
-          <div style="font-size:1.6rem; font-weight:900; color:var(--primary);">5</div>
+    <!-- 1. 航班資訊 -->
+    <div class="info-card collapsed" onclick="toggleInfoCard(this)">
+      <div class="info-header">
+        <span class="info-icon">✈️</span>
+        <span class="info-title">航班資訊 (Flight)</span>
+        <span class="info-arrow">▼</span>
+      </div>
+      <div class="info-content">
+        <!-- 去程 -->
+        <div class="info-block">
+          <div class="info-sub-title">🇹🇼 去程 (TPE ➝ OKA)</div>
+          <div class="info-row"><span>日期</span><span>2025/01/06 (一)</span></div>
+          <div class="info-row"><span>航班</span><span>樂桃 MM924</span></div>
+          <div class="info-row"><span>時間</span><span>09:35 桃園T1 ➝ 12:00 那霸</span></div>
+          <div class="info-row"><span>編號</span><span>訂位代號: XXXXXX</span></div>
         </div>
-        <div style="text-align:center;">
-          <div style="font-size:0.75rem; color:#888; margin-bottom:4px;">參與人數</div>
-          <div style="font-size:1.6rem; font-weight:900; color:var(--accent);" id="info-member-count">5</div>
+        <hr class="info-divider">
+        <!-- 回程 -->
+        <div class="info-block">
+          <div class="info-sub-title">🇯🇵 回程 (OKA ➝ TPE)</div>
+          <div class="info-row"><span>日期</span><span>2025/01/10 (五)</span></div>
+          <div class="info-row"><span>航班</span><span>虎航 IT231</span></div>
+          <div class="info-row"><span>時間</span><span>10:10 那霸 ➝ 10:55 桃園T1</span></div>
         </div>
       </div>
     </div>
-    
-    <!-- 操作選項 -->
-    <div class="quick-expense-card">
-      <div style="font-size:0.8rem; font-weight:700; margin-bottom:1rem;">⚙️ 操作</div>
-      <button onclick="clearAllData()" style="width:100%; padding:0.8rem; background:#fee2e2; color:#ef4444; border:1px solid #fecaca; border-radius:0.8rem; font-weight:700; cursor:pointer;">清空所有紀錄</button>
-      <button onclick="logoutUser()" style="width:100%; padding:0.8rem; background:white; color:var(--primary); border:1px solid #cbd5e1; border-radius:0.8rem; font-weight:700; cursor:pointer; margin-top:0.8rem;">登出</button>
+
+    <!-- 2. 住宿資訊 -->
+    <div class="info-card collapsed" onclick="toggleInfoCard(this)">
+      <div class="info-header">
+        <span class="info-icon">🏠</span>
+        <span class="info-title">住宿資訊 (Stay)</span>
+        <span class="info-arrow">▼</span>
+      </div>
+      <div class="info-content">
+        <div class="info-block">
+          <div class="info-sub-title">Chateau TIIDA (包棟民宿)</div>
+          <div class="info-row"><span>地址</span><span>沖縄県国頭郡恩納村字名嘉真2288-306</span></div>
+          <div class="info-row"><span>電話</span><span>+81 00-0000-0000</span></div>
+          <div class="info-row"><span>入住</span><span>15:00 後 (密碼鎖)</span></div>
+          <div class="info-row"><span>退房</span><span>10:00 前</span></div>
+          <div class="info-row"><span>備註</span><span>垃圾需分類，保持整潔</span></div>
+          <a href="https://maps.app.goo.gl/example" target="_blank" class="info-link-btn">🗺️ 開啟 Google Maps</a>
+        </div>
+      </div>
     </div>
+
+    <!-- 3. 租車資訊 -->
+    <div class="info-card collapsed" onclick="toggleInfoCard(this)">
+      <div class="info-header">
+        <span class="info-icon">🚗</span>
+        <span class="info-title">租車 / 包車 (Car)</span>
+        <span class="info-arrow">▼</span>
+      </div>
+      <div class="info-content">
+        <div class="info-block">
+          <div class="info-sub-title">OTS 租車 (臨空豐崎營業所)</div>
+          <div class="info-row"><span>預約號</span><span>RC12345678</span></div>
+          <div class="info-row"><span>取車</span><span>01/06 13:30 (機場接駁)</span></div>
+          <div class="info-row"><span>還車</span><span>01/10 08:00</span></div>
+          <div class="info-row"><span>車型</span><span>Toyota Sienta (7人座)</span></div>
+          <div class="info-text">
+            ⚠️ 注意事項：<br>
+            1. 取車需備妥：台灣駕照、日文譯本、護照。<br>
+            2. 還車前請加滿油 (Regular 紅色油槍)。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. 餐廳訂位 -->
+    <div class="info-card collapsed" onclick="toggleInfoCard(this)">
+      <div class="info-header">
+        <span class="info-icon">🍽️</span>
+        <span class="info-title">餐廳預約 (Dining)</span>
+        <span class="info-arrow">▼</span>
+      </div>
+      <div class="info-content">
+        <div class="info-block">
+          <div class="info-sub-title">琉球之牛 (國際通店)</div>
+          <div class="info-row"><span>時間</span><span>01/06 (一) 21:00</span></div>
+          <div class="info-row"><span>人數</span><span>5 位</span></div>
+        </div>
+        <hr class="info-divider">
+        <div class="info-block">
+          <div class="info-sub-title">百年古家 大家</div>
+          <div class="info-row"><span>時間</span><span>01/08 (三) 12:00</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. 注意事項 -->
+    <div class="info-card collapsed" onclick="toggleInfoCard(this)">
+      <div class="info-header">
+        <span class="info-icon">⚠️</span>
+        <span class="info-title">注意事項 (Notes)</span>
+        <span class="info-arrow">▼</span>
+      </div>
+      <div class="info-content">
+        <div class="info-text">
+          ✅ <b>入境檢疫：</b> 請先填寫 Visit Japan Web。<br>
+          ✅ <b>電壓：</b> 日本電壓 100V (雙孔扁插頭)，台灣電器通用。<br>
+          ✅ <b>緊急聯絡：</b><br>
+          - 報警 110 / 救護車 119<br>
+          - 台北駐日代表處那霸分處：098-862-7008
+        </div>
+      </div>
+    </div>
+
   </div>
 </main>
 
@@ -946,12 +1287,22 @@ style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; paddin
 <label>種類標籤</label>
 <div class="cats" id="cat-list"></div>
 </div>
+<!-- 原本的程式碼片段 -->
 <div id="wish-fields" style="display:none">
-<div class="form-row">
-<label>圖片 URL (選填)</label>
-<input type="text" id="wish-img-url" placeholder="https://...">
+    <div class="form-row">
+        <label>圖片 URL (貼上網址自動預覽)</label> <!-- 修改 label 提示 -->
+        
+        <!-- 👇 修改這行：加入 oninput 事件 -->
+        <input type="text" id="wish-img-url" placeholder="長按貼上圖片網址..." oninput="handleImageInput(this)">
+        
+        <!-- 👇 新增這行：用來顯示預覽圖 -->
+        <img id="preview-img" src="" style="display:none; width:100%; height:150px; object-fit:contain; margin-top:10px; border-radius:8px; background:#f0f0f0; border:1px dashed #ccc;">
+        
+        <!-- 👇 新增這行：錯誤提示訊息 -->
+        <div id="img-error-msg" style="display:none; font-size:0.75rem; color:#ef4444; margin-top:4px;">⚠️ 圖片無法讀取，請換一張來源 (推薦維基百科/大型電商)</div>
+    </div>
 </div>
-</div>
+
 <button type="submit" class="btn-save">儲存</button>
 <button type="button" class="btn-del" onclick="deleteItem()">刪除紀錄</button>
 </form>
@@ -1162,6 +1513,161 @@ let editingType = null;
 let statMode = 'personal';
 let editingId = null;
 
+
+
+// 預設行李清單
+const DEFAULT_LUGGAGE = [
+    { cat: '證件錢包', items: ['護照', '日幣', '台幣', '信用卡', '西瓜卡', '駕照(譯本)'] },
+    { cat: '電子產品', items: ['手機', '充電器', '行動電源', '網卡/漫遊', '轉接頭'] },
+    { cat: '衣物', items: ['內衣褲', '襪子', '睡衣', '外套', '帽子', '好走的鞋'] },
+    { cat: '盥洗/保養', items: ['牙刷牙膏', '毛巾', '洗面乳', '卸妝油', '保養品', '防曬'] },
+    { cat: '其他', items: ['常備藥', '雨傘', '塑膠袋(裝髒衣)', '筆'] }
+];
+
+// 使用者行李狀態 (會存入 LocalStorage)
+let myLuggage = {
+    checked: [], // 已勾選項目
+    custom: []   // 自訂項目
+};
+
+// 切換清單分頁 (行李 vs 購物)
+function switchWishTab(tab) {
+    // 1. 樣式切換
+    document.querySelectorAll('.wish-tab').forEach(t => t.classList.remove('active'));
+    // 這裡用簡單的 textContent 判斷來加 active 樣式
+    const targetText = tab === 'luggage' ? '行李' : '購物';
+    document.querySelectorAll('.wish-tab').forEach(t => {
+        if(t.textContent.includes(targetText)) t.classList.add('active');
+    });
+
+    // 2. 視圖切換
+    const luggageView = document.getElementById('wish-view-luggage');
+    const shoppingView = document.getElementById('wish-view-shopping');
+    
+    if (luggageView && shoppingView) {
+        luggageView.style.display = tab === 'luggage' ? 'block' : 'none';
+        shoppingView.style.display = tab === 'shopping' ? 'block' : 'none';
+    }
+
+    // 3. FAB 按鈕控制 (購物清單才顯示右下角 + 號)
+    const fab = document.getElementById('btn-add');
+    if (fab) {
+        if (tab === 'shopping') {
+            fab.style.display = 'flex';
+            // 確保購物清單有渲染
+            if (typeof renderWishlist === 'function') renderWishlist(); 
+        } else {
+            fab.style.display = 'none';
+            // 渲染行李清單
+            renderLuggageList(); 
+        }
+    }
+}
+
+// 渲染行李清單
+function renderLuggageList() {
+    const container = document.getElementById('luggage-list-container');
+    if (!container) return;
+    
+    container.innerHTML = '';
+
+    // A. 渲染預設分類
+    DEFAULT_LUGGAGE.forEach(group => {
+        const catDiv = document.createElement('div');
+        catDiv.className = 'luggage-category';
+        
+        let itemsHtml = '';
+        group.items.forEach(item => {
+            const isChecked = myLuggage.checked.includes(item);
+            itemsHtml += `
+                <div class="luggage-item ${isChecked ? 'checked' : ''}" onclick="toggleLuggageItem('${item}')">
+                    ${isChecked ? '✅' : '⬜'} ${item}
+                </div>
+            `;
+        });
+
+        catDiv.innerHTML = `<div class="luggage-cat-title">${group.cat}</div><div class="luggage-grid">${itemsHtml}</div>`;
+        container.appendChild(catDiv);
+    });
+
+    // B. 渲染自訂項目 (如果有)
+    if (myLuggage.custom && myLuggage.custom.length > 0) {
+        const customDiv = document.createElement('div');
+        customDiv.className = 'luggage-category';
+        let customHtml = '';
+        
+        myLuggage.custom.forEach(item => {
+            const isChecked = myLuggage.checked.includes(item);
+            customHtml += `
+                <div class="luggage-item custom ${isChecked ? 'checked' : ''}">
+                    <span onclick="toggleLuggageItem('${item}')" style="display:flex;align-items:center;gap:4px;">
+                        ${isChecked ? '✅' : '⬜'} ${item}
+                    </span>
+                    <span onclick="removeLuggageItem('${item}')" style="margin-left:8px; opacity:0.4; font-size:1.2rem; line-height:1; padding:0 4px;">×</span>
+                </div>
+            `;
+        });
+        
+        customDiv.innerHTML = `<div class="luggage-cat-title" style="color:var(--accent); border-color:var(--accent);">自訂追加</div><div class="luggage-grid">${customHtml}</div>`;
+        container.appendChild(customDiv);
+    }
+}
+
+// 點擊勾選/取消
+function toggleLuggageItem(name) {
+    if (myLuggage.checked.includes(name)) {
+        myLuggage.checked = myLuggage.checked.filter(i => i !== name);
+    } else {
+        myLuggage.checked.push(name);
+    }
+    saveLuggage();
+    renderLuggageList();
+}
+
+// 新增自訂項目
+function addLuggageItem() {
+    const input = document.getElementById('new-luggage-item');
+    if (!input) return;
+    
+    const val = input.value.trim();
+    if (!val) return;
+
+    // 檢查是否重複 (包含預設與自訂)
+    let isDuplicate = false;
+    DEFAULT_LUGGAGE.forEach(g => { if(g.items.includes(val)) isDuplicate = true; });
+    if (myLuggage.custom.includes(val)) isDuplicate = true;
+
+    if (!isDuplicate) {
+        myLuggage.custom.push(val);
+        // 自動幫勾選
+        // myLuggage.checked.push(val); 
+        saveLuggage();
+        renderLuggageList();
+        input.value = ''; // 清空輸入框
+    } else {
+        alert('這個項目已經在清單裡囉！');
+    }
+}
+
+// 刪除自訂項目
+function removeLuggageItem(name) {
+    // 簡單確認防止誤觸
+    if (confirm(`確定要刪除 "${name}" 嗎？`)) {
+        myLuggage.custom = myLuggage.custom.filter(i => i !== name);
+        myLuggage.checked = myLuggage.checked.filter(i => i !== name);
+        saveLuggage();
+        renderLuggageList();
+    }
+}
+
+// 儲存到 LocalStorage
+function saveLuggage() {
+    localStorage.setItem('my_luggage', JSON.stringify(myLuggage));
+}
+
+
+
+
 // ===== 初始化與登入邏輯 (唯一版本) =====
 
 // 1. 初始化 (自動登入邏輯)
@@ -1187,6 +1693,16 @@ updateSubtitleWithUser();
 // 3. 隱藏歡迎頁
 const wrapper = document.getElementById('welcome-card');
 if (wrapper) wrapper.style.display = 'none';
+
+   // 👇 加入這段讀取行李清單
+    const savedLuggage = localStorage.getItem('my_luggage');
+    if (savedLuggage) {
+        try {
+            myLuggage = JSON.parse(savedLuggage);
+        } catch(e) {
+            console.error('讀取行李清單失敗', e);
+        }
+    }
 
 // 4. 載入資料
 renderDays();
@@ -1521,7 +2037,7 @@ list.appendChild(wrapper);
 });
 }
 
-// ✅ 乾淨的 renderExpense 函式
+// ✅ 修正版 renderExpense：印章位置修正
 function renderExpense() {
     const list = document.getElementById('expense-list');
     if (!list) return;
@@ -1539,44 +2055,57 @@ function renderExpense() {
         const div = document.createElement('div');
         const isDeleted = item.isDeleted ? ' deleted' : '';
         div.className = `expense-row${isDeleted}`;
+        // 增加一點內距讓它像卡片
+        div.style.padding = "1rem 1.2rem";
 
         const cat = CATEGORIES.find(c => c.key === item.cat) || CATEGORIES[4];
-
-        let actionBtnHtml = '';
-        if (item.isDeleted) {
-            actionBtnHtml = `<button type="button" class="btn-restore-inline" style="pointer-events:auto" onclick="event.stopPropagation(); restoreExpense('${item.id}')">↩️ 復原此項目</button>`;
-        } else {
-            actionBtnHtml = `<button type="button" class="btn-edit-inline" onclick="event.stopPropagation(); openEditModal('${item.id}')">✏️ 編輯 / 刪除</button>`;
-        }
-
-        let advanceHtml = '';
-        if (item.advanceFor && item.advanceFor.length > 0) {
-            advanceHtml = `<span class="advance-badge">代墊: ${item.advanceFor.join(', ')}</span>`;
-        }
-
         const currencySymbol = item.currency === 'JPY' ? '¥' : 'NT$';
         const displayAmt = item.amt.toLocaleString();
 
+        const hasSplit = item.splitDetails && item.splitDetails.mode !== 'none';
+        
+        let advanceHtml = '';
+        if (hasSplit && item.advanceFor) {
+            const othersCount = item.advanceFor.filter(p => p !== currentUser).length;
+            if (othersCount > 0) {
+                advanceHtml = `<span class="advance-badge">代墊: ${othersCount}人</span>`;
+            }
+        }
+
+        let actionBtnHtml = '';
+        if (item.isDeleted) {
+             actionBtnHtml = `<div style="margin-top:10px;"><button type="button" class="btn-restore-inline" style="pointer-events:auto;" onclick="event.stopPropagation(); restoreExpense('${item.id}')">↩️ 復原此項目</button></div>`;
+        } else {
+            actionBtnHtml = `<div style="text-align:right; margin-top:8px;"><span style="font-size:0.75rem; color:#aaa; cursor:pointer; font-weight:600;" onclick="event.stopPropagation(); openEditModal('${item.id}')">✏️ 編輯 / 刪除</span></div>`;
+        }
+
         div.innerHTML = `
+            <!-- 上半部：標題與總金額 -->
             <div class="expense-header" onclick="this.parentElement.classList.toggle('expanded')">
                 <div>
-                    <div style="font-weight:700; color:var(--primary)">${item.title || '未命名'}</div>
-                    <div style="font-size:0.75rem; color:#888; margin-top:4px; display:flex; align-items:center; flex-wrap:wrap; gap:4px;">
-                        ${cat.label} · ${item.payMethod === 'cash' ? '現金' : '信用卡'}
+                    <div style="font-weight:800; font-size:1.1rem; color:var(--primary); margin-bottom:4px;">${item.title || '未命名'}</div>
+                    <div style="font-size:0.75rem; color:#888; display:flex; align-items:center; gap:6px;">
+                        <span style="background:#f3f4f6; padding:2px 6px; border-radius:4px;">${cat.label}</span>
+                        <span style="background:#f3f4f6; padding:2px 6px; border-radius:4px;">${item.payMethod === 'cash' ? '現金' : '信用卡'}</span>
                         ${advanceHtml}
                     </div>
                 </div>
-                <div>
-                    <div style="font-weight:700; font-size:1.1rem; color:var(--accent); text-align:right;">
-                        ${currencySymbol} ${displayAmt}
+                <div style="text-align:right;">
+                    <div style="font-weight:900; font-size:1.3rem; color:#E76F51;">
+                        ${currencySymbol}${displayAmt}
                     </div>
+                    <div style="font-size:0.6rem; color:#ccc; margin-top:4px;">▼</div>
                 </div>
             </div>
             
-            <div class="deleted-badge">已刪除</div>
+            <!-- 修正後的刪除印章結構 -->
+            <div class="deleted-badge">
+                <div class="deleted-badge-inner">已刪除</div>
+            </div>
             
+            <!-- 下半部：展開區塊 -->
             <div class="expense-detail-panel">
-                ${renderSplitDetails(item)} 
+                ${renderSplitDetails(item)}
                 ${actionBtnHtml}
             </div>
         `;
@@ -1584,78 +2113,66 @@ function renderExpense() {
     });
 
     const container = document.getElementById('expense-list-container');
-    if (container && !container.classList.contains('collapsed') && container.style.maxHeight) {
-        container.style.maxHeight = container.scrollHeight + "px";
+    if (container) {
+        container.style.maxHeight = 'none';
+        container.style.overflow = 'visible';
     }
 
     updateExpenseStats();
 }
 
-// ✅ 修正後的 renderSplitDetails 函式
+
+// ✅ 修正版 renderSplitDetails：只負責產生分帳列表 HTML
 function renderSplitDetails(item) {
-    // 1. 如果沒有 splitDetails，直接返回空字串
-    if (!item.splitDetails) return '';
-    
-    // 2. 如果是物件
-    if (typeof item.splitDetails === 'object' && !Array.isArray(item.splitDetails)) {
-        const mode = item.splitDetails.mode;
-        
-        // ✅ 只有 'none' 時不顯示詳細清單（個人消費）
-        if (mode === 'none') {
-            return '';
-        }
-        
-        // ✅ 'equal' 和 'custom' 都要顯示分帳詳情
-        let html = '<div style="margin-bottom:10px; border-bottom:1px dashed #eee; padding-bottom:8px;">';
-        const symbol = item.currency === 'JPY' ? '¥' : 'NT$';
-        
-        if (mode === 'equal' && item.advanceFor) {
-            // 平均分帳：計算每人金額
-            const perPerson = Math.floor(item.amt / item.advanceFor.length);
-            item.advanceFor.forEach(name => {
-                html += `
-                    <div class="detail-list-item" style="display:flex; justify-content:space-between; padding:4px 0;">
-                        <span class="detail-user-name" style="font-weight:700;">${name}</span>
-                        <span class="detail-amount" style="color:var(--accent);">${symbol}${perPerson}</span>
-                    </div>
-                `;
-            });
-        } else if (mode === 'custom' && item.splitDetails.amounts) {
-            // 自訂分帳：顯示每人的自訂金額
-            Object.entries(item.splitDetails.amounts).forEach(([name, amount]) => {
-                if (amount > 0) {
-                    html += `
-                        <div class="detail-list-item" style="display:flex; justify-content:space-between; padding:4px 0;">
-                            <span class="detail-user-name" style="font-weight:700;">${name}</span>
-                            <span class="detail-amount" style="color:var(--accent);">${symbol}${amount}</span>
-                        </div>
-                    `;
-                }
-            });
-        }
-        
-        html += '</div>';
-        return html;
+    // 1. 如果沒有 splitDetails 或 mode 為 none，直接回傳空字串 (不顯示分帳區塊)
+    if (!item.splitDetails || item.splitDetails.mode === 'none') {
+        return ''; 
     }
-    
-    // 3. 如果是陣列（舊版本相容）
-    if (Array.isArray(item.splitDetails) && item.splitDetails.length > 0) {
-        let html = '<div style="margin-bottom:10px; border-bottom:1px dashed #eee; padding-bottom:8px;">';
-        const symbol = item.currency === 'JPY' ? '¥' : 'NT$';
-        item.splitDetails.forEach(detail => {
-            html += `
-                <div class="detail-list-item" style="display:flex; justify-content:space-between; padding:4px 0;">
-                    <span class="detail-user-name" style="font-weight:700;">${detail.user}</span>
-                    <span class="detail-amount" style="color:var(--accent);">${symbol}${detail.amount}</span>
+
+    let detailMap = {};
+    const currencySymbol = item.currency === 'JPY' ? '¥' : 'NT$';
+
+    // 2. 準備數據
+    if (item.splitDetails.mode === 'custom') {
+        detailMap = item.splitDetails.amounts;
+    } else {
+        // 平均分帳
+        const count = item.advanceFor.length;
+        const avg = Math.floor(item.amt / count);
+        item.advanceFor.forEach(p => detailMap[p] = avg);
+    }
+
+    // 3. 產生 HTML
+    let rowsHtml = '';
+    Object.keys(detailMap).forEach(name => {
+        const amount = detailMap[name];
+        // 標記本人
+        const isMe = (name === currentUser) ? '(我)' : '';
+        // 樣式：支付者(本人)深色，欠款者(別人)淺紅底
+        // 圖2邏輯：顯示這筆帳是誰付的 (PayBy)，但這裡我們列出的是「誰分攤了多少」
+        // 如果要完全模仿圖2 "支付者: 400" 的概念，這裡其實是在列出 "分攤者"
+        
+        // 判斷樣式：如果是自己分攤的部分
+        const nameStyle = (name === currentUser) 
+            ? 'background:#f1f5f9; color:#64748b;'  // 自己：灰底
+            : 'background:#fef2f2; color:#E76F51;'; // 別人：紅底
+
+        rowsHtml += `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <div style="font-weight:700; font-size:0.85rem; padding:2px 8px; border-radius:4px; ${nameStyle}">
+                    ${name} ${isMe}
                 </div>
-            `;
-        });
-        html += '</div>';
-        return html;
-    }
-    
-    return '';
+                <div style="font-weight:700; color:#666; font-size:0.9rem;">
+                    ${currencySymbol}${amount.toLocaleString()}
+                </div>
+            </div>
+        `;
+    });
+
+    // 回傳包裝好的 HTML，上方加一條虛線區隔
+    return `<div style="margin-top:4px; margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #eee;">${rowsHtml}</div>`;
 }
+
 
 
 // 請用此函式完整覆蓋原本的 updateExpenseStats
@@ -2499,6 +3016,55 @@ renderPlan();
 }
 }
 
+
+function handleImageInput(input) {
+    const url = input.value.trim();
+    const preview = document.getElementById('preview-img');
+    const errorMsg = document.getElementById('img-error-msg');
+    
+    // 如果清空了輸入框，就隱藏預覽
+    if (!url) {
+        if (preview) preview.style.display = 'none';
+        if (errorMsg) errorMsg.style.display = 'none';
+        return;
+    }
+
+    // 1. 嘗試清理網址 (針對 Google 搜尋結果的冗長網址)
+    // 很多時候使用者複製的網址會包含無效的 Base64 頭，或是過長的參數
+    // 這裡做一個簡單的優化：如果網址長度太誇張 (>10000字)，提示使用者
+    if (url.length > 8000) {
+        if (errorMsg) {
+            errorMsg.textContent = '⚠️ 網址太長了！請點開圖片後，選擇「複製圖片位址」再試試。';
+            errorMsg.style.display = 'block';
+        }
+        return;
+    }
+
+    // 2. 顯示預覽
+    if (preview) {
+        // 重置錯誤狀態
+        if (errorMsg) errorMsg.style.display = 'none';
+        
+        preview.style.display = 'block';
+        preview.src = url;
+
+        // 3. 綁定載入失敗事件 (防盜連偵測)
+        preview.onerror = function() {
+            // 圖片載入失敗 (403 Forbidden 或 404)
+            preview.style.display = 'none'; // 隱藏破圖
+            if (errorMsg) {
+                errorMsg.textContent = '⚠️ 這張圖片有防盜連保護，無法顯示。請換一張圖 (例如來自維基百科或購物網站)。';
+                errorMsg.style.display = 'block';
+            }
+        };
+        
+        // 綁定載入成功事件 (確保成功時隱藏錯誤訊息)
+        preview.onload = function() {
+             if (errorMsg) errorMsg.style.display = 'none';
+        };
+    }
+}
+
 function renderWishlist() {
 const list = document.getElementById('wish-list');
 list.innerHTML = '';
@@ -2529,6 +3095,16 @@ div.innerHTML = `
 list.appendChild(div);
 });
 }
+
+// 在關閉視窗或送出成功後：
+const preview = document.getElementById('preview-img');
+if (preview) {
+    preview.src = '';
+    preview.style.display = 'none';
+}
+const errorMsg = document.getElementById('img-error-msg');
+if (errorMsg) errorMsg.style.display = 'none';
+
 
 function toggleWish(idx) {
 WISHLIST[idx].checked = !WISHLIST[idx].checked;
@@ -2901,6 +3477,26 @@ function logoutUser() {
     
     location.reload();
 }
+ 
+ 
+ // ==========================================
+// ℹ️ 新增：資訊頁展開收合功能
+// ==========================================
+
+function toggleInfoCard(card) {
+    // 1. 切換當前卡片的狀態
+    const wasCollapsed = card.classList.contains('collapsed');
+    
+    // (選用) 如果希望「一次只展開一個」，請加入這行：
+    // document.querySelectorAll('.info-card').forEach(c => c.classList.add('collapsed'));
+    
+    if (wasCollapsed) {
+        card.classList.remove('collapsed');
+    } else {
+        card.classList.add('collapsed');
+    }
+}
+
  
 </script>
 </body>
