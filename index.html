@@ -17,14 +17,7 @@
 --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 }
 * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
-html, body {margin: 0;
-    padding: 0;
-    height: 100%;        /* 舊瀏覽器兼容 */
-    height: 100dvh;      /* 針對手機動態視窗高度優化 */
-    width: 100%;
-    overflow: hidden;    /* 禁止 body 捲動 */
-    overscroll-behavior: none; /* 關鍵：禁止手機滑動到底部的回彈效果 */
-    position: fixed;     /* 強制固定，避免整體頁面被拖動 */ font-family: 'Inter', sans-serif; background: var(--bg-gradient); color: var(--primary); }
+html, body { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; font-family: 'Inter', sans-serif; background: var(--bg-gradient); color: var(--primary); }
 body { display: flex; flex-direction: column; }
 
 /* Header */
@@ -694,11 +687,11 @@ style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; paddin
 <div style="flex: 1; text-align: left; padding-left: 10px; border-right: 1px solid rgba(255,255,255,0.2);">
 <div style="margin-bottom: 8px;">
 <span style="font-size: 0.75rem; opacity: 0.8; display: block; margin-bottom: 2px;">🇯🇵 日幣消費</span>
-<span style="font-size: 1.2rem; font-weight: 700;">¥ 0</span>
+<span style="font-size: 1.2rem; font-weight: 700;">¥ ${totals.JPY.toLocaleString()}</span>
 </div>
 <div>
 <span style="font-size: 0.75rem; opacity: 0.8; display: block; margin-bottom: 2px;">🇹🇼 台幣消費</span>
-<span style="font-size: 1.2rem; font-weight: 700;">NT$ 0</span>
+<span style="font-size: 1.2rem; font-weight: 700;">NT$ ${totals.TWD.toLocaleString()}</span>
 </div>
 </div>
 
@@ -706,7 +699,7 @@ style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; paddin
 <div style="flex: 1; text-align: center;">
 <div style="font-size: 0.75rem; opacity: 0.8; margin-bottom: 4px;">總計約 (Total)</div>
 <div style="font-size: 1.8rem; font-weight: 900; color: #FFD700;"> <!-- 使用金黃色強調總額 -->
-<span style="font-size: 1rem; margin-right: 2px;">NT$</span>0
+<span style="font-size: 1rem; margin-right: 2px;">NT$</span>${combinedTwd.toLocaleString()}
 </div>
 </div>
 </div>
@@ -1150,7 +1143,6 @@ renderPlan();
 renderWishlist();
 fetchWeather();
 }
-setupSwipeObserver('cat-swipe-wrapper', '#cat-swipe-dots .dot');
 }
 
 // 2. 顯示歡迎頁 (產生選人按鈕)
@@ -2607,51 +2599,53 @@ btn.disabled = false;
 });
 }
 
+// 1. 列表收合  新增「收合列表」、「編輯 Modal」、「軟刪除」Gemini//
+// 1. 列表收合 (加入防錯判斷)
 function toggleExpenseList() {
-    const header = document.querySelector('.list-head');
-    const container = document.getElementById('expense-list-container');
-    
+const container = document.getElementById('expense-list-container');
+const header = document.querySelector('.list-head');
+
     if (!container) return; 
     
-    if (container.style.maxHeight && container.style.maxHeight !== '0px') {
-        // 目前展開，收合它
+if (container.style.maxHeight) {
+        container.style.maxHeight = null; // 收合
+        header.classList.add('collapsed');
         container.style.maxHeight = null;
         if (header) header.classList.add('collapsed');
-    } else {
-        // 目前收合，展開它
+} else {
+        container.style.maxHeight = container.scrollHeight + "px"; // 展開
+        header.classList.remove('collapsed');
         container.style.maxHeight = container.scrollHeight + "px";
         if (header) header.classList.remove('collapsed');
-    }
 }
+} // <--- 檢查這個括號是否存在
 
-// 編輯 Modal - 只宣告一次
-let editingExpenseId = null;
+// 2. 開啟編輯 Modal
+let editingExpenseId = null; // 暫存正在編輯的 ID
 
 function openEditModal(id) {
     if (typeof EXPENSE === 'undefined' || !EXPENSE[curDay]) return;
     
-    const item = EXPENSE[curDay].find(e => e.id === id);
-    if (!item) return;
-    
-    editingExpenseId = id;
-    
+const item = EXPENSE[curDay].find(e => e.id === id);
+if (!item) return;
+
+editingExpenseId = id;
+
     // 填入資料
-    const titleInput = document.getElementById('edit-title');
-    const amtInput = document.getElementById('edit-amt');
-    const catSelect = document.getElementById('edit-cat');
-    const paySelect = document.getElementById('edit-pay');
-    
-    if (titleInput) titleInput.value = item.title;
-    if (amtInput) amtInput.value = item.amt;
-    if (catSelect) catSelect.value = item.cat;
-    if (paySelect) paySelect.value = item.payMethod;
-    
+    document.getElementById('edit-title').value = item.title;
+    document.getElementById('edit-amt').value = item.amt;
+    document.getElementById('edit-cat').value = item.cat;
+    document.getElementById('edit-pay').value = item.payMethod;
+    const t = document.getElementById('edit-title');
+    const a = document.getElementById('edit-amt');
+    if (t) t.value = item.title;
+    if (a) a.value = item.amt;
+
     // 顯示 Modal
-    const overlay = document.getElementById('edit-expense-overlay');
-    if (overlay) overlay.classList.add('open');
+    document.getElementById('edit-expense-overlay').classList.add('open');
 }
 
-// 儲存編輯
+// 3. 儲存編輯
 function saveEditedExpense() {
     if (!editingExpenseId) return;
     const item = EXPENSE[curDay].find(e => e.id === editingExpenseId);
@@ -2662,61 +2656,70 @@ function saveEditedExpense() {
         item.cat = document.getElementById('edit-cat').value;
         item.payMethod = document.getElementById('edit-pay').value;
         
-        // 關閉 Modal
-        const overlay = document.getElementById('edit-expense-overlay');
-        if (overlay) overlay.classList.remove('open');
-        
-        // 重新渲染
+        // 關閉 Modal 並重新渲染
+        document.getElementById('edit-expense-overlay').classList.remove('open');
         renderExpense();
-        renderExpenseCategories();
-        updateExpenseStats();
+        renderExpenseCategories(); // 更新統計
     }
 }
 
-// 軟刪除
+// 4. 軟刪除 (Soft Delete)
 function softDeleteExpense() {
     if (!editingExpenseId) return;
     const item = EXPENSE[curDay].find(e => e.id === editingExpenseId);
     
     if (item) {
-        item.isDeleted = true;
+        item.isDeleted = true; // 標記刪除，不從陣列移除
         
-        // 關閉 Modal
-        const overlay = document.getElementById('edit-expense-overlay');
-        if (overlay) overlay.classList.remove('open');
-        
-        // 重新渲染
+        // 關閉 Modal 並重新渲染
+        document.getElementById('edit-expense-overlay').classList.remove('open');
         renderExpense();
-        renderExpenseCategories();
-        updateExpenseStats();
+        renderExpenseCategories(); // 統計會自動過濾掉 isDeleted
     }
 }
 
-// 復原刪除
+// 5. 復原刪除
 function restoreExpense(id) {
     const item = EXPENSE[curDay].find(e => e.id === id);
     if (item) {
-        item.isDeleted = false;
+        item.isDeleted = false; // 取消標記
         renderExpense();
-        renderExpenseCategories();
-        updateExpenseStats();
+        renderExpenseCategories(); // 統計加回
     }
 }
 
-// 初始化滑動監聽
+// 6. 綁定滑動監聽 (初始化時呼叫)
+// 請在您的 window.onload 或 init() 函式中加入以下代碼：
+// setupSwipeObserver('cat-swipe-wrapper', '#cat-swipe-dots .dot');
+    const overlay = document.getElementById('edit-expense-overlay');
+    if (overlay) overlay.classList.add('open');
+} // <--- 檢查這個括號是否存在
+
+// 6. 綁定滑動監聽
 function setupSwipeObserver(elementId, dotSelector) {
-    const el = document.getElementById(elementId);
-    if(!el) {
-        console.warn(`滑動容器 ID: ${elementId} 不存在`);
-        return;
-    }
-    
-    el.addEventListener('scroll', () => {
-        const index = Math.round(el.scrollLeft / el.offsetWidth);
-        const dots = document.querySelectorAll(dotSelector);
-        dots.forEach((d, i) => d.classList.toggle('active', i === index));
-    }, { passive: true });
+const el = document.getElementById(elementId);
+if(el) {
+el.addEventListener('scroll', () => {
+const index = Math.round(el.scrollLeft / el.offsetWidth);
+const dots = document.querySelectorAll(dotSelector);
+            dots.forEach((d, i) => d.classList.toggle('active', i === index));
+            if (dots.length > 0) {
+                dots.forEach((d, i) => d.classList.toggle('active', i === index));
+            }
+}, { passive: true });
+    } else {
+        console.warn(`滑動容器 ID: ${elementId} 不存在，跳過監聽。`);
 }
+}
+```
+
+### 最後一步：初始化
+
+請記得在您的 `init()` 或 `window.addEventListener('load', ...)` 的地方，加上這行來啟動新的滑動功能：
+
+```javascript
+setupSwipeObserver('cat-swipe-wrapper', '#cat-swipe-dots .dot');
+} // <--- 檢查這個括號是否存在
 
 </script>
 </body>
