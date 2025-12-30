@@ -631,50 +631,250 @@ font-weight: 700; cursor: pointer; pointer-events: auto;
     box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
 
-/* 行李清單項目樣式 */
-.luggage-category {
-    margin-bottom: 1.2rem;
-}
-.luggage-cat-title {
-    font-size: 0.85rem;
-    font-weight: 800;
-    color: var(--primary);
-    margin-bottom: 8px;
-    opacity: 0.8;
-    padding-left: 4px;
-    border-left: 3px solid var(--accent);
-}
-.luggage-grid {
+
+/* 行李清單容器 */
+#luggage-list-container {
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+    flex-direction: column;
+    gap: 1.2rem;
+    margin-bottom: 1rem;
 }
-.luggage-item {
+
+/* 分類卡片容器 */
+.luggage-category-card {
     background: white;
-    padding: 8px 14px;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #4b5563;
-    cursor: pointer;
-    border: 1px solid transparent;
-    transition: 0.2s;
+    border-radius: 1.2rem;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+/* 分類標題 */
+.luggage-cat-title {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #2C3E50;
+    padding: 12px 16px;
+    margin: 0;
+    border-bottom: 1px solid #f0f0f0;
+    background: #fafafa;
     display: flex;
     align-items: center;
-    gap: 6px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+    gap: 8px;
 }
-/* 選中狀態：變暗、有刪除線 */
-.luggage-item.checked {
-    background: #f1f5f9;
-    color: #cbd5e1;
+
+.luggage-cat-title::before {
+    content: '';
+    width: 4px;
+    height: 20px;
+    background: #E76F51;
+    border-radius: 2px;
+}
+
+/* 行李項目列表 */
+.luggage-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 0;
+    margin: 0;
+    background: white;
+}
+
+/* 單一行李項目 */
+.luggage-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f5f5f5;
+    cursor: pointer;
+    transition: background-color 0.15s, opacity 0.2s;
+    background: white;
+    gap: 10px;
+    position: relative;
+}
+
+.luggage-item:last-child {
+    border-bottom: none;
+}
+
+/* 圓形 Checkbox */
+.luggage-checkbox {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    border-radius: 50%;
+    border: 2px solid #D0D0D0;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* 選中狀態 - 填滿橘色 */
+.luggage-item.checked .luggage-checkbox {
+    background: #E76F51;
+    border-color: #E76F51;
+    box-shadow: 0 2px 6px rgba(231, 111, 81, 0.3);
+}
+
+/* Checkbox 內部的打勾 */
+.luggage-checkbox::after {
+    content: '✓';
+    color: white;
+    font-size: 14px;
+    font-weight: 900;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.luggage-item.checked .luggage-checkbox::after {
+    opacity: 1;
+}
+
+/* 項目文字 */
+.luggage-item-text {
+    flex: 1;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #1f2937;
+    transition: color 0.2s, opacity 0.2s;
+    line-height: 1.4;
+}
+
+/* 選中時的文字樣式 */
+.luggage-item.checked .luggage-item-text {
+    color: #CBD5E1;
     text-decoration: line-through;
-    box-shadow: none;
+    opacity: 0.6;
 }
-/* 自訂項目標記 */
-.luggage-item.custom {
-    border-color: #e2e8f0;
-    border-style: dashed;
+
+/* 項目互動狀態 */
+.luggage-item:active {
+    background: #f9f9f9;
+}
+
+.luggage-item.checked {
+    background: #fafafa;
+}
+
+/* 自訂項目刪除按鈕 */
+.luggage-delete-btn {
+    background: none;
+    border: none;
+    color: #cbd5e1;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0 4px;
+    transition: color 0.2s;
+    opacity: 0.5;
+}
+
+.luggage-delete-btn:hover,
+.luggage-delete-btn:active {
+    color: #ef4444;
+    opacity: 1;
+}
+
+/* 新增欄位容器 */
+#luggage-input-container {
+    background: white;
+    border-top: 1px solid #f0f0f0;
+    padding: 12px 16px;
+    display: flex;
+    gap: 8px;
+    border-radius: 0 0 1.2rem 1.2rem;
+}
+
+#luggage-input-container input {
+    flex: 1;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 0.9rem;
+    outline: none;
+    background: #f9f9f9;
+    transition: border-color 0.2s;
+}
+
+#luggage-input-container input:focus {
+    border-color: #E76F51;
+    background: white;
+}
+
+#luggage-input-container button {
+    background: #E76F51;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-size: 0.9rem;
+}
+
+#luggage-input-container button:active {
+    background: #D85C3A;
+}
+
+/* 卡片內的新增欄位 */
+.luggage-add-row {
+    display: flex !important;
+    align-items: center !important;
+    padding: 16px 16px !important;
+    min-height: 56px !important;    /* 強制最小高度 */
+    height: auto !important;
+    box-sizing: border-box !important;
+    background: #fafafa;
+    border-top: 1px solid #f5f5f5;
+    gap: 12px;
+}
+
+/* 新增欄位的輸入框 */
+.luggage-add-input {
+    flex: 1;
+    border: none !important;
+    background: transparent !important;
+    font-size: 0.9rem !important;
+    color: #9CA3AF;
+    outline: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    line-height: 1.5 !important;   /* 設定明確的行高 */
+    height: 100% !important;
+    display: block !important;     /* 改為 block 避免 flex item 的怪異行為 */
+    width: 100% !important;
+    -webkit-appearance: none;      /* 移除 iOS 預設樣式 */
+}
+
+
+
+/* 輸入框有焦點時的樣式 */
+.luggage-add-input:focus,
+.luggage-add-input.focused {
+    color: #1f2937;
+}
+
+.luggage-add-row:has(.luggage-add-input:focus),
+.luggage-add-row:has(.luggage-add-input.focused) {
+    background: #f0f9ff;  /* 淺藍色高亮 */
+}
+
+/* 輸入框有內容時 */
+.luggage-add-input:not(:placeholder-shown) {
+    color: #1f2937;
+    font-weight: 600;
+}
+
+/* 讓 placeholder 垂直置中 */
+.luggage-add-input::placeholder {
+    line-height: 1.5 !important;
+    color: #9CA3AF;
+    opacity: 1;
 }
 
 /* --- 旅遊資訊頁樣式 --- */
@@ -1126,13 +1326,7 @@ style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; paddin
         <!-- 預設分類區塊 -->
         <div id="luggage-list-container"></div>
         
-        <!-- 新增按鈕 (只針對行李) -->
-        <div style="margin-top:1rem; display:flex; gap:8px;">
-            <input type="text" id="new-luggage-item" placeholder="新增行李項目..." style="flex:1; padding:10px; border-radius:10px; border:1px solid #ddd;">
-            <button onclick="addLuggageItem()" style="padding:0 16px; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:700;">＋</button>
-        </div>
-    </div>
-
+       
     <!-- 購物清單區塊 (原本的 wish-grid) -->
     <div id="wish-view-shopping" style="display:none;">
         <div class="hint" style="margin-bottom:10px; display:inline-block;">點擊卡片編輯 / 打勾標記已購</div>
@@ -1564,7 +1758,8 @@ function switchWishTab(tab) {
     }
 }
 
-// 渲染行李清單
+// ✨ 改進版：卡片內直接新增 + 統一表單
+
 function renderLuggageList() {
     const container = document.getElementById('luggage-list-container');
     if (!container) return;
@@ -1572,98 +1767,288 @@ function renderLuggageList() {
     container.innerHTML = '';
 
     // A. 渲染預設分類
-    DEFAULT_LUGGAGE.forEach(group => {
-        const catDiv = document.createElement('div');
-        catDiv.className = 'luggage-category';
+    DEFAULT_LUGGAGE.forEach((group, groupIdx) => {
+        // 建立卡片容器
+        const cardDiv = document.createElement('div');
+        cardDiv.className = 'luggage-category-card';
+        cardDiv.dataset.category = group.cat;  // 標記分類名稱
         
-        let itemsHtml = '';
+        // 標題
+        const titleDiv = document.createElement('div');
+        titleDiv.className = 'luggage-cat-title';
+        titleDiv.textContent = group.cat;
+        
+        // 項目列表
+        const gridDiv = document.createElement('div');
+        gridDiv.className = 'luggage-grid';
+        
+        // 1️⃣ 先渲染預設項目
         group.items.forEach(item => {
             const isChecked = myLuggage.checked.includes(item);
-            itemsHtml += `
-                <div class="luggage-item ${isChecked ? 'checked' : ''}" onclick="toggleLuggageItem('${item}')">
-                    ${isChecked ? '✅' : '⬜'} ${item}
-                </div>
+            
+            const itemDiv = document.createElement('div');
+            itemDiv.className = `luggage-item ${isChecked ? 'checked' : ''}`;
+            
+            itemDiv.innerHTML = `
+                <div class="luggage-checkbox"></div>
+                <span class="luggage-item-text">${item}</span>
             `;
+            
+            itemDiv.onclick = (e) => {
+                e.stopPropagation();
+                toggleLuggageItem(item);
+            };
+            
+            gridDiv.appendChild(itemDiv);
         });
-
-        catDiv.innerHTML = `<div class="luggage-cat-title">${group.cat}</div><div class="luggage-grid">${itemsHtml}</div>`;
-        container.appendChild(catDiv);
+        
+        // 2️⃣ 再渲染該分類的自訂項目（如果有）
+        if (myLuggage.customByCategory && myLuggage.customByCategory[group.cat]) {
+            myLuggage.customByCategory[group.cat].forEach(item => {
+                const isChecked = myLuggage.checked.includes(item);
+                
+                const itemDiv = document.createElement('div');
+                itemDiv.className = `luggage-item custom ${isChecked ? 'checked' : ''}`;
+                
+                itemDiv.innerHTML = `
+                    <div class="luggage-checkbox"></div>
+                    <span class="luggage-item-text" style="flex: 1;">${item}</span>
+                    <button class="luggage-delete-btn" onclick="removeLuggageItem('${item}')">×</button>
+                `;
+                
+                itemDiv.onclick = (e) => {
+                    if (e.target.classList.contains('luggage-delete-btn')) return;
+                    e.stopPropagation();
+                    toggleLuggageItem(item);
+                };
+                
+                gridDiv.appendChild(itemDiv);
+            });
+        }
+        
+        // 3️⃣ 新增：卡片內的新增欄位
+        const addRowDiv = document.createElement('div');
+        addRowDiv.className = 'luggage-add-row';
+        addRowDiv.innerHTML = `
+            <div class="luggage-checkbox" style="opacity: 0.3;"></div>
+            <input 
+                type="text" 
+                class="luggage-add-input" 
+                placeholder="點擊新增..." 
+                data-category="${group.cat}"
+            />
+        `;
+        
+        const addInput = addRowDiv.querySelector('.luggage-add-input');
+        
+        addInput.onclick = (e) => {
+            e.stopPropagation();
+            addInput.classList.add('focused');
+            addInput.focus();
+        };
+        
+        addInput.onkeyup = (e) => {
+            if (e.key === 'Enter') {
+                addLuggageItemToCategory(addInput.value.trim(), group.cat);
+                addInput.value = '';
+                addInput.classList.remove('focused');
+            }
+        };
+        
+        addInput.onblur = () => {
+            if (addInput.value.trim() === '') {
+                addInput.classList.remove('focused');
+            }
+        };
+        
+        gridDiv.appendChild(addRowDiv);
+        cardDiv.appendChild(titleDiv);
+        cardDiv.appendChild(gridDiv);
+        container.appendChild(cardDiv);
     });
 
-    // B. 渲染自訂項目 (如果有)
+    // B. 渲染自訂追加分類（雜項）
     if (myLuggage.custom && myLuggage.custom.length > 0) {
-        const customDiv = document.createElement('div');
-        customDiv.className = 'luggage-category';
-        let customHtml = '';
+        const customCardDiv = document.createElement('div');
+        customCardDiv.className = 'luggage-category-card';
+        
+        const customTitleDiv = document.createElement('div');
+        customTitleDiv.className = 'luggage-cat-title';
+        customTitleDiv.textContent = '自訂追加';
+        customTitleDiv.style.color = 'var(--accent)';
+        
+        const customGridDiv = document.createElement('div');
+        customGridDiv.className = 'luggage-grid';
         
         myLuggage.custom.forEach(item => {
             const isChecked = myLuggage.checked.includes(item);
-            customHtml += `
-                <div class="luggage-item custom ${isChecked ? 'checked' : ''}">
-                    <span onclick="toggleLuggageItem('${item}')" style="display:flex;align-items:center;gap:4px;">
-                        ${isChecked ? '✅' : '⬜'} ${item}
-                    </span>
-                    <span onclick="removeLuggageItem('${item}')" style="margin-left:8px; opacity:0.4; font-size:1.2rem; line-height:1; padding:0 4px;">×</span>
-                </div>
+            
+            const itemDiv = document.createElement('div');
+            itemDiv.className = `luggage-item custom ${isChecked ? 'checked' : ''}`;
+            
+            itemDiv.innerHTML = `
+                <div class="luggage-checkbox"></div>
+                <span class="luggage-item-text" style="flex: 1;">${item}</span>
+                <button class="luggage-delete-btn" onclick="removeLuggageItem('${item}')">×</button>
             `;
+            
+            itemDiv.onclick = (e) => {
+                if (e.target.classList.contains('luggage-delete-btn')) return;
+                e.stopPropagation();
+                toggleLuggageItem(item);
+            };
+            
+            customGridDiv.appendChild(itemDiv);
         });
         
-        customDiv.innerHTML = `<div class="luggage-cat-title" style="color:var(--accent); border-color:var(--accent);">自訂追加</div><div class="luggage-grid">${customHtml}</div>`;
-        container.appendChild(customDiv);
+        customCardDiv.appendChild(customTitleDiv);
+        customCardDiv.appendChild(customGridDiv);
+        container.appendChild(customCardDiv);
     }
+    
+    // C. 統一的新增表單
+    const inputCardDiv = document.createElement('div');
+    inputCardDiv.className = 'luggage-category-card';
+    
+    const inputContainerDiv = document.createElement('div');
+    inputContainerDiv.id = 'luggage-input-container';
+    
+    const inputEl = document.createElement('input');
+    inputEl.type = 'text';
+    inputEl.id = 'new-luggage-item';
+    inputEl.placeholder = '新增其他項目...';
+    
+    const btnEl = document.createElement('button');
+    btnEl.textContent = '＋';
+    btnEl.onclick = addLuggageItem;
+    
+    inputContainerDiv.appendChild(inputEl);
+    inputContainerDiv.appendChild(btnEl);
+    inputCardDiv.appendChild(inputContainerDiv);
+    container.appendChild(inputCardDiv);
 }
 
-// 點擊勾選/取消
-function toggleLuggageItem(name) {
-    if (myLuggage.checked.includes(name)) {
-        myLuggage.checked = myLuggage.checked.filter(i => i !== name);
+// 🎯 切換勾選狀態
+function toggleLuggageItem(item) {
+    const idx = myLuggage.checked.indexOf(item);
+    if (idx > -1) {
+        myLuggage.checked.splice(idx, 1);
     } else {
-        myLuggage.checked.push(name);
+        myLuggage.checked.push(item);
     }
-    saveLuggage();
     renderLuggageList();
+    saveLuggageData();
 }
 
-// 新增自訂項目
+// ➕ 在指定分類內新增項目
+function addLuggageItemToCategory(newItem, category) {
+    if (newItem === '') return;
+    
+    // 檢查重複
+    const allItems = [
+        ...DEFAULT_LUGGAGE.flatMap(g => g.items),
+        ...(myLuggage.custom || []),
+        ...(myLuggage.customByCategory ? 
+            Object.values(myLuggage.customByCategory).flat() : [])
+    ];
+    
+    if (allItems.includes(newItem)) {
+        alert('這個項目已經存在');
+        return;
+    }
+    
+    // 初始化自訂物品物件
+    if (!myLuggage.customByCategory) {
+        myLuggage.customByCategory = {};
+    }
+    
+    // 初始化該分類的自訂物品陣列
+    if (!myLuggage.customByCategory[category]) {
+        myLuggage.customByCategory[category] = [];
+    }
+    
+    // 新增到該分類
+    myLuggage.customByCategory[category].push(newItem);
+    
+    renderLuggageList();
+    saveLuggageData();
+}
+
+// 🗑️ 刪除項目
+function removeLuggageItem(item) {
+    // 從自訂清單刪除
+    if (myLuggage.custom) {
+        const idx = myLuggage.custom.indexOf(item);
+        if (idx > -1) {
+            myLuggage.custom.splice(idx, 1);
+        }
+    }
+    
+    // 從分類清單刪除
+    if (myLuggage.customByCategory) {
+        Object.keys(myLuggage.customByCategory).forEach(cat => {
+            const idx = myLuggage.customByCategory[cat].indexOf(item);
+            if (idx > -1) {
+                myLuggage.customByCategory[cat].splice(idx, 1);
+                // 刪除空的分類
+                if (myLuggage.customByCategory[cat].length === 0) {
+                    delete myLuggage.customByCategory[cat];
+                }
+            }
+        });
+    }
+    
+    // 移除勾選記錄
+    const checkedIdx = myLuggage.checked.indexOf(item);
+    if (checkedIdx > -1) {
+        myLuggage.checked.splice(checkedIdx, 1);
+    }
+    
+    renderLuggageList();
+    saveLuggageData();
+}
+
+// ➕ 統一表單新增（雜項用）
 function addLuggageItem() {
     const input = document.getElementById('new-luggage-item');
-    if (!input) return;
+    const newItem = input.value.trim();
     
-    const val = input.value.trim();
-    if (!val) return;
-
-    // 檢查是否重複 (包含預設與自訂)
-    let isDuplicate = false;
-    DEFAULT_LUGGAGE.forEach(g => { if(g.items.includes(val)) isDuplicate = true; });
-    if (myLuggage.custom.includes(val)) isDuplicate = true;
-
-    if (!isDuplicate) {
-        myLuggage.custom.push(val);
-        // 自動幫勾選
-        // myLuggage.checked.push(val); 
-        saveLuggage();
-        renderLuggageList();
-        input.value = ''; // 清空輸入框
-    } else {
-        alert('這個項目已經在清單裡囉！');
+    if (newItem === '') {
+        alert('請輸入項目名稱');
+        return;
     }
-}
-
-// 刪除自訂項目
-function removeLuggageItem(name) {
-    // 簡單確認防止誤觸
-    if (confirm(`確定要刪除 "${name}" 嗎？`)) {
-        myLuggage.custom = myLuggage.custom.filter(i => i !== name);
-        myLuggage.checked = myLuggage.checked.filter(i => i !== name);
-        saveLuggage();
-        renderLuggageList();
+    
+    // 檢查重複
+    const allItems = [
+        ...DEFAULT_LUGGAGE.flatMap(g => g.items),
+        ...(myLuggage.custom || []),
+        ...(myLuggage.customByCategory ? 
+            Object.values(myLuggage.customByCategory).flat() : [])
+    ];
+    
+    if (allItems.includes(newItem)) {
+        alert('這個項目已經存在');
+        input.value = '';
+        return;
     }
+    
+    // 新增到自訂清單（不分類）
+    if (!myLuggage.custom) {
+        myLuggage.custom = [];
+    }
+    myLuggage.custom.push(newItem);
+    
+    input.value = '';
+    renderLuggageList();
+    saveLuggageData();
 }
 
-// 儲存到 LocalStorage
-function saveLuggage() {
-    localStorage.setItem('my_luggage', JSON.stringify(myLuggage));
+// 💾 儲存資料
+function saveLuggageData() {
+    localStorage.setItem('myLuggage', JSON.stringify(myLuggage));
 }
+
+
 
 
 
@@ -1914,7 +2299,7 @@ else advice = "天氣較涼，請攜帶外套保暖。";
 document.getElementById('clothing-advice').textContent = advice;
 }
 
-// --- TABS ---
+
 // --- TABS ---
 function switchTab(tabBtn, name) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -1928,6 +2313,8 @@ function switchTab(tabBtn, name) {
 
     document.getElementById('view-' + name).style.display = 'block';
     curTab = name;
+	
+	
 
     const fab = document.getElementById('btn-add');
     fab.style.display = (name === 'expense') ? 'none' : 'flex';
@@ -1940,6 +2327,8 @@ function switchTab(tabBtn, name) {
         renderExpenseCategories();
     } else if(name === 'wishlist') {
         renderWishlist();
+		renderLuggageList();  // 強制渲染行李清單
+
     } else if(name === 'info') {
         updateInfoView();
     }
@@ -3439,44 +3828,7 @@ function setupSwipeObserver(elementId, dotSelector) {
     }, { passive: true });
 }
 
- // 🆕 更新資訊頁面
-function updateInfoView() {
-    const userEl = document.getElementById('info-current-user');
-    const countEl = document.getElementById('info-member-count');
-    
-    if(userEl && currentUser) {
-        userEl.textContent = currentUser;
-    }
-    
-    if(countEl && MEMBERS) {
-        countEl.textContent = MEMBERS.length;
-    }
-}
 
-// 🆕 清空所有紀錄
-function clearAllData() {
-    if (!confirm('⚠️ 確定要清空所有紀錄嗎？此操作無法復原！')) return;
-    
-    EXPENSE.forEach(dayExp => dayExp.length = 0);
-    renderExpense();
-    updateExpenseStats();
-    
-    alert('✅ 已清空所有紀錄');
-}
-
-// 🆕 登出
-function logoutUser() {
-    if (!confirm('確定要登出嗎？')) return;
-    
-    currentUser = null;
-    userEnteredSecret = '';
-    editingId = null;
-    
-    localStorage.removeItem('expense_user');
-    localStorage.removeItem('expense_secret_key');
-    
-    location.reload();
-}
  
  
  // ==========================================
