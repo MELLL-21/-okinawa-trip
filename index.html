@@ -624,12 +624,49 @@ border: 1.5px solid #10b981; border-radius: 10px;
 font-weight: 700; cursor: pointer; pointer-events: auto;
 }
 
-/* 清單切換 Tab 樣式 */
-.wish-tab.active {
-    background: white;
-    color: var(--primary);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+
+
+/* === 清單切換鈕 (藍色主題) === */
+
+.wishlist-tabs {
+    display: flex;
+    background: rgba(255,255,255,0.7);
+    padding: 5px;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
+
+.wish-tab {
+    flex: 1;
+    text-align: center;
+    padding: 10px 8px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    /* 未點擊狀態：淡色文字 + 透明背景 */
+    color: #999;
+    background: transparent;
+    /* 移除舊有的 border 或其他可能干擾的設定 */
+    border: none;
+}
+
+/* 已點擊狀態：藍色底  + 白字 */
+.wish-tab.active {
+    background: #ebb074; /*  Blue-600 */
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    transform: scale(1.02);
+}
+
+
+.wish-tab:active {
+    transform: scale(0.98);
+}
+
 
 
 /* 行李清單容器 */
@@ -710,6 +747,9 @@ font-weight: 700; cursor: pointer; pointer-events: auto;
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
+
+
+
     flex-shrink: 0;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
@@ -823,32 +863,32 @@ font-weight: 700; cursor: pointer; pointer-events: auto;
 
 /* 卡片內的新增欄位 */
 .luggage-add-row {
-    display: flex !important;
-    align-items: center !important;
-    padding: 16px 16px !important;
-    min-height: 56px !important;    /* 強制最小高度 */
-    height: auto !important;
-    box-sizing: border-box !important;
-    background: #fafafa;
+    display: flex;
+    align-items: center;
+    padding: 16px 16px;       /* 增加上下內距，給文字更多呼吸空間 */
     border-top: 1px solid #f5f5f5;
-    gap: 12px;
+    gap: 12px;                /* 增加圖標與文字的間距 */
+    background: #fafafa;
+    transition: background-color 0.2s;
+    height: 56px;             /* 強制設定一個足夠的高度 */
+    box-sizing: border-box;   /* 確保 padding 不會撐破高度 */
 }
 
 /* 新增欄位的輸入框 */
 .luggage-add-input {
     flex: 1;
-    border: none !important;
-    background: transparent !important;
-    font-size: 0.9rem !important;
+    border: none;
+    background: transparent;
+    font-size: 0.9rem;        /* 稍微縮小字體 (原本 0.95rem) */
     color: #9CA3AF;
-    outline: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    line-height: 1.5 !important;   /* 設定明確的行高 */
-    height: 100% !important;
-    display: block !important;     /* 改為 block 避免 flex item 的怪異行為 */
-    width: 100% !important;
-    -webkit-appearance: none;      /* 移除 iOS 預設樣式 */
+    outline: none;
+    padding: 0;
+    font-weight: 500;
+    transition: color 0.2s;
+    line-height: normal;      /* 讓瀏覽器自動計算行高，避免切字 */
+    height: 100%;             /* 填滿父容器高度 */
+    display: flex;
+    align-items: center;      /* 確保輸入時游標垂直置中 */
 }
 
 
@@ -1025,6 +1065,261 @@ font-weight: 700; cursor: pointer; pointer-events: auto;
 .info-link-btn:active {
     background: #f1f5f9;
     transform: scale(0.98);
+}
+
+/* ============================================
+   🛒 購物清單專用樣式 (iOS 風格)
+   ============================================ */
+
+/* 輸入區塊卡片 */
+.shop-input-card {
+    background: white;
+    border-radius: 1.2rem;
+    padding: 16px;
+    margin-bottom: 1.2rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    border: 1px solid rgba(0,0,0,0.04);
+}
+
+.shop-input-row {
+    margin-bottom: 12px;
+}
+
+.shop-input-row:last-child {
+    margin-bottom: 0;
+}
+
+/* 輸入框樣式 */
+.shop-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #E5E7EB;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    background: #F9FAFB;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.shop-input:focus {
+    border-color: #E76F51;
+    background: white;
+}
+
+/* 新增按鈕 */
+.btn-add-shop {
+    width: 100%;
+    padding: 12px;
+    background: #E76F51;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 0.95rem;
+    box-shadow: 0 4px 10px rgba(231, 111, 81, 0.2);
+    transition: transform 0.1s;
+}
+
+.btn-add-shop:active {
+    transform: scale(0.98);
+}
+
+/* === 🛒 購物清單 (三欄小卡版) === */
+
+.shop-list-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 這裡改成 3 欄 */
+    gap: 8px;      /* 間距縮小 */
+    padding-bottom: 20px;
+}
+
+.shop-item-card {
+    background: white;
+    border-radius: 12px;
+    padding: 6px;  /* 內距縮小 */
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    position: relative;
+    border: 1px solid #f0f0f0;
+}
+
+.shop-item-card.checked {
+    opacity: 0.6;
+    filter: grayscale(0.8);
+}
+
+.shop-thumb {
+    width: 100%;
+    aspect-ratio: 1; /* 正方形 */
+    border-radius: 8px;
+    object-fit: cover;
+    background: #f5f5f5;
+}
+
+/* 迷你刪除鈕 */
+.btn-del-mini {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.4); /* 半透明黑底 */
+    border: none;
+    color: white;
+    font-size: 1rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 2;
+    padding-bottom: 2px; /* 微調 x 位置 */
+}
+
+/* 內容區 */
+.shop-content-mini {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* 迷你勾勾指示 */
+.shop-check-mini {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 1.5px solid #ccc;
+    font-size: 0;
+    flex-shrink: 0;
+}
+.shop-check-mini.checked {
+    background: #E76F51;
+    border-color: #E76F51;
+}
+
+.shop-name-mini {
+    font-size: 0.75rem; /* 字體縮小 */
+    font-weight: 700;
+    color: #444;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* 太長省略 */
+}
+
+/* === 🛒 收合式輸入 Bar === */
+
+.shop-input-bar-wrapper {
+    position: fixed; /* 固定在底部，或者你可以選擇放在列表上方 static */
+    bottom: calc(2rem + var(--safe-bottom)); /* 放在原本 FAB 的位置附近 */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 360px;
+    z-index: 100;
+}
+
+/* 1. 收合狀態 (像一個按鈕條) */
+.shop-input-collapsed {
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 99px; /* 膠囊形狀 */
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    cursor: pointer;
+    border: 1px solid rgba(0,0,0,0.05);
+    transition: transform 0.2s;
+}
+
+.shop-input-collapsed:active {
+    transform: scale(0.98);
+}
+
+/* 2. 展開狀態 (原本的卡片樣式，但稍微浮起來) */
+.shop-input-expanded {
+    background: white;
+    border-radius: 20px;
+    padding: 16px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    animation: slideUpInput 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes slideUpInput {
+    from { opacity: 0; transform: translateY(20px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* 為了避免底部內容被遮住，給列表底部加多一點 padding */
+.shop-list-container {
+    padding-bottom: 100px !important;
+}
+
+
+/* === 🛒 購物清單樣式 === */
+
+/* 1. 頂部過濾器列 */
+.shop-filter-bar {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 4px 2px 12px 2px;
+    margin-bottom: 4px;
+    /* 隱藏捲軸但可滑動 */
+    scrollbar-width: none; 
+    -webkit-overflow-scrolling: touch;
+}
+.shop-filter-bar::-webkit-scrollbar { display: none; }
+
+.filter-chip {
+    padding: 6px 12px;
+    background: white;
+    border: 1px solid #eee;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    color: #666;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+/* 選中狀態：變成藍色 */
+.filter-chip.active {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.2);
+}
+
+/* 2. 輸入框內的快速標籤列 */
+.quick-tag-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+
+.quick-tag-row span {
+    font-size: 0.65rem;
+    color: #3b82f6; /* 藍色文字 */
+    background: #eff6ff; /* 淺藍底 */
+    padding: 3px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+    font-weight: 600;
+}
+
+.quick-tag-row span:active {
+    background: #dbeafe;
+    transform: scale(0.95);
 }
 
 
@@ -1310,9 +1605,9 @@ style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; paddin
   
 <!-- 清單 VIEW (原願望清單) -->
 <main id="view-wishlist" style="display:none">
-    <div class="list-head" style="margin-bottom: 0.5rem;">
-        <h2>清單管理</h2>
-    </div>
+   
+
+
 
     <!-- 頂部切換器 -->
     <div class="wishlist-tabs" style="display:flex; background:rgba(255,255,255,0.5); padding:4px; border-radius:12px; margin-bottom:1rem;">
@@ -1320,18 +1615,21 @@ style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; paddin
         <div class="wish-tab" onclick="switchWishTab('shopping')" style="flex:1; text-align:center; padding:8px; font-weight:700; font-size:0.9rem; border-radius:10px; cursor:pointer; transition:0.2s; color:#888;">🛍️ 購物清單</div>
     </div>
 
+
+
+
     <!-- 行李清單區塊 -->
     <div id="wish-view-luggage">
-        <div class="hint" style="margin-bottom:10px; display:inline-block;">點擊文字可刪除自訂項目</div>
-        <!-- 預設分類區塊 -->
-        <div id="luggage-list-container"></div>
-        
-       
-    <!-- 購物清單區塊 (原本的 wish-grid) -->
-    <div id="wish-view-shopping" style="display:none;">
-        <div class="hint" style="margin-bottom:10px; display:inline-block;">點擊卡片編輯 / 打勾標記已購</div>
-        <div class="wish-grid" id="wish-list"></div>
-    </div>
+  <div class="hint" style="margin-bottom:10px; display:inline-block;">點擊文字可刪除自訂項目</div>
+  <div id="luggage-list-container"></div>
+</div>
+
+<div id="wish-view-shopping" style="display:none;">
+  <div id="shopping-list-container"></div>
+  <div class="hint" style="margin-bottom:10px; display:inline-block;">點擊卡片編輯 / 打勾標記已購</div>
+  <div class="wish-grid" id="wish-list"></div>
+</div>
+
 </main>
 
 
@@ -1723,40 +2021,46 @@ let myLuggage = {
     checked: [], // 已勾選項目
     custom: []   // 自訂項目
 };
+let myShoppingList = JSON.parse(localStorage.getItem('my_shopping_list')) || [];
 
 // 切換清單分頁 (行李 vs 購物)
-function switchWishTab(tab) {
-    // 1. 樣式切換
-    document.querySelectorAll('.wish-tab').forEach(t => t.classList.remove('active'));
-    // 這裡用簡單的 textContent 判斷來加 active 樣式
-    const targetText = tab === 'luggage' ? '行李' : '購物';
-    document.querySelectorAll('.wish-tab').forEach(t => {
-        if(t.textContent.includes(targetText)) t.classList.add('active');
+function switchWishTab(mode) {
+    // 1. 隱藏所有視圖
+    document.getElementById('wish-view-luggage').style.display = 'none';
+    document.getElementById('wish-view-shopping').style.display = 'none';
+
+    // 2. 移除所有 Tab 的 active 狀態
+    const tabs = document.querySelectorAll('.wish-tab');
+    tabs.forEach(t => {
+        t.classList.remove('active');
+        // 確保顏色被 CSS 控制，移除行內樣式干擾 (如果有)
+        t.style.color = ''; 
+        t.style.background = '';
     });
 
-    // 2. 視圖切換
-    const luggageView = document.getElementById('wish-view-luggage');
-    const shoppingView = document.getElementById('wish-view-shopping');
-    
-    if (luggageView && shoppingView) {
-        luggageView.style.display = tab === 'luggage' ? 'block' : 'none';
-        shoppingView.style.display = tab === 'shopping' ? 'block' : 'none';
-    }
+    // 3. 根據選中的模式處理
+    if (mode === 'luggage') {
+        document.getElementById('wish-view-luggage').style.display = 'block';
+        // 找到第一個 tab (行李) 並設為 active
+        tabs[0].classList.add('active');
+        
+        // 顯示 FAB (如果是行李清單需要的話)
+        const fab = document.getElementById('btn-add');
+        if(fab) fab.style.display = 'flex';
 
-    // 3. FAB 按鈕控制 (購物清單才顯示右下角 + 號)
-    const fab = document.getElementById('btn-add');
-    if (fab) {
-        if (tab === 'shopping') {
-            fab.style.display = 'flex';
-            // 確保購物清單有渲染
-            if (typeof renderWishlist === 'function') renderWishlist(); 
-        } else {
-            fab.style.display = 'none';
-            // 渲染行李清單
-            renderLuggageList(); 
-        }
+    } else {
+        document.getElementById('wish-view-shopping').style.display = 'block';
+        // 找到第二個 tab (購物) 並設為 active
+        tabs[1].classList.add('active');
+        
+        renderWishlist(); // 確保購物清單重新渲染
+        
+        // 隱藏主 FAB (因為購物清單有自己的輸入框)
+        const fab = document.getElementById('btn-add');
+        if(fab) fab.style.display = 'none';
     }
 }
+
 
 // ✨ 改進版：卡片內直接新增 + 統一表單
 
@@ -1826,40 +2130,45 @@ function renderLuggageList() {
             });
         }
         
-        // 3️⃣ 新增：卡片內的新增欄位
-        const addRowDiv = document.createElement('div');
-        addRowDiv.className = 'luggage-add-row';
-        addRowDiv.innerHTML = `
-            <div class="luggage-checkbox" style="opacity: 0.3;"></div>
-            <input 
-                type="text" 
-                class="luggage-add-input" 
-                placeholder="點擊新增..." 
-                data-category="${group.cat}"
-            />
-        `;
+       const addRowDiv = document.createElement('div');
+	addRowDiv.className = 'luggage-add-row';
+	addRowDiv.innerHTML = `
+		<div class="luggage-checkbox" style="opacity: 0.3;"></div>
+		<div 
+        class="luggage-add-input" 
+        contenteditable="true" 
+        data-placeholder="點擊新增..." 
+        data-category="${group.cat}"
+		></div>
+	`;
+
         
-        const addInput = addRowDiv.querySelector('.luggage-add-input');
-        
-        addInput.onclick = (e) => {
-            e.stopPropagation();
-            addInput.classList.add('focused');
-            addInput.focus();
-        };
-        
-        addInput.onkeyup = (e) => {
-            if (e.key === 'Enter') {
-                addLuggageItemToCategory(addInput.value.trim(), group.cat);
-                addInput.value = '';
-                addInput.classList.remove('focused');
-            }
-        };
-        
-        addInput.onblur = () => {
-            if (addInput.value.trim() === '') {
-                addInput.classList.remove('focused');
-            }
-        };
+      const addInput = addRowDiv.querySelector('.luggage-add-input');
+
+addInput.onclick = (e) => {
+    e.stopPropagation();
+    addInput.classList.add('focused');
+    addInput.focus();
+};
+
+addInput.onkeydown = (e) => {
+    if (e.key === 'Enter') {
+        e.preventDefault();  // 防止換行
+        const text = addInput.innerText.trim();
+        if (text) {
+            addLuggageItemToCategory(text, group.cat);
+            addInput.innerText = '';  // 清空
+        }
+        addInput.classList.remove('focused');
+    }
+};
+
+addInput.onblur = () => {
+    if (addInput.innerText.trim() === '') {
+        addInput.classList.remove('focused');
+    }
+};
+
         
         gridDiv.appendChild(addRowDiv);
         cardDiv.appendChild(titleDiv);
@@ -2316,8 +2625,13 @@ function switchTab(tabBtn, name) {
 	
 	
 
-    const fab = document.getElementById('btn-add');
-    fab.style.display = (name === 'expense') ? 'none' : 'flex';
+     const fab = document.getElementById('btn-add');
+    // 只有「記帳」頁面才顯示 FAB，其他都隱藏
+    if (name === 'itinerary') {
+        fab.style.display = 'flex';
+    } else {
+        fab.style.display = 'none';
+    }
 
     if(name === 'expense') {
         renderExpense();
@@ -2327,8 +2641,7 @@ function switchTab(tabBtn, name) {
         renderExpenseCategories();
     } else if(name === 'wishlist') {
         renderWishlist();
-		renderLuggageList();  // 強制渲染行李清單
-
+        renderLuggageList();  // 強制渲染行李清單
     } else if(name === 'info') {
         updateInfoView();
     }
@@ -3454,36 +3767,229 @@ function handleImageInput(input) {
     }
 }
 
+// 渲染購物清單 
+// 全域變數：記錄當前選中的過濾標籤 (預設 null 代表顯示全部)
+let currentShopFilter = null;
+
 function renderWishlist() {
-const list = document.getElementById('wish-list');
-list.innerHTML = '';
+    const viewContainer = document.getElementById('wish-view-shopping');
+    if (!viewContainer) return;
 
-if(WISHLIST.length === 0) {
-list.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#888; padding:20px;">尚無願望清單</div>';
-return;
+    // 1. 收集所有出現過的 Hashtag (從名稱和備註裡抓)
+    const allTags = new Set();
+    myShoppingList.forEach(item => {
+        const text = (item.name + ' ' + (item.desc || '')).toLowerCase();
+        const matches = text.match(/#[\w\u4e00-\u9fa5]+/g); // 抓取 #開頭的中文或英數字
+        if (matches) {
+            matches.forEach(tag => allTags.add(tag));
+        }
+    });
+
+    // 2. 產生過濾器 HTML
+    let filterHtml = `
+        <div class="shop-filter-bar">
+            <div class="filter-chip ${currentShopFilter === null ? 'active' : ''}" 
+                 onclick="filterShopList(null)">全部</div>
+    `;
+    allTags.forEach(tag => {
+        filterHtml += `
+            <div class="filter-chip ${currentShopFilter === tag ? 'active' : ''}" 
+                 onclick="filterShopList('${tag}')">${tag}</div>
+        `;
+    });
+    filterHtml += `</div>`;
+
+    // 3. 準備過濾後的清單資料
+    const filteredList = currentShopFilter 
+        ? myShoppingList.filter(item => {
+            const text = (item.name + ' ' + (item.desc || '')).toLowerCase();
+            return text.includes(currentShopFilter);
+        })
+        : myShoppingList;
+
+    // 4. 組合主畫面 HTML
+    viewContainer.innerHTML = `
+    <!-- 過濾器列 -->
+    ${filterHtml}
+
+    <!-- B. 商品列表容器 (List) -->
+    <div id="shopping-list-content" class="shop-list-container">
+        <!-- JS 會自動產生內容放在這裡 -->
+    </div>
+
+    <!-- A. 新增商品快速 Bar (預設收合) -->
+    <div class="shop-input-bar-wrapper">
+        <!-- 1. 收合狀態：只顯示一個偽輸入框 -->
+        <div id="shop-input-collapsed" class="shop-input-collapsed" onclick="toggleShopInput(true)">
+            <span style="font-size:1.2rem; font-weight:300; color:#ccc; margin-right:8px;">＋</span>
+            <span style="color:#aaa; font-size:0.9rem;">新增購物清單...</span>
+        </div>
+
+        <!-- 2. 展開狀態：完整的輸入表單 (預設隱藏) -->
+        <div id="shop-input-expanded" class="shop-input-expanded" style="display:none;">
+            <div class="mini-form-header" style="display:flex; justify-content:space-between; align-items:center;">
+                <span>新商品</span>
+                <span onclick="toggleShopInput(false)" style="color:#ccc; font-size:1.5rem; cursor:pointer;">×</span>
+            </div>
+            
+            <div class="mini-form-body">
+                <input type="text" id="shop-name-input" class="mini-input" placeholder="品名 (例如: 合利他命)">
+                
+                <div style="position:relative;">
+                    <input type="text" id="shop-desc-input" class="mini-input" placeholder="備註 / 標籤">
+                    <!-- 快速標籤列 -->
+                    <div class="quick-tag-row">
+                        <span onclick="addTagToDesc('#藥妝')">#藥妝</span>
+                        <span onclick="addTagToDesc('#零食')">#零食</span>
+                        <span onclick="addTagToDesc('#電器')">#電器</span>
+                        <span onclick="addTagToDesc('#伴手禮')">#伴手禮</span>
+                        <span onclick="addTagToDesc('#代購')">#代購</span>
+                    </div>
+                </div>
+
+                <input type="text" id="shop-img-input" class="mini-input" placeholder="圖片連結 (選填)">
+                <button class="btn-add-mini" onclick="addShoppingItem()">加入清單</button>
+            </div>
+        </div>
+    </div>
+`;
+
+    // 5. 渲染列表內容 (跟之前一樣，但用 filteredList)
+    const listContainer = document.getElementById('shopping-list-content');
+    
+    if (filteredList.length === 0) {
+        listContainer.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align:center; padding: 3rem 1rem; color:#ccc; font-size:0.8rem;">
+                ${currentShopFilter ? `沒有找到 ${currentShopFilter} 的商品` : '清單空空的<br>快去下面新增吧 👇'}
+            </div>
+        `;
+        return;
+    }
+
+    filteredList.forEach((item, index) => {
+        // 注意：這裡的 index 是過濾後的 index，
+        // 如果要操作刪除/打勾，最好改用 item.id 來找原始陣列，
+        // 但為了簡單起見，我們先用 myShoppingList.indexOf(item) 來找回原始索引。
+        const originalIndex = myShoppingList.indexOf(item);
+
+        const imgDisplay = item.image 
+            ? `<img src="${item.image}" class="shop-thumb" onerror="this.src='https://placehold.co/100x100?text=No+Img'">`
+            : `<div class="shop-thumb" style="display:flex;align-items:center;justify-content:center;color:#ddd;font-size:1.5rem;background:#f5f5f5;">🛍️</div>`;
+
+        const itemCard = document.createElement('div');
+        itemCard.className = `shop-item-card ${item.checked ? 'checked' : ''}`;
+        
+        itemCard.onclick = (e) => {
+            if(e.target.closest('.btn-del-mini')) return;
+            toggleShoppingItem(originalIndex);
+        };
+
+        // 標示出 Hashtag 顏色
+        let displayDesc = item.desc || '';
+        displayDesc = displayDesc.replace(/(#[\w\u4e00-\u9fa5]+)/g, '<span style="color:#3b82f6;font-weight:bold;">$1</span>');
+
+        itemCard.innerHTML = `
+            <button class="btn-del-mini" onclick="removeShoppingItem(${originalIndex})">×</button>
+            ${imgDisplay}
+            <div class="shop-content-mini" style="flex-direction:column; align-items:flex-start; gap:2px;">
+                <div style="display:flex;align-items:center;gap:4px;width:100%;">
+                    <div class="shop-check-mini ${item.checked ? 'checked' : ''}">✓</div>
+                    <div class="shop-name-mini">${item.name}</div>
+                </div>
+                ${displayDesc ? `<div style="font-size:0.65rem;color:#888;padding-left:16px;">${displayDesc}</div>` : ''}
+            </div>
+        `;
+        listContainer.appendChild(itemCard);
+    });
 }
 
-WISHLIST.forEach((item, idx) => {
-const div = document.createElement('div');
-div.className = 'wish-card';
-div.onclick = (e) => {
-if(e.target.closest('.wish-check')) return;
-openModal('wish', item, idx);
-};
-div.innerHTML = `
-                <div class="wish-check ${item.checked?'checked':''}'' onclick="toggleWish(${idx})">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                        ${item.checked ? '<polyline points="20 6 9 17 4 12"></polyline>' : ''}
-                    </svg>
-                </div>
-                ${item.img ? `<img src="${item.img}" class="wish-img">` : '<div class="wish-img" style="display:flex;align-items:center;justify-content:center;color:#ccc"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg></div>'}
-                <div class="wish-content">
-                    <div style="font-weight:700; font-size:0.9rem; margin-bottom:4px; ${item.checked?'text-decoration:line-through;color:#aaa':''}">${item.title}</div>
-                </div>
-            `;
-list.appendChild(div);
-});
+// 輔助函式：切換過濾器
+function filterShopList(tag) {
+    currentShopFilter = tag;
+    renderWishlist();
 }
+
+// 輔助函式：點擊快速標籤帶入輸入框
+function addTagToDesc(tag) {
+    const input = document.getElementById('shop-desc-input');
+    if (input.value.includes(tag)) return; // 避免重複
+    input.value = input.value ? input.value + ' ' + tag : tag;
+    input.focus(); // 讓焦點回到輸入框
+}
+
+// 切換輸入框的展開/收合
+function toggleShopInput(show) {
+    const collapsed = document.getElementById('shop-input-collapsed');
+    const expanded = document.getElementById('shop-input-expanded');
+    
+    if (show) {
+        collapsed.style.display = 'none';
+        expanded.style.display = 'block';
+        // 自動聚焦品名
+        setTimeout(() => document.getElementById('shop-name-input').focus(), 100);
+    } else {
+        collapsed.style.display = 'flex';
+        expanded.style.display = 'none';
+    }
+}
+
+
+// 修改：新增購物清單項目 (支援 Hashtag)
+function addShoppingItem() {
+    const nameInput = document.getElementById('shop-name-input');
+    const descInput = document.getElementById('shop-desc-input');
+    const imgInput = document.getElementById('shop-img-input');
+
+    const name = nameInput.value.trim();
+    const desc = descInput.value.trim();
+    const image = imgInput.value.trim();
+
+    if (!name) {
+        alert('請輸入商品名稱！');
+        return;
+    }
+
+    // 這裡不做特殊處理，直接把字串存進去
+    // 之後 render 時我們再用 Regex 抓出 #hashtags
+    myShoppingList.unshift({
+        id: Date.now(), // 給每個商品一個唯一 ID
+        name: name,
+        desc: desc, // 標籤會跟著備註一起存，例如 "給阿姨 #伴手禮"
+        image: image,
+        checked: false
+    });
+
+    saveShoppingList();
+    renderWishlist();
+
+    // 清空輸入框
+    nameInput.value = '';
+    descInput.value = '';
+    imgInput.value = '';
+}
+
+
+// 4. 刪除商品
+function removeShoppingItem(index) {
+    if (confirm('確定要刪除這個商品嗎？')) {
+        myShoppingList.splice(index, 1);
+        saveShoppingList();
+        renderWishlist();
+    }
+}
+
+// 5. 切換勾選狀態
+function toggleShoppingItem(index) {
+    myShoppingList[index].checked = !myShoppingList[index].checked;
+    saveShoppingList();
+    renderWishlist();
+}
+
+// 6. 儲存到 LocalStorage
+function saveShoppingList() {
+    localStorage.setItem('my_shopping_list', JSON.stringify(myShoppingList));
+}
+
 
 // 在關閉視窗或送出成功後：
 const preview = document.getElementById('preview-img');
@@ -3849,6 +4355,7 @@ function toggleInfoCard(card) {
     }
 }
 
+ 
  
 </script>
 </body>
