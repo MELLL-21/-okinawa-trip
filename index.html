@@ -46,13 +46,77 @@ main { flex: 1; overflow-y: auto; padding: 1rem 1rem calc(6rem + var(--safe-bott
 /* Day Scroll */
 .day-scroll { display: flex; gap: 0.8rem; overflow-x: auto; padding: 0.5rem 0 1rem; scroll-snap-type: x mandatory; z-index: 2; position: relative; }
 .day-scroll::-webkit-scrollbar { display: none; }
-.day-card { flex: 0 0 8.5rem; height: 6.5rem; background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(8px); border-radius: 1rem; padding: 0.8rem; display: flex; flex-direction: column; justify-content: space-between; border: 2px solid transparent; transition: 0.2s; scroll-snap-align: start; box-shadow: 0 4px 12px rgba(0,0,0,0.03); cursor: pointer; position: relative; }
-.day-card:active { transform: scale(0.96); }
-.day-card.active { background: var(--primary); color: white; box-shadow: 0 8px 20px rgba(44,62,80,0.3); border-color: var(--primary); }
-.day-top { display: flex; justify-content: space-between; font-size: 0.7rem; font-weight: 800; opacity: 0.8; letter-spacing: 1px; }
-.day-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; }
-.day-num { font-family: 'Noto Serif TC'; font-size: 1.8rem; font-weight: 700; line-height: 1; margin-top: auto; }
-.day-num span { font-size: 0.8rem; opacity: 0.6; font-family: 'Inter'; margin-left: 2px; }
+.day-card {
+    flex: 0 0 4.5rem;   /* 寬度：窄一點 */
+    height: 5.5rem;     /* 高度：拉長，形成垂直橢圓 */
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(8px);
+    border-radius: 999px; /* 關鍵：超大圓角 = 橢圓膠囊效果 */
+    padding: 0.7rem 0.5rem; /* 上下內距較大，左右較小 */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* 垂直置中 */
+    align-items: center;     /* 水平置中 */
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
+    scroll-snap-align: start;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    cursor: pointer;
+    position: relative;
+}
+
+.day-card:active {
+    transform: scale(0.96);
+}
+
+/* 選中狀態 */
+.day-card.active {
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 6px 18px rgba(44,62,80,0.35);
+    border-color: var(--primary);
+}
+
+/* 卡片頂部文字 (Day 1) */
+.day-top {
+    font-size: 0.65rem;
+    font-weight: 800;
+    opacity: 0.7;
+    letter-spacing: 0.5px;
+    text-align: center;
+    margin-bottom: 6px; /* 與下方日期保持間距 */
+}
+
+
+.day-dot {
+    display: none;
+}
+
+/* 日期數字  */
+.day-num {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 1rem; 
+    font-weight: 700;
+    line-height: 1.1;
+    text-align: center;
+	
+}
+
+/* 星期幾 (週二) */
+.day-num span {
+    font-size: 0.7rem;
+    opacity: 0.65;
+    font-family: 'Inter', sans-serif;
+    display: block;
+    margin-top: 12px;
+    font-weight: 600;
+}
+
+/* 選中時強調 */
+.day-card.active .day-top {
+    opacity: 0.9;
+}
+
 
 /* Weather Card */
 .weather { background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(10px); padding: 1rem 1.2rem; border-radius: 1.2rem; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
@@ -65,55 +129,157 @@ main { flex: 1; overflow-y: auto; padding: 1rem 1rem calc(6rem + var(--safe-bott
 .list-head h2 { margin: 0; font-family: 'Noto Serif TC'; font-size: 1.2rem; }
 .hint { font-size: 0.65rem; background: rgba(255,255,255,0.5); padding: 4px 8px; border-radius: 12px; color: #888; }
 
-/* Plan Card */
-.plan-card { background: white; padding: 1rem; border-radius: 1.2rem; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 8px 24px rgba(0,0,0,0.08); cursor: pointer; transition: transform 0.1s; height: 7.5rem; position: relative; z-index: 2; }
-.plan-card:active { transform: scale(0.98); }
-.plan-left { display: flex; flex-direction: column; justify-content: center; gap: 6px; flex: 1; min-width: 0; }
-.plan-time { font-size: 1.4rem; font-weight: 900; color: var(--primary); line-height: 1; }
-.plan-tag { display: inline-block; font-size: 0.7rem; padding: 3px 8px; border-radius: 12px; font-weight: 700; color: white; width: fit-content; }
-.plan-title { font-family: 'Noto Serif TC'; font-weight: 800; font-size: 1.1rem; color: var(--primary); margin-top: 2px; }
-.plan-loc { font-size: 0.75rem; color: #888; display: flex; align-items: center; gap: 4px; font-weight: 500; }
-.plan-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; margin-left: 1rem; flex-shrink: 0; }
+/* --- 樣式三：獨立時間小膠囊版 --- */
 
-/* 修改導航按鈕樣式 */
+/* 1. 卡片外框 */
+.plan-card {
+    background: #fff;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 12px;
+    border-left: none !important;
+    
+    padding: 0 !important; 
+    margin-bottom: 0.8rem;
+    display: flex;
+    align-items: stretch;
+    min-height: 5.5rem; /* 確保高度足夠 */
+    position: relative;
+    overflow: hidden; 
+    box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+}
+
+/* 2. 左側佈局：時間區塊加大到 88px */
+.plan-left {
+    display: grid;
+    /* 時間區(88px) | 分隔線(1px) | 內容區 */
+    grid-template-columns: 88px 1px 1fr; 
+    grid-template-rows: auto auto auto;
+    align-items: center;
+    padding: 0 !important;
+    gap: 0 !important;
+    flex: 1;
+    min-width: 0;
+}
+
+/* 3. 時間區塊：小膠囊背景 */
+.plan-time {
+    grid-column: 1;
+    grid-row: 1 / span 3;
+    
+    width: 60px !important;
+	height: 74px !important;
+    
+    /* 讓這個容器在 88px 的格子裡置中 */
+    margin: auto !important; 
+    
+    /* 小背景設定 */
+    background: var(--card-color-light) !important; /* 淺色背景 */
+    
+    
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    
+    /* 文字設定 */
+    color: var(--card-color) !important;
+    font-size: 1.25rem !important; /* 字體稍微縮小一點點，防止爆開 */
+    font-weight: 800 !important;
+    line-height: 1;
+    padding: 0 2px; /* 稍微留點邊距 */
+}
+
+/* 時間下方圓點 */
+.plan-time::after {
+    content: '●';
+    font-size: 0.4rem;
+    color: var(--card-color);
+    margin-top: 4px;
+    opacity: 0.6;
+}
+
+/* 實心分隔線 */
+.plan-left::before {
+    content: '';
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    width: 100%;
+    height: 60%;
+    background: #e2e8f0;
+    display: block;
+    margin: auto 0;
+}
+
+/* 4. 內容區 */
+.plan-tag {
+    grid-column: 3;
+    justify-self: start;
+    font-size: 0.65rem !important;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-weight: 700;
+    color: white !important;
+    background: var(--card-color);
+    margin: 0.8rem 0 2px 1rem !important;
+}
+
+.plan-title {
+    grid-column: 3;
+    font-weight: 800;
+    font-size: 1rem !important;
+    color: #1e293b !important;
+    margin: 0 0 0 1rem !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 0.5rem;
+}
+
+.plan-loc {
+    grid-column: 3;
+    font-size: 0.75rem !important;
+    color: #94a3b8 !important;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: 2px 0 0.8rem 1rem !important;
+}
+
+/* 5. 導航按鈕區 */
+.plan-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    flex-shrink: 0;
+    margin: 0 !important;
+    padding-right: 12px;
+    background: transparent !important;
+}
+
 .nav-btn {
-padding: 6px 12px; /* 稍微加寬一點點 */
-border-radius: 999px;
-background: #3b82f6; /* 卡片藍底 (配合 bg-sight 的顏色) */
-color: #ffffff;      /* 白色文字與圖標 */
-font-size: 0.75rem;
-font-weight: 700;    /* 字體加粗 */
-border: none;
-cursor: pointer;
-display: inline-flex;
-align-items: center;
-gap: 6px;            /* 圖標與文字間距 */
-box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4); /* 增加一點藍色光暈陰影 */
-transition: transform 0.2s, box-shadow 0.2s;
+    padding: 0 !important;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: white !important;
+    border: 1px solid #e2e8f0 !important;
+    color: transparent !important;
+    font-size: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.03) !important;
 }
-
-.nav-btn:active {
-transform: scale(0.95);
-box-shadow: 0 2px 5px rgba(59, 130, 246, 0.4);
-}
-
 .nav-btn svg {
-width: 14px;
-height: 14px;
-fill: currentColor; /* 讓圖標跟隨文字顏色變成白色 */
-/* 調整角度讓箭頭指向右上方 */
+    width: 16px;
+    height: 16px;
+    fill: #64748b !important;
 }
-.nav-btn svg { width: 14px; height: 14px;fill: currentColor; }
 
-/* Flight Ticket */
-.ticket-card { display: flex; background: #ffffff; border-radius: 18px; padding: 10px 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 12px; position: relative; overflow: hidden; }
-.ticket-left { border-right: 1px dashed #e5e7eb; padding-right: 12px; margin-right: 12px; display: flex; flex-direction: column; justify-content: center; font-size: 12px; }
-.ticket-left .flight { font-size: 1.2rem; font-weight: 800; margin-top: 4px; color: #111827; }
-.ticket-left .date { font-size: 0.75rem; margin-top: 4px; color: #9ca3af; }
-.ticket-right { display: flex; flex-direction: column; justify-content: center; flex: 1; }
-.ticket-route { display: flex; align-items: center; gap: 8px; font-size: 1.2rem; font-weight: 700; color: #111827; }
-.ticket-time-row { margin-top: 4px; font-size: 0.75rem; color: #4b5563; display: flex; justify-content: space-between; }
-.ticket-meta { margin-top: 4px; font-size: 0.7rem; color: #9ca3af; display: flex; justify-content: space-between; }
+
+
 
 /* Expense Summary Card */
 .exp-summary-card { background: var(--primary); color: white; padding: 2rem; border-radius: 1.5rem; text-align: center; margin-bottom: 1rem; box-shadow: 0 8px 20px rgba(44,62,80,0.3); }
@@ -266,7 +432,6 @@ justify-content: center;
 background: white;
 border-radius: 99px;
 border: 2px solid var(--card-color, #e2e8f0);
-box-shadow: 0 4px 10px rgba(0,0,0,0.06);
 font-size: 0.75rem; /* 字體稍微縮小 */
 color: #555;
 font-weight: 800;
@@ -979,7 +1144,7 @@ font-weight: 700; cursor: pointer; pointer-events: auto;
 .info-content {
     background: #f8fafc;
     padding: 0 16px;
-    max-height: 500px; /* 設定一個足夠大的高度 */
+    max-height: 1000px; /* 設定一個足夠大的高度 */
     opacity: 1;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: hidden;
@@ -1322,6 +1487,31 @@ font-weight: 700; cursor: pointer; pointer-events: auto;
     transform: scale(0.95);
 }
 
+/* === 📝 行李清單編輯優化 === */
+.luggage-item-text {
+    flex: 1;
+    font-size: 0.95rem;
+    padding: 6px 4px; /* 增加點擊區域 */
+    margin: 0 4px;
+    outline: none;  /* 移除預設藍框 */
+    border-bottom: 1px solid transparent;
+    transition: all 0.2s;
+    border-radius: 4px;
+}
+
+/* 編輯中 (Focus) 的狀態 */
+.luggage-item-text:focus {
+    border-bottom: 1px solid #E76F51; /* 底部橘色線條 */
+    background: rgba(231, 111, 81, 0.08); /* 微微的橘色底 */
+    color: #2C3E50;
+}
+
+/* 已勾選的項目 (劃掉效果 + 灰色) */
+.luggage-item.checked .luggage-item-text {
+    color: #cbd5e1;
+    text-decoration: line-through;
+    pointer-events: none; /* 勾選後禁止編輯，避免誤觸 */
+}
 
 
 
@@ -1393,11 +1583,16 @@ style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; paddin
     記帳
   </div>
 
-  <!-- 明細 (新增) -->
-  <div class="tab" onclick="switchTab(this, 'breakdown')">
-    <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+ <div class="tab" onclick="switchTab(this, 'breakdown')">
+    <svg viewBox="0 0 24 24" fill="currentColor">
+        <!-- 主體 -->
+        <path d="M5 3a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v19l-3-2-2 2-2-2-2 2-2-2-2 2V3z"/>
+        <!-- 內容線條，用淺色或透明鏤空呈現 -->
+        <path d="M8 6h8M8 10h8M8 14h5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+    </svg>
     明細
-  </div>
+</div>
+
 
   <!-- 清單 (原願望清單) -->
   <div class="tab" onclick="switchTab(this, 'wishlist')">
@@ -1405,11 +1600,14 @@ style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; paddin
     清單
   </div>
 
-  <!-- 資訊 (新增) -->
-  <div class="tab" onclick="switchTab(this, 'info')">
-    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+  <!-- 資訊 (圓形經典版) -->
+<div class="tab" onclick="switchTab(this, 'info')">
+    <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+    </svg>
     資訊
-  </div>
+</div>
+
 </div>
 
 
@@ -1635,55 +1833,65 @@ style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; paddin
 
 <!-- 🆕 資訊 VIEW (改版：旅遊重要資訊) -->
 <main id="view-info" style="display:none">
-  <div class="list-head" style="margin-bottom: 0.5rem;">
-    <h2>旅遊資訊</h2>
-  </div>
+ 
 
   <div class="info-container">
     
-    <!-- 1. 航班資訊 -->
-    <div class="info-card collapsed" onclick="toggleInfoCard(this)">
-      <div class="info-header">
+<!-- 1. 航班資訊 -->
+<div class="info-card collapsed" onclick="toggleInfoCard(this)">
+    <div class="info-header">
         <span class="info-icon">✈️</span>
-        <span class="info-title">航班資訊 (Flight)</span>
+        <span class="info-title">航班資訊</span>
         <span class="info-arrow">▼</span>
-      </div>
-      <div class="info-content">
+    </div>
+    <div class="info-content">
+        
         <!-- 去程 -->
         <div class="info-block">
-          <div class="info-sub-title">🇹🇼 去程 (TPE ➝ OKA)</div>
-          <div class="info-row"><span>日期</span><span>2025/01/06 (一)</span></div>
-          <div class="info-row"><span>航班</span><span>樂桃 MM924</span></div>
-          <div class="info-row"><span>時間</span><span>09:35 桃園T1 ➝ 12:00 那霸</span></div>
-          <div class="info-row"><span>編號</span><span>訂位代號: XXXXXX</span></div>
+            <div class="info-sub-title" style="color:#E76F51;">去程 (TPE → OKA)</div>
+            <div class="info-row"><span>日期</span><span>01/06 (一)</span></div>
+            <div class="info-row"><span>時間</span><span>06:35 桃園 → 08:55 那霸</span></div>
+            <div class="info-row"><span>航班</span><span>虎航 IT230</span></div>
+            
+            <!-- 新增：航班動態連結 -->
+            <a href="https://www.google.com/search?q=IT230+航班動態" target="_blank" class="info-link-btn" style="margin-top:8px;">
+                🔎 查詢動態
+            </a>
         </div>
+        
         <hr class="info-divider">
+        
         <!-- 回程 -->
         <div class="info-block">
-          <div class="info-sub-title">🇯🇵 回程 (OKA ➝ TPE)</div>
-          <div class="info-row"><span>日期</span><span>2025/01/10 (五)</span></div>
-          <div class="info-row"><span>航班</span><span>虎航 IT231</span></div>
-          <div class="info-row"><span>時間</span><span>10:10 那霸 ➝ 10:55 桃園T1</span></div>
+            <div class="info-sub-title" style="color:#E76F51;">回程 (OKA → TPE)</div>
+            <div class="info-row"><span>日期</span><span>01/10 (六)</span></div>
+            <div class="info-row"><span>時間</span><span>09:45 那霸 → 10:20 桃園</span></div>
+            <div class="info-row"><span>航班</span><span>虎航 IT231</span></div>
+            
+            <!-- 新增：航班動態連結 -->
+            <a href="https://www.google.com/search?q=IT231+航班動態" target="_blank" class="info-link-btn" style="margin-top:8px;">
+                🔎 查詢動態
+            </a>
         </div>
-      </div>
+
     </div>
+</div>
+
 
     <!-- 2. 住宿資訊 -->
     <div class="info-card collapsed" onclick="toggleInfoCard(this)">
       <div class="info-header">
         <span class="info-icon">🏠</span>
-        <span class="info-title">住宿資訊 (Stay)</span>
+        <span class="info-title">住宿資訊</span>
         <span class="info-arrow">▼</span>
       </div>
       <div class="info-content">
         <div class="info-block">
-          <div class="info-sub-title">Chateau TIIDA (包棟民宿)</div>
-          <div class="info-row"><span>地址</span><span>沖縄県国頭郡恩納村字名嘉真2288-306</span></div>
-          <div class="info-row"><span>電話</span><span>+81 00-0000-0000</span></div>
-          <div class="info-row"><span>入住</span><span>15:00 後 (密碼鎖)</span></div>
+          <div class="info-sub-title">Chateau TIIDA</div>
+          <div class="info-row"><span>地址</span><span>沖繩縣那霸市安里3丁目12-13</span></div>
+          <div class="info-row"><span>入住</span><span>16:00 後 (密碼鎖)</span></div>
           <div class="info-row"><span>退房</span><span>10:00 前</span></div>
           <div class="info-row"><span>備註</span><span>垃圾需分類，保持整潔</span></div>
-          <a href="https://maps.app.goo.gl/example" target="_blank" class="info-link-btn">🗺️ 開啟 Google Maps</a>
         </div>
       </div>
     </div>
@@ -1692,72 +1900,165 @@ style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; paddin
     <div class="info-card collapsed" onclick="toggleInfoCard(this)">
       <div class="info-header">
         <span class="info-icon">🚗</span>
-        <span class="info-title">租車 / 包車 (Car)</span>
+        <span class="info-title">租車</span>
         <span class="info-arrow">▼</span>
       </div>
-      <div class="info-content">
+	  
+	  <div class="info-content">
+	   
         <div class="info-block">
           <div class="info-sub-title">OTS 租車 (臨空豐崎營業所)</div>
           <div class="info-row"><span>預約號</span><span>RC12345678</span></div>
-          <div class="info-row"><span>取車</span><span>01/06 13:30 (機場接駁)</span></div>
-          <div class="info-row"><span>還車</span><span>01/10 08:00</span></div>
-          <div class="info-row"><span>車型</span><span>Toyota Sienta (7人座)</span></div>
-          <div class="info-text">
-            ⚠️ 注意事項：<br>
+          <div class="info-row"><span>取車</span><span>01/06 10:30</span></div>
+          <div class="info-row"><span>還車</span><span>01/09 08:00</span></div>
+          <div class="info-row"><span>車型</span><span>Toyota Sienta (5人座)</span></div>
+          
+		  <div class="info-text">
+            <b>⚠️ 注意事項：</b><br>
             1. 取車需備妥：台灣駕照、日文譯本、護照。<br>
-            2. 還車前請加滿油 (Regular 紅色油槍)。
+            2. 還車前請加滿油 (Regular 紅色油槍)。<br>
+			3.「左轉轉小彎、右轉轉大彎；雨刷在左、方向燈在右」
           </div>
         </div>
+		
       </div>
+	  
     </div>
 
-    <!-- 4. 餐廳訂位 -->
-    <div class="info-card collapsed" onclick="toggleInfoCard(this)">
-      <div class="info-header">
-        <span class="info-icon">🍽️</span>
-        <span class="info-title">餐廳預約 (Dining)</span>
+<!-- === 新增：折價券 (圖片版) === -->
+<div class="info-card collapsed" onclick="toggleInfoCard(this)">
+    <div class="info-header">
+        <span class="info-icon">🎟️</span>
+        <span class="info-title">折價券</span>
         <span class="info-arrow">▼</span>
-      </div>
-      <div class="info-content">
-        <div class="info-block">
-          <div class="info-sub-title">琉球之牛 (國際通店)</div>
-          <div class="info-row"><span>時間</span><span>01/06 (一) 21:00</span></div>
-          <div class="info-row"><span>人數</span><span>5 位</span></div>
-        </div>
-        <hr class="info-divider">
-        <div class="info-block">
-          <div class="info-sub-title">百年古家 大家</div>
-          <div class="info-row"><span>時間</span><span>01/08 (三) 12:00</span></div>
-        </div>
-      </div>
     </div>
+    <div class="info-content">
+        <div class="info-block" style="padding: 10px;">
+            
+            <div style="display: flex; flex-direction: column; gap: 10px;">
 
-    <!-- 5. 注意事項 -->
-    <div class="info-card collapsed" onclick="toggleInfoCard(this)">
-      <div class="info-header">
+                <!-- 1. 唐吉訶德 (白底樣式) -->
+                <a href="https://japanportal.donki-global.com/coupon/cp001_zhtw.html" target="_blank" 
+                   style="display: flex; justify-content: space-between; align-items: center; background: white; color: #2C3E50; border: 1px solid #eee; padding: 12px 16px; border-radius: 10px; text-decoration: none; box-shadow: 0 2px 5px rgba(0,0,0,0.02);">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 1.2rem;">🐧</span>
+                        <span style="font-weight: 500;">唐吉訶德</span>
+                    </div>
+                    <span style="font-size: 0.7rem; background: #E76F51; color: white; padding: 3px 6px; border-radius: 999px; font-weight: 550;">最高 17%</span>
+                </a>
+
+                <!-- 2. Bic Camera -->
+                <a href="https://d1grca2t3zpuug.cloudfront.net/2025/06/biccameracoupontwhk-1787x2527-1750209030.webp" target="_blank" 
+                   style="display: flex; justify-content: space-between; align-items: center; background: white; color: #2C3E50; border: 1px solid #eee; padding: 12px 16px; border-radius: 10px; text-decoration: none; box-shadow: 0 2px 5px rgba(0,0,0,0.02);">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 1.2rem;">📷</span>
+                        <span style="font-weight: 505;">Bic Camera</span>
+                    </div>
+                    <span style="font-size: 0.7rem; background: #E76F51; color: white; padding: 3px 6px; border-radius: 999px; font-weight: 550;">最高 17%</span>
+                </a>
+
+                <!-- 3. 松本清 -->
+                <a href="https://d1grca2t3zpuug.cloudfront.net/2025/01/20250131matsucoupontw-1631x2475.webp" target="_blank" 
+                   style="display: flex; justify-content: space-between; align-items: center; background: white; color: #2C3E50; border: 1px solid #eee; padding: 12px 16px; border-radius: 10px; text-decoration: none; box-shadow: 0 2px 5px rgba(0,0,0,0.02);">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 1.2rem;">💊</span>
+                        <span style="font-weight: 500;">松本清</span>
+                    </div>
+                    <span style="font-size: 0.7rem; background: #E76F51; color: white; padding: 3px 6px; border-radius: 999px; font-weight: 550;">最高 17%</span>
+                </a>
+
+                <!-- 4. 大國藥妝 -->
+                <a href="https://d1grca2t3zpuug.cloudfront.net/2023/08/daikokucoupon-1751874722.webp" target="_blank" 
+                   style="display: flex; justify-content: space-between; align-items: center; background: white; color: #2C3E50; border: 1px solid #eee; padding: 12px 16px; border-radius: 10px; text-decoration: none; box-shadow: 0 2px 5px rgba(0,0,0,0.02);">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 1.2rem;">💊</span>
+                        <span style="font-weight: 500;">大國藥妝</span>
+                    </div>
+                    <span style="font-size: 0.7rem; background: #E76F51; color: white; padding: 3px 6px; border-radius: 999px; font-weight: 550;">最高 18%</span>
+                </a>
+
+                <!-- 5. 更多優惠券整理 -->
+                <a href="https://www.letsgojp.com/coupons" target="_blank" class="info-link-btn" style="margin-top:8px;">
+                🔎 查看更多優惠券
+            </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- 4. 預約/訂位 -->
+<div class="info-card collapsed" onclick="toggleInfoCard(this)">
+    <div class="info-header">
+        <span class="info-icon">🎫</span>
+        <span class="info-title">預約 / 訂位</span>
+        <span class="info-arrow">▼</span>
+    </div>
+    <div class="info-content">
+        
+        <!-- 琉球之牛 -->
+        <div class="info-row" style="padding: 12px 0; border-bottom: 1px dashed #eee; align-items: center;">
+            <span style="font-size: 0.85rem; font-weight: 700; color: #E76F51;">琉球之牛 國際通</span>
+            <span style="font-size: 0.85rem; font-weight: 700; color: #2C3E50;">01/06 21:00</span>
+        </div>
+        
+        <!-- 琉裝 -->
+        <div class="info-row" style="padding: 12px 0; border-bottom: 1px dashed #eee; align-items: center;">
+            <span style="font-size: 0.85rem; font-weight: 700; color: #E76F51;">琉装スタジオ ちゅら美人</span>
+            <span style="font-size: 0.85rem; font-weight: 700; color: #2C3E50;">01/07 14:30</span>
+        </div>
+
+        <!-- Gangala -->
+        <div class="info-row" style="padding: 12px 0; border-bottom: none; align-items: center;">
+            <span style="font-size: 0.85rem; font-weight: 700; color: #E76F51;">Gangala之谷</span>
+            <span style="font-size: 0.85rem; font-weight: 700; color: #2C3E50;">01/09 11:00</span>
+        </div>
+
+    </div>
+</div>
+
+<!-- 5. 緊急聯絡 (修正版) -->
+<div class="info-card collapsed" onclick="toggleInfoCard(this)">
+    <div class="info-header">
         <span class="info-icon">⚠️</span>
-        <span class="info-title">注意事項 (Notes)</span>
+        <span class="info-title">注意事項</span>
         <span class="info-arrow">▼</span>
-      </div>
-      <div class="info-content">
-        <div class="info-text">
-          ✅ <b>入境檢疫：</b> 請先填寫 Visit Japan Web。<br>
-          ✅ <b>電壓：</b> 日本電壓 100V (雙孔扁插頭)，台灣電器通用。<br>
-          ✅ <b>緊急聯絡：</b><br>
-          - 報警 110 / 救護車 119<br>
-          - 台北駐日代表處那霸分處：098-862-7008
-        </div>
-      </div>
     </div>
+     <div class="info-content">
+        <div class="info-block" style="padding: 10px;">
+            <div class="info-text" style="line-height: 1.6; padding: 15px;">
+                
+                <div style="margin-bottom: 12px;">
+                    <div style="font-size: 1rem; color: #2C3E50;">
+                        報警 <span style="font-weight: 900; color: #E76F51;">110</span> / 
+                        救護車 <span style="font-weight: 900; color: #E76F51;">119</span>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 12px;">
+                    <div style="font-weight: 700; color: #475569; font-size: 0.8rem;">台北駐日代表那霸分處：</div>
+                    <a href="tel:098-862-7008" style="font-weight: 600; color: #E76F51; font-size: 0.8rem; text-decoration: none; letter-spacing: 0.5px;">
+                        098-862-7008
+                    </a>
+                </div>
+
+                <div>
+                    <div style="font-weight: 700; color: #475569; font-size: 0.8rem;">緊急聯絡電話 (急難救助用)：</div>
+                    <a href="tel:080-8056-0122" style="font-weight: 600; color: #E76F51; font-size: 0.8rem; text-decoration: none; letter-spacing: 0.5px;">
+                        080-8056-0122
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
 
   </div>
 </main>
 
 
-<!-- FAB & MODAL -->
-<div class="fab" id="btn-add" onclick="openModal()">
-<svg class="icon" style="width:2em;height:2em" viewBox="0 0 24 24"><path d="M12 5v14m7-7H5" stroke="currentColor" stroke-width="2" fill="none"/></svg>
-</div>
+
 
 <div class="overlay" id="modal-overlay">
 <div class="modal">
@@ -2086,27 +2387,72 @@ function renderLuggageList() {
         const gridDiv = document.createElement('div');
         gridDiv.className = 'luggage-grid';
         
-        // 1️⃣ 先渲染預設項目
-        group.items.forEach(item => {
-            const isChecked = myLuggage.checked.includes(item);
-            
-            const itemDiv = document.createElement('div');
-            itemDiv.className = `luggage-item ${isChecked ? 'checked' : ''}`;
-            
-            itemDiv.innerHTML = `
-                <div class="luggage-checkbox"></div>
-                <span class="luggage-item-text">${item}</span>
-            `;
-            
-            itemDiv.onclick = (e) => {
-                e.stopPropagation();
-                toggleLuggageItem(item);
-            };
-            
-            gridDiv.appendChild(itemDiv);
-        });
+
+// 1. 針對 DEFAULTLUGGAGE 的迴圈
+group.items.forEach(item => {
+    const isChecked = myLuggage.checked.includes(item);
+    const itemDiv = document.createElement('div');
+    itemDiv.className = `luggage-item ${isChecked ? 'checked' : ''}`;
+
+    // A. Checkbox
+    const checkbox = document.createElement('div');
+    checkbox.className = 'luggage-checkbox';
+    checkbox.onclick = (e) => {
+        e.stopPropagation(); // 阻止冒泡
+        toggleLuggageItem(item);
+    };
+
+    // B. 可編輯文字 span
+    const textSpan = document.createElement('span');
+    textSpan.className = 'luggage-item-text';
+    textSpan.innerText = item;
+    
+    // 如果沒打勾，允許編輯
+    if (!isChecked) {
+        textSpan.contentEditable = true; 
         
-        // 2️⃣ 再渲染該分類的自訂項目（如果有）
+        // 點擊文字時，不要觸發整行的 toggle，而是進入編輯
+        textSpan.onclick = (e) => e.stopPropagation(); 
+        
+        // 按下 Enter -> 保存
+        textSpan.onkeydown = (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // 防止換行
+                textSpan.blur();    // 觸發 blur
+            }
+        };
+
+        // 失焦 -> 自動保存
+        textSpan.onblur = () => {
+            const newText = textSpan.innerText.trim();
+            if (newText && newText !== item) {
+                updateLuggageItem(item, newText, group.cat);
+            } else if (!newText) {
+                textSpan.innerText = item; // 如果清空，還原原本文字
+            }
+        };
+    } else {
+        // 如果已打勾，點擊文字就切換勾選狀態 (像原本一樣)
+        textSpan.onclick = (e) => {
+            e.stopPropagation();
+            toggleLuggageItem(item);
+        }
+    }
+
+    // C. 刪除按鈕 (可選，看你要不要留)
+    // 預設清單通常不給刪除，但自訂清單需要。這裡先不放預設清單的刪除鈕。
+
+    itemDiv.appendChild(checkbox);
+    itemDiv.appendChild(textSpan);
+    
+    // 點擊整行 (空白處) -> 切換勾選
+    itemDiv.onclick = () => toggleLuggageItem(item);
+
+    gridDiv.appendChild(itemDiv);
+});
+
+        
+        // 再渲染該分類的自訂項目（如果有）
         if (myLuggage.customByCategory && myLuggage.customByCategory[group.cat]) {
             myLuggage.customByCategory[group.cat].forEach(item => {
                 const isChecked = myLuggage.checked.includes(item);
@@ -2293,6 +2639,63 @@ function removeLuggageItem(item) {
         }
     }
     
+	// === 新增：更新行李項目文字 ===
+function updateLuggageItem(oldText, newText, category) {
+    if (oldText === newText) return; // 沒變就不處理
+
+    // 1. 檢查是否重複 (避免改名成已存在的項目)
+    const allItems = [...DEFAULTLUGGAGE.flatMap(g => g.items), ...(myLuggage.custom || []), ...(myLuggage.customByCategory ? Object.values(myLuggage.customByCategory).flat() : [])];
+    if (allItems.includes(newText)) {
+        alert('這個項目已經存在囉！');
+        renderLuggageList(); //還原介面
+        return;
+    }
+
+    let found = false;
+
+    // 2. 嘗試在 DEFAULTLUGGAGE (預設清單) 找並更新
+    // 注意：DEFAULTLUGGAGE 是 const，如果你想永久修改預設值，這裡可以動。
+    // 但通常預設值是唯讀。如果你的需求是「修改預設清單」，請確保 DEFAULTLUGGAGE 的 items 是可變的。
+    const defaultGroup = DEFAULTLUGGAGE.find(g => g.cat === category);
+    if (defaultGroup) {
+        const idx = defaultGroup.items.indexOf(oldText);
+        if (idx !== -1) {
+            defaultGroup.items[idx] = newText;
+            found = true;
+        }
+    }
+
+    // 3. 嘗試在 自訂清單 (Custom) 找並更新
+    if (!found && myLuggage.custom) {
+        const idx = myLuggage.custom.indexOf(oldText);
+        if (idx !== -1) {
+            myLuggage.custom[idx] = newText;
+            found = true;
+        }
+    }
+
+    // 4. 嘗試在 分類自訂清單 (CustomByCategory) 找並更新
+    if (!found && myLuggage.customByCategory && myLuggage.customByCategory[category]) {
+        const list = myLuggage.customByCategory[category];
+        const idx = list.indexOf(oldText);
+        if (idx !== -1) {
+            list[idx] = newText;
+            found = true;
+        }
+    }
+
+    // 5. 連動更新 Checked (如果原本有打勾，改名後也要打勾)
+    const checkedIdx = myLuggage.checked.indexOf(oldText);
+    if (checkedIdx !== -1) {
+        myLuggage.checked[checkedIdx] = newText;
+    }
+
+    // 6. 存檔並刷新
+    saveLuggageData();
+    renderLuggageList();
+}
+
+	
     // 從分類清單刪除
     if (myLuggage.customByCategory) {
         Object.keys(myLuggage.customByCategory).forEach(cat => {
@@ -2649,19 +3052,19 @@ function switchTab(tabBtn, name) {
 
 
 // --- ITINERARY ---
-function renderDays() {
-const dayList = document.getElementById('day-list');
-dayList.innerHTML = '';
-DAYS.forEach((day, idx) => {
-const div = document.createElement('div');
-div.className = `day-card ${curDay===idx?'active':''}`;
-div.onclick = () => {
-curDay = idx;
-renderDays();
-renderPlan();
-if(curTab === 'expense') renderExpense();
-};
-div.innerHTML = `
+	function renderDays() {
+	const dayList = document.getElementById('day-list');
+	dayList.innerHTML = '';
+	DAYS.forEach((day, idx) => {
+	const div = document.createElement('div');
+	div.className = `day-card ${curDay===idx?'active':''}`;
+	div.onclick = () => {
+	curDay = idx;
+	renderDays();
+	renderPlan();
+	if(curTab === 'expense') renderExpense();
+	};
+	div.innerHTML = `
                 <div class="day-top"><span>Day ${day.num}</span><span class="day-dot"></span></div>
                 <div class="day-num">${day.label}<span>${day.week}</span></div>
             `;
@@ -4335,11 +4738,7 @@ function setupSwipeObserver(elementId, dotSelector) {
 }
 
 
- 
- 
- // ==========================================
-// ℹ️ 新增：資訊頁展開收合功能
-// ==========================================
+
 
 function toggleInfoCard(card) {
     // 1. 切換當前卡片的狀態
