@@ -426,76 +426,125 @@ flex: 1; /* 確保佔滿剩餘空間 */
 min-width: 0; /* 防止文字溢出 */
 }
 
-/* --- 交通資訊視覺優化：虛線路徑版 --- */
+/* --- 流程圖註解風格：連接點設計 --- */
 
-/* 1. 交通卡片容器 (用來畫虛線) */
+/* 1. 交通容器 */
 .trans-container {
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 1.5rem 0; /* 增加上下間距，讓虛線長一點 */
-    margin: -10px 0; /* 微調讓它稍微蓋住上下卡片的邊緣 */
+    padding: 0.8rem 0;
+    margin: 0;
     width: 100%;
 }
 
-/* 2. 垂直虛線 */
+/* 2. 改用「實心細線 + 圓點」取代虛線 */
 .trans-container::before {
     content: '';
     position: absolute;
     top: 0;
     bottom: 0;
-    /* 這裡的 left 要對齊上方卡片的「時間軸中心」*/
-    /* 假設您上方卡片左側寬度是 72px，那中心大約是 36px */
-    left: calc(36px + 16px); /* 36px(一半) + 16px(卡片padding-left) */
+    left: 50%;
+    transform: translateX(-50%);
     width: 2px;
-    background-image: linear-gradient(to bottom, #cbd5e1 50%, rgba(255,255,255,0) 0%);
-    background-size: 2px 10px; /* 虛線長度 */
-    background-repeat: repeat-y;
+    /* 實心線條，顏色更淡 */
+    background: linear-gradient(to bottom, 
+        rgba(203, 213, 225, 0.3) 0%, 
+        rgba(203, 213, 225, 0.6) 50%, 
+        rgba(203, 213, 225, 0.3) 100%
+    );
     z-index: 0;
 }
 
-/* 3. 交通膠囊本體 */
+/* 3. 上下連接點 (小圓點，像是流程圖的節點) */
+.trans-container::after {
+    content: '•';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.5rem;
+    color: var(--card-color, #94a3b8);
+    z-index: 1;
+    /* 讓圓點有一點陰影，更立體 */
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* 4. 交通資訊：改成註解標籤風格 */
 .trans-badge {
     position: relative;
-    z-index: 2; /* 蓋在虛線上面 */
+    z-index: 3; /* 確保在最上層 */
     
-    /* 讓膠囊置中，或如果您想要它對齊虛線，可以設定 margin-left */
-    margin: 0 auto; 
-    
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    justify-content: center;
+    gap: 6px;
     
-    background: white;
-    /* 白色外框，避免虛線直接穿過文字 */
-    box-shadow: 0 0 0 8px var(--bg-gradient, #f5f7fa); 
+    /* 移除邊框，改用淡淡的背景 */
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(4px);
     
-    border-radius: 99px;
-    border: 1.5px solid var(--card-color);
-    font-size: 0.8rem;
-    color: #555;
-    font-weight: 800;
+    /* 改成小標籤形狀 (圓角矩形) */
+    border-radius: 8px;
+    padding: 4px 10px;
+    
+    /* 淡淡的陰影，像是浮在上面 */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    
+    /* 輕量邊框，強調它是「註解」 */
+    border: 1px solid rgba(203, 213, 225, 0.4);
+    
+    font-size: 0.75rem;
+    color: #64748b;
+    font-weight: 700;
 }
 
 /* 移除舊的連接線 */
 .trans-line { display: none !important; }
 
-/* 膠囊內部樣式 */
+/* 5. 內部圖示：改成小圓形 icon */
 .trans-icon {
-    background: var(--card-color-light); 
-    color: var(--card-color);
-    padding: 6px 12px;
-    border-radius: 99px 0 0 99px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    /* 圓形背景 */
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--card-color-light, #f1f5f9);
+    color: var(--card-color, #64748b);
+    
+    padding: 0;
     cursor: pointer;
+    
+    /* 圖示大小 */
+    font-size: 0.7rem;
+    line-height: 1;
 }
+
+/* 6. 時間文字：純文字，無背景 */
 .trans-time {
-    background: white;
-    padding: 6px 12px;
-    border-radius: 0 99px 99px 0;
+    background: transparent;
+    padding: 0;
     cursor: pointer;
+    color: #475569;
+    font-size: 0.75rem;
+    font-weight: 700;
 }
+
+/* 7. Hover 效果 (選用，讓互動更明確) */
+.trans-badge:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    border-color: var(--card-color, #cbd5e1);
+}
+
+.trans-icon:active,
+.trans-time:active {
+    transform: scale(0.95);
+}
+
 
 
 /* 3. 新增：交通選擇 Action Sheet 的新樣式 (5個並排，高度短) */
