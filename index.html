@@ -282,9 +282,6 @@ main { flex: 1; overflow-y: auto; padding: 1rem 1rem calc(6rem + var(--safe-bott
     height: 16px;
     fill: #3b82f6 !important; 
 }
-}
-
-
 
 
 /* Expense Summary Card */
@@ -622,6 +619,7 @@ width: 100%;
 }
 
 .swipe-card {
+
 /* 強制每張卡片寬度為容器的 100%，不允許壓縮或放大 */
 flex: 0 0 100% !important;
 width: 100% !important;
@@ -630,6 +628,8 @@ min-width: 100% !important;
 scroll-snap-align: start; /* 滑動時自動對齊起點 */
 padding: 10px 15px;      /* 維持您原本的內距 */
 box-sizing: border-box;  /* 確保 padding 不會撐大寬度 */
+
+
 }
 
 
@@ -1717,9 +1717,7 @@ style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; paddin
 
 <!-- EXPENSE VIEW -->
 <main id="view-expense" style="display:none">
-<!-- EXPENSE SUMMARY CARD -->
 <div class="exp-summary-card">
-<!-- 請替換 id="summary-content" 內部的內容樣板 -->
 <div id="summary-content" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0;">
 <!-- 左側：原始幣別分行 -->
 <div style="flex: 1; text-align: left; padding-left: 10px; border-right: 1px solid rgba(255,255,255,0.2);">
@@ -3100,42 +3098,55 @@ document.getElementById('clothing-advice').textContent = advice;
 }
 
 
-// --- TABS ---
+/* --- TABS --- */
 function switchTab(tabBtn, name) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     tabBtn.classList.add('active');
 
+    // 2. 隱藏所有頁面
     document.getElementById('view-itinerary').style.display = 'none';
     document.getElementById('view-expense').style.display = 'none';
     document.getElementById('view-breakdown').style.display = 'none';
     document.getElementById('view-wishlist').style.display = 'none';
     document.getElementById('view-info').style.display = 'none';
 
-    document.getElementById('view-' + name).style.display = 'block';
+    // 3. 顯示目標頁面
+    const targetView = document.getElementById('view-' + name);
+    if (targetView) targetView.style.display = 'block';
+    
     curTab = name;
-	
-	
 
-     const fab = document.getElementById('btn-add');
-    // 只有「記帳」頁面才顯示 FAB，其他都隱藏
-    if (name === 'itinerary') {
-        fab.style.display = 'flex';
-    } else {
-        fab.style.display = 'none';
+    // 4. 控制 FAB 按鈕 (安全檢查版)
+    const fab = document.getElementById('btn-add');
+    if (fab) {
+        // 只有「記帳」頁面 (expense) 才顯示 FAB，其他都隱藏
+        // ⚠️ 修正：您原本寫的是 itinerary 顯示，通常記帳按鈕是在 expense 頁顯示
+        // 如果您的按鈕是用來新增行程的，那就保留 itinerary
+        // 這裡假設 btn-add 是「記帳按鈕」：
+        if (name === 'expense') {
+            fab.style.display = 'flex';
+        } else {
+            fab.style.display = 'none';
+        }
     }
 
-    if(name === 'expense') {
-        renderExpense();
-        renderExpenseCategories();
-    } else if(name === 'breakdown') {
-        renderExpense();
-        renderExpenseCategories();
-    } else if(name === 'wishlist') {
-        renderWishlist();
-        renderLuggageList();  // 強制渲染行李清單
-    } else if(name === 'info') {
-        updateInfoView();
-    }
+    // 5. 渲染對應內容 (修正執行順序)
+    // 使用 setTimeout 確保 DOM 切換完成後再渲染，避免畫面閃爍或計算錯誤
+    setTimeout(() => {
+        if(name === 'expense') {
+            renderExpense();
+            renderExpenseCategories(); 
+		if (typeof updateExpenseStats === 'function') updateExpenseStats(); 
+        } else if(name === 'breakdown') {
+            renderExpense(); // 確保數據是最新的
+            renderExpenseCategories();
+        } else if(name === 'wishlist') {
+            renderWishlist();
+            if (typeof renderLuggageList === 'function') renderLuggageList();
+        } else if(name === 'info') {
+            if (typeof updateInfoView === 'function') updateInfoView();
+        }
+    }, 0);
 }
 
 
@@ -3313,6 +3324,9 @@ function renderExpense() {
     }
 
     updateExpenseStats();
+	   if (typeof updateExpenseStats === 'function') {
+        updateExpenseStats();
+    }
 }
 
 
