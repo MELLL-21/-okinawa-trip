@@ -203,7 +203,7 @@ main { flex: 1; overflow-y: auto; padding: 1rem 1rem calc(6rem + var(--safe-bott
     grid-column: 2;
     justify-self: start;
     font-size: 0.65rem !important; /* 字體微調 */
-    padding: 3px 10px;
+    padding: 3px 8px;
     border-radius: 10px;
     font-weight: 700;
     color: white !important;
@@ -235,7 +235,7 @@ main { flex: 1; overflow-y: auto; padding: 1rem 1rem calc(6rem + var(--safe-bott
     margin: 2px 0 0.8rem 1rem !important; 
 }
 
-/* 5. 導航按鈕區 */
+/* 5. 導航按鈕區 (亮面活潑版) */
 .plan-actions {
     display: flex;
     align-items: center;
@@ -249,22 +249,39 @@ main { flex: 1; overflow-y: auto; padding: 1rem 1rem calc(6rem + var(--safe-bott
 
 .nav-btn {
     padding: 0 !important;
-    width: 34px; /* 按鈕縮小一點 */
+    width: 34px;
     height: 34px;
     border-radius: 50%;
+    
+    /* 亮面背景：純白 */
     background: white !important;
+    
+    /* 移除陰影 */
+    box-shadow: none !important;
+    
+    /* 使用非常淡的邊框來維持輪廓 (如果不想要邊框可設為 transparent) */
     border: 1px solid #f1f5f9 !important; 
+    
     color: transparent !important;
     font-size: 0 !important;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.04) !important;
+    
+    /* 點擊時輕微縮放效果 */
+    transition: transform 0.1s;
 }
+
+.nav-btn:active {
+    transform: scale(0.9);
+}
+
+/* 圖示顏色：改成活潑的顏色 */
 .nav-btn svg {
     width: 16px;
     height: 16px;
-    fill: #64748b !important;
+    fill: #3b82f6 !important; 
+}
 }
 
 
