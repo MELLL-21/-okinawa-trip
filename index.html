@@ -129,30 +129,30 @@ main { flex: 1; overflow-y: auto; padding: 1rem 1rem calc(6rem + var(--safe-bott
 .list-head h2 { margin: 0; font-family: 'Noto Serif TC'; font-size: 1.2rem; }
 .hint { font-size: 0.65rem; background: rgba(255,255,255,0.5); padding: 4px 8px; border-radius: 12px; color: #888; }
 
-/* --- 樣式三：獨立時間小膠囊版 --- */
+/* --- 樣式四：左側色塊版 (仿圖) --- */
 
 /* 1. 卡片外框 */
 .plan-card {
     background: #fff;
-    border: 1px solid #e2e8f0 !important;
-    border-radius: 12px;
-    border-left: none !important;
+    /* 移除邊框顏色，改用更柔和的陰影 */
+    border: none !important; 
+    border-radius: 20px !important; /* 更大的圓角 */
     
     padding: 0 !important; 
     margin-bottom: 0.8rem;
     display: flex;
     align-items: stretch;
-    min-height: 5.5rem; /* 確保高度足夠 */
+    min-height: 5.5rem;
     position: relative;
     overflow: hidden; 
-    box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05); /* 更有質感的陰影 */
 }
 
-/* 2. 左側佈局：時間區塊加大到 88px */
+/* 2. 左側佈局：時間區塊 (包含背景色) */
 .plan-left {
     display: grid;
-    /* 時間區(88px) | 分隔線(1px) | 內容區 */
-    grid-template-columns: 88px 1px 1fr; 
+    /* 時間區(80px) | 內容區 (自動) */
+    grid-template-columns: 80px 1fr; 
     grid-template-rows: auto auto auto;
     align-items: center;
     padding: 0 !important;
@@ -161,20 +161,18 @@ main { flex: 1; overflow-y: auto; padding: 1rem 1rem calc(6rem + var(--safe-bott
     min-width: 0;
 }
 
-/* 3. 時間區塊：小膠囊背景 */
+/* 3. 時間區塊：左側整塊淺色底 */
 .plan-time {
     grid-column: 1;
     grid-row: 1 / span 3;
     
-    width: 60px !important;
-	height: 74px !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important; 
     
-    /* 讓這個容器在 88px 的格子裡置中 */
-    margin: auto !important; 
-    
-    /* 小背景設定 */
-    background: var(--card-color-light) !important; /* 淺色背景 */
-    
+    /* 關鍵：左側滿版淺色背景 */
+    background: var(--card-color-light) !important; 
+    border-radius: 0 !important; /* 填滿左側，不需要圓角(由父層切) */
     
     display: flex;
     flex-direction: column;
@@ -184,52 +182,45 @@ main { flex: 1; overflow-y: auto; padding: 1rem 1rem calc(6rem + var(--safe-bott
     
     /* 文字設定 */
     color: var(--card-color) !important;
-    font-size: 1.25rem !important; /* 字體稍微縮小一點點，防止爆開 */
+    font-size: 1.4rem !important; /* 字體加大 */
     font-weight: 800 !important;
     line-height: 1;
-    padding: 0 2px; /* 稍微留點邊距 */
+    letter-spacing: 0.5px;
 }
 
-/* 時間下方圓點 */
+/* 時間下方小點 (保留或移除皆可，圖中有一個小點) */
 .plan-time::after {
     content: '●';
     font-size: 0.4rem;
     color: var(--card-color);
-    margin-top: 4px;
-    opacity: 0.6;
+    margin-top: 6px;
+    opacity: 0.5;
 }
 
-/* 實心分隔線 */
+/* 移除之前的分隔線 */
 .plan-left::before {
-    content: '';
-    grid-column: 2;
-    grid-row: 1 / span 3;
-    width: 100%;
-    height: 60%;
-    background: #e2e8f0;
-    display: block;
-    margin: auto 0;
+    display: none !important;
 }
 
 /* 4. 內容區 */
 .plan-tag {
-    grid-column: 3;
+    grid-column: 2;
     justify-self: start;
-    font-size: 0.65rem !important;
-    padding: 2px 8px;
-    border-radius: 6px;
+    font-size: 0.75rem !important;
+    padding: 4px 12px;
+    border-radius: 12px; /* 圓潤標籤 */
     font-weight: 700;
     color: white !important;
     background: var(--card-color);
-    margin: 0.8rem 0 2px 1rem !important;
+    margin: 1rem 0 4px 1.2rem !important; /* 調整間距 */
 }
 
 .plan-title {
-    grid-column: 3;
+    grid-column: 2;
     font-weight: 800;
-    font-size: 1rem !important;
+    font-size: 1.1rem !important; /* 標題加大 */
     color: #1e293b !important;
-    margin: 0 0 0 1rem !important;
+    margin: 2px 0 2px 1.2rem !important;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -237,44 +228,46 @@ main { flex: 1; overflow-y: auto; padding: 1rem 1rem calc(6rem + var(--safe-bott
 }
 
 .plan-loc {
-    grid-column: 3;
-    font-size: 0.75rem !important;
+    grid-column: 2;
+    font-size: 0.8rem !important;
     color: #94a3b8 !important;
     display: flex;
     align-items: center;
     gap: 4px;
-    margin: 2px 0 0.8rem 1rem !important;
+    margin: 2px 0 1rem 1.2rem !important;
 }
 
-/* 5. 導航按鈕區 */
+/* 5. 導航按鈕區：位置調整 */
 .plan-actions {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 50px;
+    width: 60px; /* 稍微加寬容器，讓按鈕有空間往左 */
     flex-shrink: 0;
     margin: 0 !important;
-    padding-right: 12px;
+    padding-right: 16px; /* 右邊留白，讓按鈕不要貼底 */
     background: transparent !important;
 }
 
 .nav-btn {
     padding: 0 !important;
-    width: 36px;
-    height: 36px;
+    width: 40px; /* 按鈕稍微加大 */
+    height: 40px;
     border-radius: 50%;
     background: white !important;
-    border: 1px solid #e2e8f0 !important;
+    /* 淡淡的邊框 */
+    border: 1px solid #f1f5f9 !important; 
     color: transparent !important;
     font-size: 0 !important;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.03) !important;
+    /* 陰影加深一點點 */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important;
 }
 .nav-btn svg {
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
     fill: #64748b !important;
 }
 
@@ -420,53 +413,53 @@ flex: 1; /* 確保佔滿剩餘空間 */
 min-width: 0; /* 防止文字溢出 */
 }
 
-/* 2. 交通按鈕：更精緻的版本 */
+/* --- 交通卡片優化 (移除連接線) --- */
+
 .trans-badge {
-position: relative;
-z-index: 2;
-margin: 4px auto; /* 縮小上下間距 */
-width: fit-content;
-display: flex;
-align-items: center;
-justify-content: center;
-background: white;
-border-radius: 99px;
-border: 2px solid var(--card-color, #e2e8f0);
-font-size: 0.75rem; /* 字體稍微縮小 */
-color: #555;
-font-weight: 800;
+    position: relative;
+    z-index: 2;
+    margin: 0.4rem auto; /* 上下留白 */
+    width: fit-content;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    /* 膠囊外觀 */
+    background: white;
+    border-radius: 99px;
+    border: 2px solid var(--card-color); /* 跟上一張卡片同色系的框 */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    
+    font-size: 0.85rem;
+    color: #555;
+    font-weight: 800;
+    overflow: hidden; /* 確保內容不溢出圓角 */
 }
 
-/* 交通資訊的短連接線 */
+/* 移除連接線 */
 .trans-line {
-height: 14px; /* 短一點 */
-width: 2px;
-background: #e2e8f0;
-margin: 0 auto;
-border-radius: 2px;
+    display: none !important;
 }
 
+/* 交通卡片內部 */
 .trans-icon, .trans-time {
-padding: 5px 10px; /* 縮小內距 */
-cursor: pointer;
-display: flex;
-align-items: center;
-gap: 4px;
-transition: background 0.2s;
+    padding: 6px 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
 }
 
 .trans-icon {
-background: var(--card-color-light, #f1f5f9);
-color: var(--card-color, #64748b);
-border-radius: 99px 0 0 99px;
-padding-left: 12px;
+    /* 左半邊淺色底 */
+    background: var(--card-color-light); 
+    color: var(--card-color); /* 圖示顏色 */
+    padding-right: 10px;
 }
+
 .trans-time {
-padding-right: 12px;
-border-radius: 0 99px 99px 0;
-}
-.trans-icon:active, .trans-time:active {
-filter: brightness(0.95);
+    padding-left: 10px;
+    background: white;
 }
 
 /* 3. 新增：交通選擇 Action Sheet 的新樣式 (5個並排，高度短) */
@@ -1405,13 +1398,31 @@ font-weight: 700; cursor: pointer; pointer-events: auto;
     transform: scale(0.98);
 }
 
-/* 2. 展開狀態 (原本的卡片樣式，但稍微浮起來) */
+/* 2. 展開狀態 (彈窗樣式優化) */
 .shop-input-expanded {
     background: white;
     border-radius: 20px;
-    padding: 16px;
+    padding: 24px 20px; /* 增加內部間距，讓內容不擁擠 */
     box-shadow: 0 10px 40px rgba(0,0,0,0.15);
     animation: slideUpInput 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+    
+    width: 90%;          /* 保持 90% 寬度 */
+    max-width: 360px;    /*稍微放寬一點 */
+    margin: 0 auto;      /* 水平居中 */
+    
+    position: relative;  /* 為了放置關閉按鈕 */
+}
+
+/* 新增：右上角關閉按鈕樣式 */
+.shop-close-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    font-size: 1.5rem;
+    color: #999;
+    line-height: 1;
+    cursor: pointer;
+    padding: 4px;
 }
 
 @keyframes slideUpInput {
@@ -1938,7 +1949,7 @@ style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; paddin
             <div style="display: flex; flex-direction: column; gap: 10px;">
 
                 <!-- 1. 唐吉訶德 (白底樣式) -->
-                <a href="https://japanportal.donki-global.com/coupon/cp001_zhtw.html" target="_blank" 
+                <a href="https://reurl.cc/54yOlV" target="_blank" 
                    style="display: flex; justify-content: space-between; align-items: center; background: white; color: #2C3E50; border: 1px solid #eee; padding: 12px 16px; border-radius: 10px; text-decoration: none; box-shadow: 0 2px 5px rgba(0,0,0,0.02);">
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <span style="font-size: 1.2rem;">🐧</span>
@@ -2805,6 +2816,7 @@ if (wrapper) wrapper.style.display = 'none';
 renderDays();
 renderPlan();
 renderWishlist();
+renderLuggageList(); 
 fetchWeather();
 
 // 延遲載入記帳資料
@@ -2976,6 +2988,7 @@ successMsg.remove();
 updateSubtitleWithUser();
 renderExpense();
 renderExpenseCategories();
+renderLuggageList();
 loadExpensesFromSheet();
 
 }, 500); // 配合 CSS exit-animation 的 0.6s 稍微提早一點切換
@@ -4222,41 +4235,47 @@ function renderWishlist() {
 
     <!-- A. 新增商品快速 Bar (預設收合) -->
     <div class="shop-input-bar-wrapper">
-        <!-- 1. 收合狀態：只顯示一個偽輸入框 -->
+   <!-- 收合狀態 -->
         <div id="shop-input-collapsed" class="shop-input-collapsed" onclick="toggleShopInput(true)">
-            <span style="font-size:1.2rem; font-weight:300; color:#ccc; margin-right:8px;">＋</span>
-            <span style="color:#aaa; font-size:0.9rem;">新增購物清單...</span>
+            <span style="font-size:1.2rem; margin-right:8px;">＋</span>
+            <span style="font-weight:700; font-size:0.9rem;">新增購物項目...</span>
         </div>
 
-        <!-- 2. 展開狀態：完整的輸入表單 (預設隱藏) -->
+        <!-- 展開狀態 -->
         <div id="shop-input-expanded" class="shop-input-expanded" style="display:none;">
-            <div class="mini-form-header" style="display:flex; justify-content:space-between; align-items:center;">
-                <span>新商品</span>
-                <span onclick="toggleShopInput(false)" style="color:#ccc; font-size:1.5rem; cursor:pointer;">×</span>
+            <!-- 標題與關閉按鈕 -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                 <div style="font-size:1.1rem; font-weight:800; color:#333;">新商品</div>
+                 <div class="shop-close-btn" onclick="toggleShopInput(false)" style="font-size:1.5rem; color:#999; cursor:pointer; padding:4px;">×</div>
             </div>
-            
-            <div class="mini-form-body">
-                <input type="text" id="shop-name-input" class="mini-input" placeholder="品名 (例如: 合利他命)">
-                
-                <div style="position:relative;">
-                    <input type="text" id="shop-desc-input" class="mini-input" placeholder="備註 / 標籤">
-                    <!-- 快速標籤列 -->
-                    <div class="quick-tag-row">
-                        <span onclick="addTagToDesc('#藥妝')">#藥妝</span>
-                        <span onclick="addTagToDesc('#零食')">#零食</span>
-                        <span onclick="addTagToDesc('#電器')">#電器</span>
-                        <span onclick="addTagToDesc('#伴手禮')">#伴手禮</span>
-                        <span onclick="addTagToDesc('#代購')">#代購</span>
-                    </div>
+
+            <!-- 品名輸入框 -->
+            <div class="shop-input-row">
+                <input type="text" id="shop-name-input" class="shop-input" placeholder="品名 (例如: 合利他命)" style="font-size:1rem; padding:12px;">
+            </div>
+
+            <!-- 備註輸入框 -->
+            <div class="shop-input-row" style="margin-bottom:12px;">
+                <input type="text" id="shop-desc-input" class="shop-input" placeholder="價格 / 備註 / 標籤">
+                <!-- 快速標籤 -->
+                <div class="quick-tag-row">
+                    <span onclick="addTagToDesc('#藥妝')">#藥妝</span>
+                    <span onclick="addTagToDesc('#零食')">#零食</span>
+                    <span onclick="addTagToDesc('#電器')">#電器</span>
+                    <span onclick="addTagToDesc('#伴手禮')">#伴手禮</span>
+                    <span onclick="addTagToDesc('#代購')">#其他</span>
                 </div>
-
-                <input type="text" id="shop-img-input" class="mini-input" placeholder="圖片連結 (選填)">
-                <button class="btn-add-mini" onclick="addShoppingItem()">加入清單</button>
             </div>
-        </div>
-    </div>
-`;
 
+            <!-- 圖片連結 (選填) -->
+            <div class="shop-input-row">
+                 <input type="text" id="shop-img-input" class="shop-input" placeholder="圖片連結 (選填)">
+            </div>
+
+            <!-- 加入按鈕 -->
+            <button class="btn-add-shop" onclick="addShoppingItem()">加入清單</button>
+        </div>
+    `;
     // 5. 渲染列表內容 (跟之前一樣，但用 filteredList)
     const listContainer = document.getElementById('shopping-list-content');
     
@@ -4738,7 +4757,11 @@ function setupSwipeObserver(elementId, dotSelector) {
 }
 
 
-
+ 
+ 
+ // ==========================================
+// ℹ️ 新增：資訊頁展開收合功能
+// ==========================================
 
 function toggleInfoCard(card) {
     // 1. 切換當前卡片的狀態
