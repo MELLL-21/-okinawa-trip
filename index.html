@@ -426,53 +426,77 @@ flex: 1; /* 確保佔滿剩餘空間 */
 min-width: 0; /* 防止文字溢出 */
 }
 
-/* --- 交通卡片縮小版 --- */
+/* --- 交通資訊視覺優化：虛線路徑版 --- */
 
+/* 1. 交通卡片容器 (用來畫虛線) */
+.trans-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem 0; /* 增加上下間距，讓虛線長一點 */
+    margin: -10px 0; /* 微調讓它稍微蓋住上下卡片的邊緣 */
+    width: 100%;
+}
+
+/* 2. 垂直虛線 */
+.trans-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    /* 這裡的 left 要對齊上方卡片的「時間軸中心」*/
+    /* 假設您上方卡片左側寬度是 72px，那中心大約是 36px */
+    left: calc(36px + 16px); /* 36px(一半) + 16px(卡片padding-left) */
+    width: 2px;
+    background-image: linear-gradient(to bottom, #cbd5e1 50%, rgba(255,255,255,0) 0%);
+    background-size: 2px 10px; /* 虛線長度 */
+    background-repeat: repeat-y;
+    z-index: 0;
+}
+
+/* 3. 交通膠囊本體 */
 .trans-badge {
     position: relative;
-    z-index: 2;
-    /* 上下間距加大，讓它與行程卡片分開 */
-    margin: 0.5rem auto 1.2rem auto; 
-    width: fit-content;
+    z-index: 2; /* 蓋在虛線上面 */
+    
+    /* 讓膠囊置中，或如果您想要它對齊虛線，可以設定 margin-left */
+    margin: 0 auto; 
+    
     display: flex;
     align-items: center;
     justify-content: center;
     
     background: white;
-    border-radius: 99px;
-    border: 1.5px solid var(--card-color); /* 邊框變細 */
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    /* 白色外框，避免虛線直接穿過文字 */
+    box-shadow: 0 0 0 8px var(--bg-gradient, #f5f7fa); 
     
-    font-size: 0.75rem; /* 字體縮小 */
+    border-radius: 99px;
+    border: 1.5px solid var(--card-color);
+    font-size: 0.8rem;
     color: #555;
     font-weight: 800;
-    overflow: hidden;
-    
-    /* 整體縮放 */
-    transform: scale(0.9); 
 }
 
+/* 移除舊的連接線 */
 .trans-line { display: none !important; }
 
-.trans-icon, .trans-time {
-    /* 內距減少，讓膠囊變緊湊 */
-    padding: 4px 10px; 
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    cursor: pointer;
-}
-
+/* 膠囊內部樣式 */
 .trans-icon {
     background: var(--card-color-light); 
     color: var(--card-color);
-    padding-right: 8px;
+    padding: 6px 12px;
+    border-radius: 99px 0 0 99px;
+    cursor: pointer;
+}
+.trans-time {
+    background: white;
+    padding: 6px 12px;
+    border-radius: 0 99px 99px 0;
+    cursor: pointer;
 }
 
-.trans-time {
-    padding-left: 8px;
-    background: white;
-}
 
 /* 3. 新增：交通選擇 Action Sheet 的新樣式 (5個並排，高度短) */
 .trans-grid {
@@ -3151,19 +3175,20 @@ wrapper.innerHTML = `
         </div>
 
         ${isNotLast ? `
-        <div class="trans-line"></div>
-        <div class="trans-badge">
-            <div class="trans-icon" onclick="openTransModePicker(${idx})">
-                ${iconSymbol}
+            <!-- 新的交通區塊結構 -->
+            <div class="trans-container">
+                <div class="trans-badge">
+                    <div class="trans-icon" onclick="openTransModePicker(${idx})">
+                        ${iconSymbol}
+                    </div>
+                    <div class="trans-time" onclick="openTransTimePicker(${idx})">
+                        ${timeStr}
+                    </div>
+                </div>
             </div>
-            <div class="trans-time" onclick="openTransTimePicker(${idx})">
-                ${timeStr}
-            </div>
-        </div>
-        <div class="trans-line"></div>
-        ` : ''} 
-    `;
-list.appendChild(wrapper);
+            ` : ''} 
+        `;
+        list.appendChild(wrapper);
 });
 }
 
