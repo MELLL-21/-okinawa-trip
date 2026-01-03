@@ -129,30 +129,32 @@ main { flex: 1; overflow-y: auto; padding: 1rem 1rem calc(6rem + var(--safe-bott
 .list-head h2 { margin: 0; font-family: 'Noto Serif TC'; font-size: 1.2rem; }
 .hint { font-size: 0.65rem; background: rgba(255,255,255,0.5); padding: 4px 8px; border-radius: 12px; color: #888; }
 
-/* --- 樣式四：左側色塊版 (仿圖) --- */
+/* --- 樣式五：緊湊型左側色塊版 --- */
 
-/* 1. 卡片外框 */
+/* 1. 卡片外框：高度縮減，陰影更柔和 */
 .plan-card {
     background: #fff;
-    /* 移除邊框顏色，改用更柔和的陰影 */
     border: none !important; 
-    border-radius: 20px !important; /* 更大的圓角 */
+    border-radius: 20px !important;
     
     padding: 0 !important; 
-    margin-bottom: 0.8rem;
+    
+    /* 增加底部間距，讓卡片與卡片(或卡片與交通卡)之間更寬鬆 */
+    margin-bottom: 1.2rem; 
+    
     display: flex;
     align-items: stretch;
-    min-height: 5.5rem;
+    min-height: 4.8rem; /* 高度縮小 (原本 5.5rem) */
     position: relative;
     overflow: hidden; 
-    box-shadow: 0 4px 20px rgba(0,0,0,0.05); /* 更有質感的陰影 */
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06); 
 }
 
-/* 2. 左側佈局：時間區塊 (包含背景色) */
+/* 2. 左側佈局：時間區寬度稍微縮小 */
 .plan-left {
     display: grid;
-    /* 時間區(80px) | 內容區 (自動) */
-    grid-template-columns: 80px 1fr; 
+    /* 時間區(72px) | 內容區 (自動) */
+    grid-template-columns: 72px 1fr; 
     grid-template-rows: auto auto auto;
     align-items: center;
     padding: 0 !important;
@@ -161,7 +163,7 @@ main { flex: 1; overflow-y: auto; padding: 1rem 1rem calc(6rem + var(--safe-bott
     min-width: 0;
 }
 
-/* 3. 時間區塊：左側整塊淺色底 */
+/* 3. 時間區塊 */
 .plan-time {
     grid-column: 1;
     grid-row: 1 / span 3;
@@ -169,10 +171,8 @@ main { flex: 1; overflow-y: auto; padding: 1rem 1rem calc(6rem + var(--safe-bott
     width: 100% !important;
     height: 100% !important;
     margin: 0 !important; 
-    
-    /* 關鍵：左側滿版淺色背景 */
     background: var(--card-color-light) !important; 
-    border-radius: 0 !important; /* 填滿左側，不需要圓角(由父層切) */
+    border-radius: 0 !important;
     
     display: flex;
     flex-direction: column;
@@ -180,47 +180,44 @@ main { flex: 1; overflow-y: auto; padding: 1rem 1rem calc(6rem + var(--safe-bott
     align-items: center;
     text-align: center;
     
-    /* 文字設定 */
+    /* 字體與顏色 */
     color: var(--card-color) !important;
-    font-size: 1.4rem !important; /* 字體加大 */
+    font-size: 1.3rem !important; /* 隨高度稍微縮小字體 */
     font-weight: 800 !important;
     line-height: 1;
-    letter-spacing: 0.5px;
+    letter-spacing: 0px;
 }
 
-/* 時間下方小點 (保留或移除皆可，圖中有一個小點) */
 .plan-time::after {
     content: '●';
-    font-size: 0.4rem;
+    font-size: 0.35rem; /* 點點也縮小 */
     color: var(--card-color);
-    margin-top: 6px;
+    margin-top: 4px;
     opacity: 0.5;
 }
 
-/* 移除之前的分隔線 */
-.plan-left::before {
-    display: none !important;
-}
+.plan-left::before { display: none !important; }
 
-/* 4. 內容區 */
+/* 4. 內容區：間距微調 */
 .plan-tag {
     grid-column: 2;
     justify-self: start;
-    font-size: 0.75rem !important;
-    padding: 4px 12px;
-    border-radius: 12px; /* 圓潤標籤 */
+    font-size: 0.65rem !important; /* 字體微調 */
+    padding: 3px 10px;
+    border-radius: 10px;
     font-weight: 700;
     color: white !important;
     background: var(--card-color);
-    margin: 1rem 0 4px 1.2rem !important; /* 調整間距 */
+    /* 上邊距減少，配合高度縮小 */
+    margin: 0.8rem 0 2px 1rem !important; 
 }
 
 .plan-title {
     grid-column: 2;
     font-weight: 800;
-    font-size: 1.1rem !important; /* 標題加大 */
+    font-size: 1rem !important;
     color: #1e293b !important;
-    margin: 2px 0 2px 1.2rem !important;
+    margin: 0 0 0 1rem !important;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -229,45 +226,44 @@ main { flex: 1; overflow-y: auto; padding: 1rem 1rem calc(6rem + var(--safe-bott
 
 .plan-loc {
     grid-column: 2;
-    font-size: 0.8rem !important;
+    font-size: 0.75rem !important;
     color: #94a3b8 !important;
     display: flex;
     align-items: center;
     gap: 4px;
-    margin: 2px 0 1rem 1.2rem !important;
+    /* 下邊距減少 */
+    margin: 2px 0 0.8rem 1rem !important; 
 }
 
-/* 5. 導航按鈕區：位置調整 */
+/* 5. 導航按鈕區 */
 .plan-actions {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 60px; /* 稍微加寬容器，讓按鈕有空間往左 */
+    width: 50px;
     flex-shrink: 0;
     margin: 0 !important;
-    padding-right: 16px; /* 右邊留白，讓按鈕不要貼底 */
+    padding-right: 12px;
     background: transparent !important;
 }
 
 .nav-btn {
     padding: 0 !important;
-    width: 40px; /* 按鈕稍微加大 */
-    height: 40px;
+    width: 34px; /* 按鈕縮小一點 */
+    height: 34px;
     border-radius: 50%;
     background: white !important;
-    /* 淡淡的邊框 */
     border: 1px solid #f1f5f9 !important; 
     color: transparent !important;
     font-size: 0 !important;
     display: flex;
     align-items: center;
     justify-content: center;
-    /* 陰影加深一點點 */
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.04) !important;
 }
 .nav-btn svg {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     fill: #64748b !important;
 }
 
@@ -413,52 +409,51 @@ flex: 1; /* 確保佔滿剩餘空間 */
 min-width: 0; /* 防止文字溢出 */
 }
 
-/* --- 交通卡片優化 (移除連接線) --- */
+/* --- 交通卡片縮小版 --- */
 
 .trans-badge {
     position: relative;
     z-index: 2;
-    margin: 0.4rem auto; /* 上下留白 */
+    /* 上下間距加大，讓它與行程卡片分開 */
+    margin: 0.5rem auto 1.2rem auto; 
     width: fit-content;
     display: flex;
     align-items: center;
     justify-content: center;
     
-    /* 膠囊外觀 */
     background: white;
     border-radius: 99px;
-    border: 2px solid var(--card-color); /* 跟上一張卡片同色系的框 */
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    border: 1.5px solid var(--card-color); /* 邊框變細 */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     
-    font-size: 0.85rem;
+    font-size: 0.75rem; /* 字體縮小 */
     color: #555;
     font-weight: 800;
-    overflow: hidden; /* 確保內容不溢出圓角 */
+    overflow: hidden;
+    
+    /* 整體縮放 */
+    transform: scale(0.9); 
 }
 
-/* 移除連接線 */
-.trans-line {
-    display: none !important;
-}
+.trans-line { display: none !important; }
 
-/* 交通卡片內部 */
 .trans-icon, .trans-time {
-    padding: 6px 14px;
+    /* 內距減少，讓膠囊變緊湊 */
+    padding: 4px 10px; 
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
     cursor: pointer;
 }
 
 .trans-icon {
-    /* 左半邊淺色底 */
     background: var(--card-color-light); 
-    color: var(--card-color); /* 圖示顏色 */
-    padding-right: 10px;
+    color: var(--card-color);
+    padding-right: 8px;
 }
 
 .trans-time {
-    padding-left: 10px;
+    padding-left: 8px;
     background: white;
 }
 
@@ -1860,7 +1855,7 @@ style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; paddin
         <!-- 去程 -->
         <div class="info-block">
             <div class="info-sub-title" style="color:#E76F51;">去程 (TPE → OKA)</div>
-            <div class="info-row"><span>日期</span><span>01/06 (一)</span></div>
+            <div class="info-row"><span>日期</span><span>01/06 (二)</span></div>
             <div class="info-row"><span>時間</span><span>06:35 桃園 → 08:55 那霸</span></div>
             <div class="info-row"><span>航班</span><span>虎航 IT230</span></div>
             
