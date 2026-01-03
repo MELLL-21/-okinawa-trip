@@ -428,7 +428,9 @@ min-width: 0; /* 防止文字溢出 */
 
 /* --- 流程圖註解風格：連接點設計 --- */
 
-/* 1. 交通容器 */
+/* --- 一體成型：顏色跟隨版 --- */
+
+/* 1. 容器與貫穿線條 */
 .trans-container {
     position: relative;
     display: flex;
@@ -436,11 +438,12 @@ min-width: 0; /* 防止文字溢出 */
     align-items: center;
     justify-content: center;
     padding: 0.8rem 0;
-    margin: 0;
+    margin: -10px 0;
     width: 100%;
+    z-index: 1;
 }
 
-/* 2. 改用「實心細線 + 圓點」取代虛線 */
+/* 線條：使用 var(--card-color) 跟隨主題色 */
 .trans-container::before {
     content: '';
     position: absolute;
@@ -449,80 +452,67 @@ min-width: 0; /* 防止文字溢出 */
     left: 50%;
     transform: translateX(-50%);
     width: 2px;
-    /* 實心線條，顏色更淡 */
-    background: linear-gradient(to bottom, 
-        rgba(203, 213, 225, 0.3) 0%, 
-        rgba(203, 213, 225, 0.6) 50%, 
-        rgba(203, 213, 225, 0.3) 100%
-    );
+    
+    /* 關鍵：使用變數，並加上一點透明度讓線條不要太搶眼 */
+    background: var(--card-color, #cbd5e1); 
+    opacity: 0.5; /* 讓線條稍微淡一點，比較有層次 */
+    
     z-index: 0;
 }
 
-/* 3. 上下連接點 (小圓點，像是流程圖的節點) */
-.trans-container::after {
-    content: '•';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 0.5rem;
-    color: var(--card-color, #94a3b8);
-    z-index: 1;
-    /* 讓圓點有一點陰影，更立體 */
-    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
+/* 移除圓點 */
+.trans-container::after { display: none; }
 
-/* 4. 交通資訊：改成註解標籤風格 */
+/* 2. 交通膠囊：短小版 */
 .trans-badge {
     position: relative;
-    z-index: 3; /* 確保在最上層 */
+    z-index: 2;
+    margin: 0 auto;
     
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    justify-content: center;
+    gap: 4px; /* 縮小圖示和文字間距 */
     
-    /* 移除邊框，改用淡淡的背景 */
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(4px);
+    background: white;
     
-    /* 改成小標籤形狀 (圓角矩形) */
-    border-radius: 8px;
-    padding: 4px 10px;
+    /* 邊框顏色跟隨主題色，且不透明 */
+    border: 1.6px solid var(--card-color, #cbd5e1); 
+    border-radius: 10px; /* 稍微方一點，更有「連接器」的感覺 */
     
-    /* 淡淡的陰影，像是浮在上面 */
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    /* 縮小內距，讓膠囊變短 */
+    padding: 2px 8px; 
     
-    /* 輕量邊框，強調它是「註解」 */
-    border: 1px solid rgba(203, 213, 225, 0.4);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     
-    font-size: 0.75rem;
-    color: #64748b;
+    /* 整體字體微調 */
+    font-size: 0.7rem;
     font-weight: 700;
+    color: #555;
+    
+    /* 確保膠囊夠寬能蓋住線條，但又不會太長 */
+    min-width: 60px; 
 }
 
-/* 移除舊的連接線 */
-.trans-line { display: none !important; }
-
-/* 5. 內部圖示：改成小圓形 icon */
+/* 3. 內部元件：緊湊化 */
 .trans-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    
-    /* 圓形背景 */
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: var(--card-color-light, #f1f5f9);
-    color: var(--card-color, #64748b);
-    
     padding: 0;
-    cursor: pointer;
+    font-size: 0.9rem; /* 圖示大小 */
     
-    /* 圖示大小 */
-    font-size: 0.7rem;
-    line-height: 1;
+    background: transparent; 
+    color: var(--card-color, #555); /* 圖示也跟隨顏色 */
 }
+
+.trans-time {
+    background: transparent;
+    padding: 0;
+    color: #555;
+    white-space: nowrap; /* 防止換行 */
+}
+
 
 /* 6. 時間文字：純文字，無背景 */
 .trans-time {
@@ -3225,16 +3215,16 @@ wrapper.innerHTML = `
 
         ${isNotLast ? `
             <!-- 新的交通區塊結構 -->
-            <div class="trans-container">
-                <div class="trans-badge">
-                    <div class="trans-icon" onclick="openTransModePicker(${idx})">
-                        ${iconSymbol}
-                    </div>
-                    <div class="trans-time" onclick="openTransTimePicker(${idx})">
-                        ${timeStr}
-                    </div>
+            <div class="trans-container" style="--card-color: ${cat.hex || '#ccc'}">
+            <div class="trans-badge">
+                <div class="trans-icon" onclick="openTransModePicker(${idx})">
+                    ${iconSymbol}
+                </div>
+                <div class="trans-time" onclick="openTransTimePicker(${idx})">
+                    ${timeStr}
                 </div>
             </div>
+        </div>
             ` : ''} 
         `;
         list.appendChild(wrapper);
