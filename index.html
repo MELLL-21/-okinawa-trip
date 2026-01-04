@@ -4695,13 +4695,9 @@ async function manualSync() {
 
         console.log("🚀 開始手動同步...");
         
-        // 4. 呼叫 GAS 拉取資料 (Pull)
-        // 注意：這裡假設您的 GAS doGet 支援 ?action=getAll
-        // 如果您的 GAS 是用 ?secretKey=... 來讀取，請保留您原本的寫法：
-        // const response = await fetch(`${GOOGLE_APPS_SCRIPT_URL}?secretKey=${encodeURIComponent(userEnteredSecret)}`);
-        
-        // 這裡先用您原本的 loadExpensesFromSheet 邏輯，但直接寫在這裡確保流程連貫
-        const response = await fetch(`${GOOGLE_APPS_SCRIPT_URL}?action=getAll`); 
+       // ✅ 修正版：帶上密碼參數
+const response = await fetch(`${GOOGLE_APPS_SCRIPT_URL}?action=getAll&secretKey=${encodeURIComponent(userEnteredSecret)}`);
+
         const json = await response.json();
 
         if (json.status === 'success') {
