@@ -1655,7 +1655,16 @@ max-height: 0;
     font-weight: 500;
 }
 
+<!-- iOS 桌面圖示設定 -->
+    <link rel="apple-touch-icon" href="icon.jpg">
+    
+    <!-- Android / Chrome 桌面圖示設定 (通常也吃這個) -->
+    <link rel="icon" type="image/jpeg" href="icon.jpg">
 
+    <!-- 讓 App 加入主畫面後看起來像原生 App (隱藏網址列) -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="沖繩行">
 
 
 </style>
@@ -2440,7 +2449,10 @@ const PLAN = [
 [{ time: '09:30', cat: 'trans', title: '前往玉泉洞', loc: '玉泉洞', id: 401 },
 { time: '10:00', cat: 'sight', title: '玉泉洞觀賞', loc: '玉泉洞', id: 402 },
 { time: '11:00', cat: 'sight', title: 'Gangala之谷觀賞', loc: 'Gangala之谷', id: 403 },], 
-[]
+	
+[{ time: '06:00', cat: 'trans', title: '退房前往那霸機場', loc: '那霸機場', id: 501 },
+{ time: '8:30', cat: 'sight', title: '登機準備', loc: '那霸機場', id: 502 },
+{ time: '10:20', cat: 'sight', title: '回溫暖的家', loc: '桃園機場第一航廈', id: 503 },]
 ];
 
 let EXPENSE = [
