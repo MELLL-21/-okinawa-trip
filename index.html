@@ -2419,7 +2419,7 @@ const PLAN = [
 []
 ];
 
-const EXPENSE = [
+let EXPENSE = [
 [], [], [], [], []
 ];
 
@@ -4674,65 +4674,124 @@ dots.forEach((dot, i) => {
 dot.classList.toggle('active', i === index);
 });
 }, { passive: true });
-// ✅ 修正版：雙向同步函式 (綁定到您原本的 btn-header-sync 按鈕)
+
+// ✅ 修正版：根據日期自動分配天數 (完美解決格式錯誤)
 async function manualSync() {
-    // 1. 取得按鈕與圖示元素
+    // 1. 取得按鈕與圖示
     const btn = document.getElementById('btn-header-sync');
     const icon = document.getElementById('sync-icon');
     const text = document.getElementById('sync-text');
 
-    // 2. 顯示讀取中狀態
+    // 2. 鎖定按鈕避免重複點擊
     if (icon) icon.innerHTML = '⏳';
     if (text) text.innerText = '同步中...';
     if (btn) btn.disabled = true;
 
     try {
-        // 3. 檢查 GAS URL
         if (typeof GOOGLE_APPS_SCRIPT_URL === 'undefined') {
             alert("錯誤：尚未設定 GOOGLE_APPS_SCRIPT_URL");
             return;
         }
 
         console.log("🚀 開始手動同步...");
-        
-       // ✅ 修正版：帶上密碼參數
-const response = await fetch(`${GOOGLE_APPS_SCRIPT_URL}?action=getAll&secretKey=${encodeURIComponent(userEnteredSecret)}`);
 
+        // 3. 呼叫 GAS (帶上密碼)
+        const response = await fetch(`${GOOGLE_APPS_SCRIPT_URL}?action=getAll&secretKey=${encodeURIComponent(userEnteredSecret)}`);
         const json = await response.json();
 
         if (json.status === 'success') {
             console.log("✅ 雲端資料拉取成功", json.data);
 
-            if (json.data) {
-                // 5. 更新本地資料庫
-                // 假設 json.data 是完整的 EXPENSE 結構 (二維陣列)
-                // 如果 GAS 回傳的是一維陣列 (只有 items)，您可能需要轉換，這裡假設格式已對齊
-                EXPENSE = json.data;
+            if (json.data && Array.isArray(json.data)) {
                 
-                // 6. 存入 LocalStorage
+                // 🔄 初始化 5 天的空陣列 (準備重新分配)
+                // 這裡我們預設 5 天，如果您行程更多天可以加長
+                let newExpense = [[], [], [], [], []];
+
+                // 🗓️ 定義日期對照表 (對應前端的 DAYS 陣列)
+                // 注意：這裡只比對 "月/日"，忽略年份
+                const TRIP_DATES = ['01/06', '01/07', '01/08', '01/09', '01/10'];
+
+                json.data.forEach(item => {
+                    // 1. 解析日期
+                    // 雲端回傳可能是 "2026-01-05T16:00:00.000Z" (UTC) 或其他格式
+                    // 我們需要把它轉成當地的 "MM/DD"
+                    let dateStr = "";
+                    
+                    if (item.date) {
+                        const d = new Date(item.date);
+                        // 修正時區問題：直接用 item.date 字串處理比較保險
+                        // 假設 GAS 存的是 UTC 時間，我們只要取日期部分
+                        // 但保險起見，我們嘗試把它轉成 "01/06" 格式
+                        
+                        // 方法：直接用 item.date 如果它是 ISO 格式，會有時差問題
+                        // 最穩的是看您 GAS 存進去時是否已經有純日期字串
+                        // 如果沒有，我們用簡單的日期比對
+                        
+                        // 簡單暴力解：比對 timestamps 或日期字串
+                        // 這裡假設您的 trip 開始於 2026/01/06
+                        // 您可以根據 item.date 的內容來決定 index
+                        
+                        // 修正方案：直接比對日期字串 (MM-DD)
+                        // 使用瀏覽器本地時間轉換
+                        const month = (d.getMonth() + 1).toString().padStart(2, '0');
+                        const day = d.getDate().toString().padStart(2, '0');
+                        dateStr = `${month}/${day}`;
+                    }
+
+                    // 2. 找出它是第幾天 (0 ~ 4)
+                    let dayIndex = TRIP_DATES.indexOf(dateStr);
+                    
+                    // 如果日期沒對上 (可能是時區導致變成前一天)，做個模糊比對或預設 Day 1
+                    if (dayIndex === -1) {
+                         // 嘗試用 item.dayIndex 如果有的話
+                         if (typeof item.dayIndex !== 'undefined') {
+                             dayIndex = item.dayIndex;
+                         } else {
+                             // 如果真的找不到，暫時歸類到 Day 1 (index 0) 或當天
+                             // 這裡建議檢查 console 看看日期解析出來是什麼
+                             console.warn(`日期無法匹配: ${item.date} -> 解析為 ${dateStr}，歸類至第一天`);
+                             dayIndex = 0; 
+                         }
+                    }
+
+                    // 3. 塞入對應陣列
+                    if (dayIndex >= 0 && dayIndex < 5) {
+                        newExpense[dayIndex].push(item);
+                    }
+                });
+
+                // 4. 更新全域變數
+                EXPENSE = newExpense;
+                
+                // 5. 存入 LocalStorage
                 localStorage.setItem('EXPENSE_DATA', JSON.stringify(EXPENSE));
 
-                // 7. 重新渲染畫面
+                // 6. 重新渲染
                 renderExpense();
-                updateExpenseStats(); // 重新計算代墊與個人花費
+                updateExpenseStats();
 
                 alert('✅ 同步成功！資料已更新');
+            } else {
+                console.warn("⚠️ 雲端回傳資料格式錯誤 (非陣列)", json.data);
+                alert("同步失敗：資料格式錯誤");
             }
         } else {
             console.error("❌ 同步失敗", json);
-            alert('同步失敗：' + (json.message || '格式錯誤'));
+            alert('同步失敗：' + (json.message || '未知錯誤'));
         }
 
     } catch (e) {
-        console.error("❌ 網路錯誤", e);
-        alert('網路錯誤，無法連線至雲端');
+        console.error("❌ 網路/程式錯誤", e);
+        alert('網路錯誤，詳細請看 Console');
     } finally {
-        // 8. 復原按鈕狀態
+        // 7. 復原按鈕
         if (icon) icon.innerHTML = '🔄';
         if (text) text.innerText = '同步';
         if (btn) btn.disabled = false;
     }
 }
+
 
 
   
