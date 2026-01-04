@@ -652,10 +652,15 @@ transition: all 0.3s ease;
 
 /* 啟動狀態的點變長且變亮 */
 .dot.active {
-background: #FFD700; /* 與總額金黃色統一 */
+background: #ffb731; /* 與總額金黃色統一 */
 width: 15px;
 border-radius: 3px;
 opacity: 1;
+}
+
+.dot.category-dot.active {
+    background-color: #2C3E50 !important; /* 改成深藍色 (或您喜歡的其他顏色) */
+    opacity: 0.8;
 }
 
 /* 🆕 登入成功動畫 */
@@ -1751,14 +1756,31 @@ style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; paddin
 <!-- ITINERARY VIEW -->
 <main id="view-itinerary">
 <div class="day-scroll" id="day-list"></div>
-<div class="weather" id="weather-card">
-<div class="w-txt">
-<h3>沖繩．即時天氣</h3>
-<p id="weather-desc">載入中...</p>
-<p id="clothing-advice" style="font-size:0.7rem; color:var(--accent); margin-top:4px; font-weight:700"></p>
+
+<!-- 新的天氣區塊 (WeatherWidget.io) -->
+<div class="weather" style="padding: 0; overflow: hidden; display: block; background: transparent; box-shadow: none;">
+    <a class="weatherwidget-io" 
+       href="https://forecast7.com/zh-tw/26d21127d68/okinawa-prefecture/" 
+       data-label_1="OKINAWA" 
+       data-label_2="即時天氣" 
+       data-font="Noto Sans TC" 
+       data-mode="Current" 
+       data-days="5" 
+       data-theme="original" 
+       data-basecolor="#dfebf3" 
+       data-textcolor="#2C3E50" 
+       data-highcolor="#d73f45" 
+       data-lowcolor="#62aeef" 
+       data-mooncolor="#febc2f" 
+       data-cloudcolor="#727272" 
+       data-cloudfill="#711515" 
+       data-raincolor="#63a0f8" >OKINAWA 即時天氣</a>
+    <script>
+    !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}}(document,'script','weatherwidget-io-js');
+    </script>
 </div>
-<div class="w-val" id="weather-temp">--°C</div>
-</div>
+
+
 <div class="list-head">
 <h2>行程表</h2>
 <span class="hint">點擊編輯 / 右側導航</span>
@@ -1912,7 +1934,7 @@ style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; paddin
 
 <!-- 第二頁：分帳對象統計 -->
 <div class="swipe-card" style="flex: 0 0 100%; min-width: 100%; scroll-snap-align: start; padding: 0 1rem;">
-<div style="font-size:0.8rem; font-weight:700; color:#666; margin-bottom:0.8rem;">分帳對象統計 (往左滑)</div>
+<div style="font-size:0.8rem; font-weight:700; color:#666; margin-bottom:0.8rem;">分帳對象統計</div>
 <div class="exp-category-grid" id="debtor-grid"></div>
 </div>
 
@@ -2139,6 +2161,11 @@ style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; paddin
             <span style="font-size: 0.85rem; font-weight: 700; color: #2C3E50;">01/06 21:00</span>
         </div>
         
+        <!-- 琉裝 -->
+        <div class="info-row" style="padding: 12px 0; border-bottom: 1px dashed #eee; align-items: center;">
+            <span style="font-size: 0.85rem; font-weight: 700; color: #E76F51;">琉装スタジオ ちゅら美人</span>
+            <span style="font-size: 0.85rem; font-weight: 700; color: #2C3E50;">01/07 14:30</span>
+        </div>
 
         <!-- Gangala -->
         <div class="info-row" style="padding: 12px 0; border-bottom: none; align-items: center;">
@@ -3134,19 +3161,8 @@ subtitle.innerHTML = `<span class="badge">${currentUser}</span> 5 Days `;
 
 // --- WEATHER ---
 function fetchWeather() {
-updateWeatherUI(26, "晴時多雲");
-}
-
-function updateWeatherUI(temp, desc) {
-document.getElementById('weather-temp').textContent = temp + "°C";
-document.getElementById('weather-desc').textContent = desc;
-
-let advice = "";
-if(temp > 28) advice = "天氣炎熱，請穿著短袖並注意防曬！";
-else if(temp > 20) advice = "氣溫舒適，建議穿著薄長袖或短袖搭配薄外套。";
-else advice = "天氣較涼，請攜帶外套保暖。";
-
-document.getElementById('clothing-advice').textContent = advice;
+    // 改用 WeatherWidget.io，此處不再需要邏輯
+    console.log("Weather widget loaded.");
 }
 
 
@@ -3587,15 +3603,15 @@ summaryContainer.innerHTML = `
     <!-- 滑動內容 -->
     <div class="stat-swipe-wrapper" id="stat-swipe-wrapper">
         ${getCardHtml('個人花費總額', totals.JPY, totals.TWD, '#fff')}
-        ${getCardHtml('我的代墊總額', receivable.JPY, receivable.TWD, '#10b981')}
+        ${getCardHtml('應收總額', receivable.JPY, receivable.TWD, '#10b981')}
     </div>
     
     <!-- 滑動指示點 -->
     <div class="swipe-dots">
         <span class="dot active"></span>
         <span class="dot"></span>
-        <span class="dot"></span>
     </div>
+	
 `;
 
 // E. 重新綁定滑動監聽 (確保指示點會動)
@@ -3604,7 +3620,7 @@ if (wrapper) {
 wrapper.onscroll = function() {
 // 計算目前滑到第幾張卡片
 const idx = Math.round(this.scrollLeft / this.offsetWidth);
-const dots = document.querySelectorAll('.dot');
+const dots = summaryContainer.querySelectorAll('.dot'); // 修正：限定在 summaryContainer 內找
 dots.forEach((d, i) => d.classList.toggle('active', i === idx));
 };
 }
