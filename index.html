@@ -792,70 +792,52 @@ overflow: hidden;
 #expense-list-container.collapsed {
 max-height: 0;
 }
-.list-head.collapsed h2::after {
-transform: rotate(-90deg); /* 箭頭旋轉效果 */
-}
-.list-head h2::after {
-content: '▼';
-font-size: 0.8rem;
-margin-left: 8px;
-display: inline-block;
-transition: transform 0.2s;
-opacity: 0.5;
-}
 
-/* 3. 軟刪除樣式 (淡化 + 刪除線) */
+
+/* 1. 刪除後的整列樣式：淡化處理 */
 .expense-row.deleted {
-opacity: 0.6;
-background: #f3f4f6;
-pointer-events: none; /* 刪除後不可點擊展開 */
+    opacity: 0.5;                /* 整體變淡 */
+    background: #f9fafb;         /* 背景變灰 */
+    pointer-events: none;        /* 禁止點擊展開 */
+    position: relative;          /* 確保標籤定位正確 */
+    filter: grayscale(0.8);      /* 稍微去色，強化「失效」感 */
 }
+
+/* 2. 刪除後的文字樣式：加上刪除線 */
 .expense-row.deleted .expense-header {
-text-decoration: line-through;
-color: #9ca3af;
+    text-decoration: line-through;
+    color: #9ca3af;
 }
-/* 修改後的刪除印章樣式 */
+
+/* 3. 已刪除小標籤 (取代原本的大印章) */
 .deleted-badge {
+    display: none;               /* 預設隱藏 */
     position: absolute;
-    /* 改用 inset 0 + flex 居中，確保永遠在卡片正中央 */
-    inset: 0; 
-    display: none; /* 預設隱藏 */
-    align-items: center;
-    justify-content: center;
-    pointer-events: none; /* 讓點擊事件穿透，不影響編輯按鈕 */
+    top: 10px;                   /* 固定在右上角 */
+    right: 10px;
     z-index: 10;
-    overflow: hidden; /* 防止旋轉後超出邊界 */
-    border-radius: 1rem; /* 配合卡片圓角 */
 }
 
-/* 印章本體 (文字框) */
+/* 標籤本體設計 */
 .deleted-badge-inner {
-    border: 3px solid #ef4444;
-    color: #ef4444;
-    padding: 6px 16px;
-    font-weight: 900;
-    font-size: 1.5rem;
-    border-radius: 12px;
-    opacity: 0.8;
-    transform: rotate(-15deg); /* 這裡做旋轉 */
-    background: rgba(255, 255, 255, 0.6); /* 半透明背景增加層次感 */
-    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);
-    text-transform: uppercase;
-    letter-spacing: 2px;
+    background: #fee2e2;         /* 淺紅底 */
+    color: #ef4444;              /* 紅字 */
+    border: 1px solid #fca5a5;   /* 紅邊框 */
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    transform: none;             /* 移除旋轉 */
 }
 
-/* 當有 deleted class 時顯示 */
+/* 當有 deleted class 時顯示標籤 */
 .expense-row.deleted .deleted-badge {
-    display: flex; /* 改用 flex 讓內部居中 */
+    display: block;
 }
 
-/* 復原按鈕 */
-.btn-restore-inline {
-width: 100%; margin-top: 10px; padding: 10px;
-background: #ecfdf5; color: #10b981;
-border: 1.5px solid #10b981; border-radius: 10px;
-font-weight: 700; cursor: pointer; pointer-events: auto;
-}
+
 
 
 
@@ -1991,11 +1973,11 @@ style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; paddin
 	  <div class="info-content">
 	   
         <div class="info-block">
-          <div class="info-sub-title">OTS 租車 (臨空豐崎營業所)</div>
-          <div class="info-row"><span>預約號</span><span>RC12345678</span></div>
-          <div class="info-row"><span>取車</span><span>01/06 10:30</span></div>
-          <div class="info-row"><span>還車</span><span>01/09 08:00</span></div>
-          <div class="info-row"><span>車型</span><span>Toyota Sienta (5人座)</span></div>
+          <div class="info-sub-title">OTS 租車(臨空豐崎營業所)</div>
+          <div class="info-row"><span>預約號</span><span>OTS1396720</span></div>
+          <div class="info-row"><span>取車</span><span>01/06 10:00</span></div>
+          <div class="info-row"><span>還車</span><span>01/09 19:00</span></div>
+          <div class="info-row"><span>車型</span><span>Toyota Sienta(7人座)</span></div>
           
 		  <div class="info-text">
             <b>⚠️ 注意事項：</b><br>
@@ -2105,7 +2087,7 @@ style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; paddin
 <div class="info-card collapsed" onclick="toggleInfoCard(this)">
     <div class="info-header">
         <span class="info-icon">⚠️</span>
-        <span class="info-title">注意事項</span>
+        <span class="info-title">緊急聯絡</span>
         <span class="info-arrow">▼</span>
     </div>
      <div class="info-content">
@@ -2119,12 +2101,20 @@ style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; paddin
                     </div>
                 </div>
 
-                <div style="margin-bottom: 12px;">
+                <div style="margin-bottom: 18px;">
                     <div style="font-weight: 700; color: #475569; font-size: 0.8rem;">台北駐日代表那霸分處：</div>
                     <a href="tel:098-862-7008" style="font-weight: 600; color: #E76F51; font-size: 0.8rem; text-decoration: none; letter-spacing: 0.5px;">
                         098-862-7008
                     </a>
                 </div>
+
+				<div style="margin-bottom: 18px;">
+                    <div style="font-weight: 700; color: #475569; font-size: 0.8rem;">沖繩 OTS租車預約中心：</div>
+                    <a href="tel:022-719-1960" style="font-weight: 600; color: #E76F51; font-size: 0.8rem; text-decoration: none; letter-spacing: 0.5px;">
+                        022-719-1960
+                    </a>
+                </div>
+
 
                 <div>
                     <div style="font-weight: 700; color: #475569; font-size: 0.8rem;">緊急聯絡電話 (急難救助用)：</div>
@@ -3278,11 +3268,10 @@ function renderExpense() {
         }
 
         let actionBtnHtml = '';
-        if (item.isDeleted) {
-             actionBtnHtml = `<div style="margin-top:10px;"><button type="button" class="btn-restore-inline" style="pointer-events:auto;" onclick="event.stopPropagation(); restoreExpense('${item.id}')">↩️ 復原此項目</button></div>`;
-        } else {
-            actionBtnHtml = `<div style="text-align:right; margin-top:8px;"><span style="font-size:0.75rem; color:#aaa; cursor:pointer; font-weight:600;" onclick="event.stopPropagation(); openEditModal('${item.id}')">✏️ 編輯 / 刪除</span></div>`;
-        }
+		if (!item.isDeleted) {
+		actionBtnHtml = `<div style="text-align:right; margin-top:8px;"><span style="font-size:0.75rem; color:#aaa; cursor:pointer; font-weight:600;" onclick="event.stopPropagation(); openEditModal('${item.id}')">✏️ 編輯 / 刪除</span></div>`;
+		}
+
 
         div.innerHTML = `
             <!-- 上半部：標題與總金額 -->
@@ -3299,7 +3288,7 @@ function renderExpense() {
                     <div style="font-weight:900; font-size:1.3rem; color:#E76F51;">
                         ${currencySymbol}${displayAmt}
                     </div>
-                    <div style="font-size:0.6rem; color:#ccc; margin-top:4px;">▼</div>
+            
                 </div>
             </div>
             
@@ -3356,10 +3345,7 @@ function renderSplitDetails(item) {
         const amount = detailMap[name];
         // 標記本人
         const isMe = (name === currentUser) ? '(我)' : '';
-        // 樣式：支付者(本人)深色，欠款者(別人)淺紅底
-        // 圖2邏輯：顯示這筆帳是誰付的 (PayBy)，但這裡我們列出的是「誰分攤了多少」
-        // 如果要完全模仿圖2 "支付者: 400" 的概念，這裡其實是在列出 "分攤者"
-        
+     
         // 判斷樣式：如果是自己分攤的部分
         const nameStyle = (name === currentUser) 
             ? 'background:#f1f5f9; color:#64748b;'  // 自己：灰底
@@ -3398,6 +3384,7 @@ const EX_RATE = 0.215; // 匯率 (僅供顯示參考)
 // B. 計算邏輯 (修正為「實際消費」邏輯，與後端 GAS 一致)
 EXPENSE.forEach(dayList => {
 dayList.forEach(item => {
+if (item.isDeleted) return; 
 const c = item.currency || 'TWD'; // 預設 TWD
 
 // 1. 計算「我的實際消費」 (Cost)
@@ -3462,9 +3449,9 @@ const getCardHtml = (title, jpy, twd, color) => {
             <!-- 左側：日幣 (JP) -->
             <div style="flex: 1; text-align: right;">
                 <div style="display: flex; flex-direction: column; align-items: flex-end;">
-                    <div style="font-size: 0.7rem; opacity: 0.6; font-weight: 600; margin-bottom: 2px;">🇯🇵 JP</div>
+                    <div style="font-size: 0.7rem; opacity: 0.6; font-weight: 600; margin-bottom: 2px;">🇯🇵</div>
                     <!-- 日幣字體 1.6rem，加粗 -->
-                    <div style="font-size: 1.6rem; font-weight: 900; color: #FFFFFF; line-height: 1.2; white-space: nowrap;">¥ ${jpy.toLocaleString()}</div>
+                    <div style="font-size: 1.4rem; font-weight: 900; color: #FFFFFF; line-height: 1.2; white-space: nowrap;">¥ ${jpy.toLocaleString()}</div>
                     <div style="font-size: 0.75rem; color: #aaa; font-weight: 500; margin-top: 4px; white-space: nowrap;">
                         (約 NT$ ${jpyToTwd.toLocaleString()})
                     </div>
@@ -3477,9 +3464,9 @@ const getCardHtml = (title, jpy, twd, color) => {
             <!-- 右側：台幣 (TW) -->
             <div style="flex: 1; text-align: left;">
                 <div style="display: flex; flex-direction: column; align-items: flex-start;">
-                    <div style="font-size: 0.7rem; opacity: 0.6; font-weight: 600; margin-bottom: 2px;">🇹🇼 TW</div>
+                    <div style="font-size: 0.7rem; opacity: 0.6; font-weight: 600; margin-bottom: 2px;">🇹🇼</div>
                     <!-- 台幣字體 1.4rem (小0.2rem)，強制不換行 -->
-                    <div style="font-size: 1.4rem; font-weight: 700; color: #FFFFFF; line-height: 1.2; white-space: nowrap;">NT$ ${twd.toLocaleString()}</div>
+                    <div style="font-size: 1.1rem; font-weight: 700; color: #FFFFFF; line-height: 1.2; white-space: nowrap;">NT$ ${twd.toLocaleString()}</div>
                 </div>
             </div>
 
@@ -3557,23 +3544,29 @@ container.appendChild(btn);
 }
 
 function renderQuickCustomAmounts() {
-const container = document.getElementById('quick-custom-amounts');
-container.innerHTML = '';
+    const container = document.getElementById('quick-custom-amounts');
+    container.innerHTML = '';
 
-if (!currentUser || !MEMBERS.includes(currentUser)) return;
+    if (!currentUser || !MEMBERS.includes(currentUser)) return;
 
-const others = MEMBERS.filter(name => name !== currentUser);
+    const others = MEMBERS.filter(name => name !== currentUser);
 
-others.forEach(name => {
-const row = document.createElement('div');
-row.style.cssText = 'display:grid;grid-template-columns:0.6fr 1.4fr;gap:0.6rem;align-items:center;margin-bottom:0.6rem;';
-row.innerHTML = `
+    // 1. 判斷當前幣別符號
+    const symbol = (typeof currentCurrency !== 'undefined' && currentCurrency === 'JPY') ? '¥' : 'NT$';
+
+    others.forEach(name => {
+        const row = document.createElement('div');
+        row.style.cssText = 'display:grid;grid-template-columns:0.6fr 1.4fr;gap:0.6rem;align-items:center;margin-bottom:0.6rem;';
+        
+        // 2. 將 placeholder 改為動態變數 ${symbol}
+        row.innerHTML = `
                 <label style="font-size:0.75rem;font-weight:700;color:#374151;white-space:nowrap;">${name}</label>
-                <input type="number" class="quick-custom-amt" data-name="${name}" min="0" placeholder="NT$" style="padding:0.5rem 0.6rem;font-size:0.8rem;border:1px solid #e5e7eb;border-radius:0.6rem;" oninput="updateQuickSplitPreview()">
+                <input type="number" class="quick-custom-amt" data-name="${name}" min="0" placeholder="${symbol}" style="padding:0.5rem 0.6rem;font-size:0.8rem;border:1px solid #e5e7eb;border-radius:0.6rem;" oninput="updateQuickSplitPreview()">
             `;
-container.appendChild(row);
-});
+        container.appendChild(row);
+    });
 }
+
 
 function toggleQuickSplitMode(mode) {
 const container = document.getElementById('quick-split-options');
@@ -3820,29 +3813,29 @@ document.getElementById('quick-form-title').textContent = '快速記帳';
 document.getElementById('btn-quick-submit').textContent = '新增';
 }
 
-// 請用這個版本
-async function deleteEditingItem() {
-if (!editingId) return; // 您的變數叫 editingId
-if (!confirm('確定要刪除這筆消費嗎？')) return;
+async function restoreExpense(id) {
+    if (!confirm('確定要復原這筆消費嗎？')) return;
 
-// 您的資料存在 EXPENSE[curDay] 裡
-const idx = EXPENSE[curDay].findIndex(e => e.id === editingId);
-let deletedId = editingId; 
+    // 在當天的資料中尋找該筆帳目
+    const item = EXPENSE[curDay].find(e => e.id === id);
 
-if (idx >= 0) {
-// 1. 刪除本地
-EXPENSE[curDay].splice(idx, 1);
+    if (item) {
+        // 1. 解除刪除標記
+        item.isDeleted = false;
 
-// 2. 更新畫面
-cancelEdit();
-renderExpense(); // 您的函式叫 renderExpense
-updateExpenseStats(); 
+        // 2. 重新計算所有畫面
+        renderExpense();
+        updateExpenseStats();
+        renderExpenseCategories();
 
-// 3. 同步到雲端
-console.log('正在同步刪除 ID:', deletedId);
-await syncDeleteToSheet(deletedId);
+        // 3. 同步到雲端
+        console.log('正在同步復原:', item.title);
+        if (typeof syncExpenseToSheet === 'function') {
+            await syncExpenseToSheet(item);
+        }
+    }
 }
-}
+
 
 async function syncDeleteToSheet(id) {
 try {
@@ -4670,6 +4663,9 @@ document.getElementById('quick-amt').placeholder = unit;
 updateQuickSplitPreview(); 
 
 updateConversion();
+if (document.getElementById('quick-split-mode').value === 'custom') {
+    renderQuickCustomAmounts();
+}
 }
 
 /// 只換算日幣 -> 台幣 Gemini ///
@@ -4807,7 +4803,11 @@ function saveEditedExpense() {
 // 軟刪除
 function softDeleteExpense() {
     if (!editingExpenseId) return;
-    const item = EXPENSE[curDay].find(e => e.id === editingExpenseId);
+      // [新增] 刪除確認視窗
+    // 如果使用者按「取消」，程式就會在這裡停止，不會執行刪除
+    const isConfirmed = confirm("確定要刪除此項目嗎？\n刪除後將無法復原。");
+    if (!isConfirmed) return;
+	const item = EXPENSE[curDay].find(e => e.id === editingExpenseId);
     
     if (item) {
         item.isDeleted = true;
@@ -4820,19 +4820,12 @@ function softDeleteExpense() {
         renderExpense();
         renderExpenseCategories();
         updateExpenseStats();
-    }
+    
+	if (typeof syncExpenseToSheet === 'function') { syncExpenseToSheet(item); }
+	
+	}
 }
 
-// 復原刪除
-function restoreExpense(id) {
-    const item = EXPENSE[curDay].find(e => e.id === id);
-    if (item) {
-        item.isDeleted = false;
-        renderExpense();
-        renderExpenseCategories();
-        updateExpenseStats();
-    }
-}
 
 // 初始化滑動監聽
 function setupSwipeObserver(elementId, dotSelector) {
