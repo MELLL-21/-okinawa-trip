@@ -1654,7 +1654,40 @@ max-height: 0;
     opacity: 0.8;
     font-weight: 500;
 }
+/* --- 新增：存疑標記樣式 --- */
+.expense-row.suspicious {
+    background-color: #fff9c4 !important; /* 淺黃色背景 */
+    border: 1px solid #fbc02d !important;
+}
 
+/* 存疑按鈕樣式 */
+.btn-suspicious-inline {
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px;
+    background: white;
+    color: #f59e0b; /* 橘黃色文字 */
+    border: 1.5px solid #f59e0b;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: 0.15s;
+}
+
+.btn-suspicious-inline:active {
+    transform: scale(0.98);
+    background: #fffbeb;
+}
+
+/* 讓原本的 detail 面板在存疑狀態下也稍微變黃 */
+.expense-row.suspicious .expense-detail-panel {
+    background-color: rgba(255, 249, 196, 0.3); 
+}
 
 
 </style>
@@ -3346,7 +3379,7 @@ function renderExpenseDays() {
 
 
 
-// ✅ 修正版 renderExpense：只顯示與我有關的帳目 + 標示付款人
+// ✅ 修正版 renderExpense：隱藏編輯按鈕，改為存疑標記
 function renderExpense() {
     const list = document.getElementById('expense-list');
     if (!list) return;
@@ -3354,14 +3387,11 @@ function renderExpense() {
     list.innerHTML = '';
     const items = EXPENSE[curDay] || [];
 
-    // 1. 過濾：只留下「跟我有關」的帳目
-    // 條件：我是付款人 OR 我在分帳名單 (advanceFor) 裡面
+    // 過濾：只留下「跟我有關」的帳目
     const myItems = items.filter(item => {
-        if (item.isDeleted) return true; // 已刪除的暫時保留顯示 (或您可以選擇直接不顯示)
-        
+        if (item.isDeleted) return true;
         const isPayer = item.payBy === currentUser;
         const isInvolved = item.advanceFor && item.advanceFor.includes(currentUser);
-        
         return isPayer || isInvolved;
     });
 
@@ -3372,9 +3402,14 @@ function renderExpense() {
     }
 
     myItems.forEach(item => {
+        // 1. 在建立 div 之前，先讀取存疑狀態
+        const isSuspicious = localStorage.getItem('suspicious_' + item.id) === 'true';
+        const suspiciousClass = isSuspicious ? 'suspicious' : '';
+        const suspiciousText = isSuspicious ? ' 取消標記' : '標記待確認';
+
+        // 2. 建立主要的 div
         const div = document.createElement('div');
-        const isDeleted = item.isDeleted ? ' deleted' : '';
-        div.className = `expense-row${isDeleted}`;
+        div.className = `expense-row ${item.isDeleted ? 'deleted' : ''} ${suspiciousClass}`;
         div.style.padding = "1rem 1.2rem";
 
         const cat = CATEGORIES.find(c => c.key === item.cat) || CATEGORIES[4];
@@ -3391,8 +3426,7 @@ function renderExpense() {
             }
         }
 
-        // 🆕 新增：付款人標示
-        // 如果付款人是我，顯示「我付的」；如果是別人，顯示「某某付的」
+        // 付款人標示
         let payerBadge = '';
         if (item.payBy === currentUser) {
             payerBadge = `<span style="background:#e0f2fe; color:#0369a1; padding:2px 6px; border-radius:4px; font-size:0.7rem; font-weight:700;">我付的</span>`;
@@ -3400,10 +3434,15 @@ function renderExpense() {
             payerBadge = `<span style="background:#fef3c7; color:#b45309; padding:2px 6px; border-radius:4px; font-size:0.7rem; font-weight:700;">${item.payBy} 付款</span>`;
         }
 
-        let actionBtnHtml = '';
-        if (!item.isDeleted) {
-            actionBtnHtml = `<div style="text-align:right; margin-top:8px;"><span style="font-size:0.75rem; color:#aaa; cursor:pointer; font-weight:600;" onclick="event.stopPropagation(); openEditModal('${item.id}')">✏️ 編輯 / 刪除</span></div>`;
-        }
+        // 3. 準備存疑按鈕的 HTML
+        // 注意：這裡完全移除了原本的 btn-edit-inline 和 btn-delete-inline
+        const actionBtnHtml = `
+            <div style="margin-top: 10px;">
+                <button type="button" class="btn-suspicious-inline" onclick="event.stopPropagation(); toggleSuspicious('${item.id}')">
+                    ${suspiciousText}
+                </button>
+            </div>
+        `;
 
         div.innerHTML = `
             <!-- 上半部：標題與總金額 -->
@@ -3413,7 +3452,6 @@ function renderExpense() {
                         ${item.title || '未命名'}
                     </div>
                     <div style="font-size:0.75rem; color:#888; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-                        <!-- 付款人標籤放在最前面 -->
                         ${payerBadge}
                         <span style="background:#f3f4f6; padding:2px 6px; border-radius:4px;">${cat.label}</span>
                         <span style="background:#f3f4f6; padding:2px 6px; border-radius:4px;">${item.payMethod === 'cash' ? '現金' : '信用卡'}</span>
@@ -3433,7 +3471,7 @@ function renderExpense() {
             
             <!-- 下半部：展開區塊 -->
             <div class="expense-detail-panel">
-                ${renderSplitDetails(item)}
+                ${typeof renderSplitDetails === 'function' ? renderSplitDetails(item) : ''}
                 ${actionBtnHtml}
             </div>
         `;
@@ -3450,6 +3488,7 @@ function renderExpense() {
         updateExpenseStats();
     }
 }
+
 
 
 
@@ -4961,7 +5000,24 @@ function toggleInfoCard(card) {
     }
 }
 
- 
+ // 切換「存疑」狀態的函數
+function toggleSuspicious(id) {
+    const key = 'suspicious_' + id;
+    const current = localStorage.getItem(key) === 'true';
+    
+    if (current) {
+        localStorage.removeItem(key); // 取消標記
+    } else {
+        localStorage.setItem(key, 'true'); // 設定為存疑
+    }
+    
+    // 重新渲染列表，讓黃色背景生效
+    // 注意：請確認您的渲染函數名稱是 renderExpense 還是 renderExpenseList
+    if (typeof renderExpense === 'function') {
+        renderExpense(); 
+    }
+}
+
  
 </script>
 </body>
