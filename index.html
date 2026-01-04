@@ -3331,7 +3331,7 @@ function renderExpenseDays() {
 
 
 
-// ✅ 修正版 renderExpense：印章位置修正
+// ✅ 修正版 renderExpense：只顯示與我有關的帳目 + 標示付款人
 function renderExpense() {
     const list = document.getElementById('expense-list');
     if (!list) return;
@@ -3339,17 +3339,27 @@ function renderExpense() {
     list.innerHTML = '';
     const items = EXPENSE[curDay] || [];
 
-    if (items.length === 0) {
-        list.innerHTML = '<div style="color:#888;text-align:center;margin:2rem 0">尚無消費紀錄</div>';
-        updateExpenseStats();
+    // 1. 過濾：只留下「跟我有關」的帳目
+    // 條件：我是付款人 OR 我在分帳名單 (advanceFor) 裡面
+    const myItems = items.filter(item => {
+        if (item.isDeleted) return true; // 已刪除的暫時保留顯示 (或您可以選擇直接不顯示)
+        
+        const isPayer = item.payBy === currentUser;
+        const isInvolved = item.advanceFor && item.advanceFor.includes(currentUser);
+        
+        return isPayer || isInvolved;
+    });
+
+    if (myItems.length === 0) {
+        list.innerHTML = '<div style="color:#888;text-align:center;margin:2rem 0">尚無相關消費紀錄</div>';
+        if (typeof updateExpenseStats === 'function') updateExpenseStats();
         return;
     }
 
-    items.forEach(item => {
+    myItems.forEach(item => {
         const div = document.createElement('div');
         const isDeleted = item.isDeleted ? ' deleted' : '';
         div.className = `expense-row${isDeleted}`;
-        // 增加一點內距讓它像卡片
         div.style.padding = "1rem 1.2rem";
 
         const cat = CATEGORIES.find(c => c.key === item.cat) || CATEGORIES[4];
@@ -3366,18 +3376,30 @@ function renderExpense() {
             }
         }
 
-        let actionBtnHtml = '';
-		if (!item.isDeleted) {
-		actionBtnHtml = `<div style="text-align:right; margin-top:8px;"><span style="font-size:0.75rem; color:#aaa; cursor:pointer; font-weight:600;" onclick="event.stopPropagation(); openEditModal('${item.id}')">✏️ 編輯 / 刪除</span></div>`;
-		}
+        // 🆕 新增：付款人標示
+        // 如果付款人是我，顯示「我付的」；如果是別人，顯示「某某付的」
+        let payerBadge = '';
+        if (item.payBy === currentUser) {
+            payerBadge = `<span style="background:#e0f2fe; color:#0369a1; padding:2px 6px; border-radius:4px; font-size:0.7rem; font-weight:700;">我付的</span>`;
+        } else {
+            payerBadge = `<span style="background:#fef3c7; color:#b45309; padding:2px 6px; border-radius:4px; font-size:0.7rem; font-weight:700;">${item.payBy} 付款</span>`;
+        }
 
+        let actionBtnHtml = '';
+        if (!item.isDeleted) {
+            actionBtnHtml = `<div style="text-align:right; margin-top:8px;"><span style="font-size:0.75rem; color:#aaa; cursor:pointer; font-weight:600;" onclick="event.stopPropagation(); openEditModal('${item.id}')">✏️ 編輯 / 刪除</span></div>`;
+        }
 
         div.innerHTML = `
             <!-- 上半部：標題與總金額 -->
             <div class="expense-header" onclick="this.parentElement.classList.toggle('expanded')">
                 <div>
-                    <div style="font-weight:800; font-size:1.1rem; color:var(--primary); margin-bottom:4px;">${item.title || '未命名'}</div>
-                    <div style="font-size:0.75rem; color:#888; display:flex; align-items:center; gap:6px;">
+                    <div style="font-weight:800; font-size:1.1rem; color:var(--primary); margin-bottom:4px; display:flex; align-items:center; gap:6px;">
+                        ${item.title || '未命名'}
+                    </div>
+                    <div style="font-size:0.75rem; color:#888; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                        <!-- 付款人標籤放在最前面 -->
+                        ${payerBadge}
                         <span style="background:#f3f4f6; padding:2px 6px; border-radius:4px;">${cat.label}</span>
                         <span style="background:#f3f4f6; padding:2px 6px; border-radius:4px;">${item.payMethod === 'cash' ? '現金' : '信用卡'}</span>
                         ${advanceHtml}
@@ -3387,11 +3409,9 @@ function renderExpense() {
                     <div style="font-weight:900; font-size:1.3rem; color:#E76F51;">
                         ${currencySymbol}${displayAmt}
                     </div>
-            
                 </div>
             </div>
             
-            <!-- 修正後的刪除印章結構 -->
             <div class="deleted-badge">
                 <div class="deleted-badge-inner">已刪除</div>
             </div>
@@ -3411,11 +3431,11 @@ function renderExpense() {
         container.style.overflow = 'visible';
     }
 
-    updateExpenseStats();
-	   if (typeof updateExpenseStats === 'function') {
+    if (typeof updateExpenseStats === 'function') {
         updateExpenseStats();
     }
 }
+
 
 
 // ✅ 修正版 renderSplitDetails：只負責產生分帳列表 HTML
