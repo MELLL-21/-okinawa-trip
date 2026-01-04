@@ -1758,12 +1758,29 @@ style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; paddin
 <div class="day-scroll" id="day-list"></div>
 
 <!-- 新的天氣區塊 (WeatherWidget.io) -->
-<div class="weather" style="padding: 0; overflow: hidden; display: block; background: transparent; box-shadow: none;">
- <a class="weatherwidget-io" href="https://forecast7.com/zh-tw/26d21127d68/okinawa-prefecture/" data-label_1="OKINAWA" data-label_2="即時天氣" data-font="Noto Sans TC" data-mode="Current" data-days="5" data-theme="original" data-basecolor="#ffffff" data-textcolor="#2C3E50" data-highcolor="#d73f45" data-lowcolor="#1b69ad" data-mooncolor="#febc2f" data-cloudcolor="#727272" data-cloudfill="#711515" data-raincolor="#255fb8" >OKINAWA 即時天氣</a>
-<script>
-!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}}(document,'script','weatherwidget-io-js');
-</script>
+<!-- Weather Widget (修改版) -->
+<div class="weather" style="padding: 0; overflow: hidden; display: block; min-height: 98px; background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(10px);">
+    <a class="weatherwidget-io" 
+       href="https://forecast7.com/zh-tw/26d21127d68/okinawa-prefecture/" 
+       data-label_1="OKINAWA" 
+       data-label_2="即時天氣" 
+       data-font="Noto Sans TC" 
+       data-mode="Current" 
+       data-days="5" 
+       data-theme="original" 
+       data-basecolor=""  
+       data-textcolor="#2C3E50" 
+       data-highcolor="#d73f45" 
+       data-lowcolor="#1b69ad" 
+       data-mooncolor="#febc2f" 
+       data-cloudcolor="#727272" 
+       data-cloudfill="#711515" 
+       data-raincolor="#255fb8" >OKINAWA·即時天氣</a>
+    <script>
+    !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}}(document,'script','weatherwidget-io-js');
+    </script>
 </div>
+
 <div class="list-head">
 <h2>行程表</h2>
 <span class="hint">點擊編輯 / 右側導航</span>
