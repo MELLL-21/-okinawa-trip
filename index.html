@@ -333,7 +333,7 @@ main { flex: 1; overflow-y: auto; padding: 1rem 1rem calc(6rem + var(--safe-bott
 @keyframes slideDown { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 .pay-method-badge { font-size: 0.6rem; background: #eee; color: #666; padding: 2px 6px; border-radius: 4px; margin-left: 6px; }
 .advance-badge { font-size: 0.6rem; border: 1px solid var(--accent); color: var(--accent); padding: 1px 4px; border-radius: 4px; margin-left: 4px; }
-.repaid-badge { font-size: 0.6rem; background: #10b981; color: white; padding: 2px 6px; border-radius: 4px; margin-left: 6px; font-weight: 700; }
+
 
 /* Wishlist */
 .wish-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
@@ -1581,6 +1581,75 @@ max-height: 0;
     pointer-events: none; /* 勾選後禁止編輯，避免誤觸 */
 }
 
+/* 右上角關閉按鈕樣式 */
+.modal-close-btn {
+    position: absolute;
+    top: 1.2rem;          /* 距離頂部 */
+    right: 1.2rem;        /* 距離右側 */
+    width: 32px;
+    height: 32px;
+    background: #f3f4f6;  /* 淺灰背景 */
+    color: #64748b;       /* 深灰文字 */
+    border-radius: 50%;   /* 圓形 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;    /* 符號大小 */
+    cursor: pointer;
+    z-index: 10;
+    transition: 0.2s;
+    font-family: sans-serif;
+    line-height: 1;
+}
+.modal-close-btn:active {
+    background: #e5e7eb;
+    transform: scale(0.9);
+}
+/* 日期膠囊標籤容器 */
+.date-capsule-scroll {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 0 4px 8px 4px; /* 下方留點空隙 */
+    margin-bottom: 0.5rem;
+    -webkit-overflow-scrolling: touch; /* 讓滑動更順暢 */
+}
+.date-capsule-scroll::-webkit-scrollbar {
+    display: none; /* 隱藏捲軸 */
+}
+
+/* 膠囊按鈕樣式 */
+.date-capsule {
+    padding: 6px 14px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #64748b;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* 膠囊選中狀態 (模仿圖中的藍底白字) */
+.date-capsule.active {
+    background: #3b82f6; /* 亮藍色 */
+    color: white;
+    border-color: #3b82f6;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+/* 膠囊內的星期幾小字 */
+.date-capsule small {
+    font-size: 0.75rem;
+    opacity: 0.8;
+    font-weight: 500;
+}
+
 
 
 
@@ -1701,6 +1770,9 @@ style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; paddin
 <main id="view-expense" style="display:none">
 <div class="exp-summary-card">
 <div id="summary-content" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0;">
+
+
+
 <!-- 左側：原始幣別分行 -->
 <div style="flex: 1; text-align: left; padding-left: 10px; border-right: 1px solid rgba(255,255,255,0.2);">
 <div style="margin-bottom: 8px;">
@@ -1857,9 +1929,14 @@ style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; paddin
 <!-- 🆕 明細 VIEW -->
 <main id="view-breakdown" style="display:none">
   <div class="list-head">
-    <h2>支付明細統計</h2>
+    <h2>支付明細</h2>
     <span class="hint">點擊查看詳細分帳</span>
   </div>
+  
+		<!-- [新增] 日期標籤容器 -->
+		<div id="expense-day-scroll" class="date-capsule-scroll">
+  </div>
+  
   <div id="expense-list-container">
     <div id="expense-list"></div>
   </div>
@@ -1870,17 +1947,11 @@ style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; paddin
 <!-- 清單 VIEW (原願望清單) -->
 <main id="view-wishlist" style="display:none">
    
-
-
-
     <!-- 頂部切換器 -->
     <div class="wishlist-tabs" style="display:flex; background:rgba(255,255,255,0.5); padding:4px; border-radius:12px; margin-bottom:1rem;">
         <div class="wish-tab active" onclick="switchWishTab('luggage')" style="flex:1; text-align:center; padding:8px; font-weight:700; font-size:0.9rem; border-radius:10px; cursor:pointer; transition:0.2s;">🧳 行李清單</div>
         <div class="wish-tab" onclick="switchWishTab('shopping')" style="flex:1; text-align:center; padding:8px; font-weight:700; font-size:0.9rem; border-radius:10px; cursor:pointer; transition:0.2s; color:#888;">🛍️ 購物清單</div>
     </div>
-
-
-
 
     <!-- 行李清單區塊 -->
     <div id="wish-view-luggage">
@@ -2176,22 +2247,18 @@ style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; paddin
 </div>
 </div>
 
-<!-- 欠款明細 Modal -->
-<div class="overlay" id="debt-modal-overlay">
-<div class="modal">
-<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-<h2 id="debt-modal-title" style="margin:0;">欠款明細</h2>
-<button type="button" onclick="closeDebtModal()" style="background:none; border:none; font-size:1.5rem; color:#888;">&times;</button>
-</div>
-<div id="debt-detail-list"></div>
-<div id="debt-modal-footer">總計：<span>NT$0</span></div>
-</div>
-</div>
 
-<!-- 編輯消費 Modal Gemini編輯用的彈窗 待確認 -->
-<div class="overlay" id="edit-expense-overlay">
-<div class="modal">
-<h2 style="margin-bottom:1rem;">編輯消費</h2>
+
+<!-- 1. 外層 div 加入 onclick：點擊空白背景時關閉 -->
+<div class="overlay" id="edit-expense-overlay" onclick="if(event.target === this) closeEditModal()">
+    
+    <!-- 2. 內層 modal 加入 style="position:relative" 以便定位關閉按鈕 -->
+    <div class="modal" style="position: relative;">
+        
+        <!-- 3. 新增：右上角關閉按鈕 -->
+        <div class="modal-close-btn" onclick="closeEditModal()">×</div>
+
+        <h2 style="margin-bottom:1rem;">編輯消費</h2>
 
 <!-- 簡單的編輯表單 -->
 <div class="form-row">
@@ -2223,7 +2290,7 @@ style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; paddin
 <p style="font-size:0.7rem; color:#999; margin-bottom:1.5rem;">* 如需修改分帳細節，請刪除後重新記帳。</p>
 
 <button type="button" class="btn-save" onclick="saveEditedExpense()">儲存修改</button>
-<button type="button" class="btn-del" onclick="softDeleteExpense()">刪除此筆 (可復原)</button>
+<button type="button" class="btn-del" onclick="softDeleteExpense()">刪除</button>
 </div>
 </div>
 
@@ -3128,8 +3195,8 @@ function switchTab(tabBtn, name) {
             renderExpenseCategories(); 
 		if (typeof updateExpenseStats === 'function') updateExpenseStats(); 
         } else if(name === 'breakdown') {
-            renderExpense(); // 確保數據是最新的
-            renderExpenseCategories();
+		renderExpenseDays(); // [新增] 產生日期標籤
+		renderExpense();     // 確保數據是最新的
         } else if(name === 'wishlist') {
             renderWishlist();
             if (typeof renderLuggageList === 'function') renderLuggageList();
@@ -3231,6 +3298,38 @@ wrapper.innerHTML = `
         list.appendChild(wrapper);
 });
 }
+
+function renderExpenseDays() {
+    const scrollContainer = document.getElementById('expense-day-scroll');
+    if (!scrollContainer) return;
+
+    scrollContainer.innerHTML = ''; 
+
+    DAYS.forEach((day, idx) => {
+        const btn = document.createElement('div');
+        // 套用新的膠囊樣式
+        btn.className = `date-capsule ${curDay === idx ? 'active' : ''}`;
+        
+        btn.onclick = () => {
+            curDay = idx;
+            renderExpenseDays(); // 更新膠囊狀態
+            renderExpense();     // 更新明細列表
+            
+            // 同步其他頁面 (選用)
+            if (typeof renderDays === 'function') renderDays();
+            if (typeof renderPlan === 'function') renderPlan();
+        };
+
+        // 膠囊內容：日期 + 星期 (例如: 01/06 (二))
+        // 您可以依喜好調整顯示格式
+        btn.innerHTML = `
+            ${day.label} <small>
+        `;
+        scrollContainer.appendChild(btn);
+    });
+}
+
+
 
 // ✅ 修正版 renderExpense：印章位置修正
 function renderExpense() {
@@ -3419,17 +3518,7 @@ receivable[c] += (perPerson * othersCount);
 }
 }
 
-// 3. 計算「應付」 (Payable)
-// 條件：不是我付錢，但我有在名單裡 (別人幫我墊)
-if (item.payBy !== currentUser && item.advanceFor && item.advanceFor.includes(currentUser)) {
-let myOwe = 0;
-if (item.splitDetails && item.splitDetails.amounts) {
-myOwe = item.splitDetails.amounts[currentUser] || 0;
-} else {
-myOwe = Math.floor(item.amt / item.advanceFor.length);
-}
-payable[c] += myOwe;
-}
+
 });
 });
 
@@ -3483,8 +3572,7 @@ summaryContainer.innerHTML = `
     <!-- 滑動內容 -->
     <div class="stat-swipe-wrapper" id="stat-swipe-wrapper">
         ${getCardHtml('個人花費總額', totals.JPY, totals.TWD, '#fff')}
-        ${getCardHtml('待收付款項 (應收)', receivable.JPY, receivable.TWD, '#10b981')}
-        ${getCardHtml('待收付款項 (應付)', payable.JPY, payable.TWD, '#E76F51')}
+        ${getCardHtml('我的代墊總額', receivable.JPY, receivable.TWD, '#10b981')}
     </div>
     
     <!-- 滑動指示點 -->
@@ -3981,112 +4069,6 @@ debtorGrid.appendChild(itemDiv);
 if (debtorGrid.innerHTML === '') debtorGrid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#888; padding:10px;">目前尚無分帳紀錄 🎉</div>';
 }
 
-
-function openDebtModal(debtorName) {
-const overlay = document.getElementById('debt-modal-overlay');
-const titleEl = document.getElementById('debt-modal-title');
-const listEl = document.getElementById('debt-detail-list');
-const footerEl = document.getElementById('debt-modal-footer');
-
-if (!overlay || !titleEl || !listEl || !footerEl) {
-console.error("找不到 Modal 元素");
-return;
-}
-
-overlay.classList.add('open');
-titleEl.textContent = `${debtorName} 的欠款明細`;
-listEl.innerHTML = '';
-
-let total = 0;
-let unpaidTotal = 0;
-
-EXPENSE.forEach((dayList, dayIdx) => {
-dayList.forEach((item) => {
-if (!item || item.amt <= 0) return;
-if (item.payBy !== currentUser) return;
-if (!item.advanceFor || item.advanceFor.length === 0) return;
-
-let debtAmt = 0;
-
-if (item.splitDetails && item.splitDetails.amounts) {
-debtAmt = item.splitDetails.amounts[debtorName] || 0;
-} else if (item.advanceFor.includes(debtorName)) {
-debtAmt = Math.floor(item.amt / item.advanceFor.length);
-}
-
-const isSettled = item.settled && item.settled[debtorName];
-
-if (debtAmt > 0) {
-total += debtAmt;
-if (!isSettled) unpaidTotal += debtAmt;
-
-const row = document.createElement('div');
-row.style.cssText = `
-                        display:flex; 
-                        justify-content:space-between; 
-                        align-items:center; 
-                        padding:10px 0; 
-                        border-bottom:1px dashed #eee;
-                        ${isSettled ? 'opacity:0.5;' : ''}
-                    `;
-
-row.innerHTML = `
-                        <div>
-                            <div style="font-weight:700; font-size:0.9rem;">
-                                ${item.title}
-                                ${isSettled ? '<span style="color:#10b981; font-size:0.7rem; margin-left:6px;">✓</span>' : ''}
-                            </div>
-                            <div style="font-size:0.75rem; color:#888;">
-                                ${DAYS[dayIdx].label}
-                            </div>
-                        </div>
-                        <div style="text-align:right;">
-                            <div style="font-weight:700; color:#E76F51; margin-bottom:4px;">NT$${debtAmt}</div>
-                            ${isSettled 
-                                ? '<span style="background:#10b981; color:#fff; padding:4px 8px; border-radius:12px; font-size:0.7rem; font-weight:700;">已還款</span>'
-                                : `<button type="button" style="background:#10b981; color:#fff; border:none; padding:4px 8px; border-radius:12px; font-size:0.7rem; cursor:pointer;" onclick="settleSingleDebt(${dayIdx}, '${item.id}', '${debtorName}')">標記還款</button>`
-                            }
-                        </div>
-                    `;
-listEl.appendChild(row);
-}
-});
-});
-
-footerEl.innerHTML = `
-            <span style="font-size:0.7rem; color:#888; font-weight:600;">總計：NT$${total}</span><br>
-            未還款：<span style="color:#E76F51;">NT$${unpaidTotal}</span>
-        `;
-
-if (total === 0) {
-listEl.innerHTML = '<div style="text-align:center; color:#ccc; padding:20px;">目前沒有欠款紀錄</div>';
-}
-}
-
-function closeDebtModal() {
-const overlay = document.getElementById('debt-modal-overlay');
-if (overlay) overlay.classList.remove('open');
-}
-
-document.getElementById('debt-modal-overlay').onclick = (e) => {
-if (e.target.id === 'debt-modal-overlay') {
-closeDebtModal();
-}
-};
-
-function settleSingleDebt(dayIdx, itemId, debtorName) {
-if (!confirm(`確認 ${debtorName} 已經還款這筆了嗎？`)) return;
-
-const item = EXPENSE[dayIdx].find(e => e.id === itemId);
-if (item) {
-if (!item.settled) item.settled = {};
-item.settled[debtorName] = true;
-
-renderExpense();
-renderExpenseCategories();
-openDebtModal(debtorName);
-}
-}
 
 function renderCategories() {
 const catList = document.getElementById('cat-list');
@@ -4692,48 +4674,70 @@ dots.forEach((dot, i) => {
 dot.classList.toggle('active', i === index);
 });
 }, { passive: true });
-// 🆕 手動同步按鈕邏輯
-function manualSync() {
-const btn = document.getElementById('btn-header-sync');
-const icon = document.getElementById('sync-icon');
-const text = document.getElementById('sync-text');
+// ✅ 修正版：雙向同步函式 (綁定到您原本的 btn-header-sync 按鈕)
+async function manualSync() {
+    // 1. 取得按鈕與圖示元素
+    const btn = document.getElementById('btn-header-sync');
+    const icon = document.getElementById('sync-icon');
+    const text = document.getElementById('sync-text');
 
-// 1. 變更按鈕狀態為「同步中...」
-icon.style.animation = 'spin 1s linear infinite';
-icon.style.display = 'inline-block';
-text.textContent = '更新中...';
-btn.style.opacity = '0.7';
-btn.disabled = true; // 防止重複點擊
+    // 2. 顯示讀取中狀態
+    if (icon) icon.innerHTML = '⏳';
+    if (text) text.innerText = '同步中...';
+    if (btn) btn.disabled = true;
 
-// 2. 執行同步
-loadExpensesFromSheet().then(data => {
-mergeExpensesFromSheet(data);
+    try {
+        // 3. 檢查 GAS URL
+        if (typeof GOOGLE_APPS_SCRIPT_URL === 'undefined') {
+            alert("錯誤：尚未設定 GOOGLE_APPS_SCRIPT_URL");
+            return;
+        }
 
-// 3. 恢復按鈕狀態
-setTimeout(() => {
-icon.style.animation = 'none';
-text.textContent = '已更新';
-btn.style.opacity = '1';
-btn.disabled = false;
+        console.log("🚀 開始手動同步...");
+        
+        // 4. 呼叫 GAS 拉取資料 (Pull)
+        // 注意：這裡假設您的 GAS doGet 支援 ?action=getAll
+        // 如果您的 GAS 是用 ?secretKey=... 來讀取，請保留您原本的寫法：
+        // const response = await fetch(`${GOOGLE_APPS_SCRIPT_URL}?secretKey=${encodeURIComponent(userEnteredSecret)}`);
+        
+        // 這裡先用您原本的 loadExpensesFromSheet 邏輯，但直接寫在這裡確保流程連貫
+        const response = await fetch(`${GOOGLE_APPS_SCRIPT_URL}?action=getAll`); 
+        const json = await response.json();
 
-// 4. 顯示成功提示 2 秒後變回「同步」
-setTimeout(() => {
-text.textContent = '同步';
-}, 2000);
-}, 500); // 至少轉 0.5 秒讓用戶有感
-}).catch(err => {
-// 錯誤處理
-console.error(err);
-text.textContent = '失敗';
-icon.textContent = '❌';
-setTimeout(() => {
-text.textContent = '同步';
-icon.textContent = '🔄';
-icon.style.animation = 'none';
-btn.disabled = false;
-}, 2000);
-});
+        if (json.status === 'success') {
+            console.log("✅ 雲端資料拉取成功", json.data);
+
+            if (json.data) {
+                // 5. 更新本地資料庫
+                // 假設 json.data 是完整的 EXPENSE 結構 (二維陣列)
+                // 如果 GAS 回傳的是一維陣列 (只有 items)，您可能需要轉換，這裡假設格式已對齊
+                EXPENSE = json.data;
+                
+                // 6. 存入 LocalStorage
+                localStorage.setItem('EXPENSE_DATA', JSON.stringify(EXPENSE));
+
+                // 7. 重新渲染畫面
+                renderExpense();
+                updateExpenseStats(); // 重新計算代墊與個人花費
+
+                alert('✅ 同步成功！資料已更新');
+            }
+        } else {
+            console.error("❌ 同步失敗", json);
+            alert('同步失敗：' + (json.message || '格式錯誤'));
+        }
+
+    } catch (e) {
+        console.error("❌ 網路錯誤", e);
+        alert('網路錯誤，無法連線至雲端');
+    } finally {
+        // 8. 復原按鈕狀態
+        if (icon) icon.innerHTML = '🔄';
+        if (text) text.innerText = '同步';
+        if (btn) btn.disabled = false;
+    }
 }
+
 
   
 function toggleExpenseList() {
@@ -4805,7 +4809,7 @@ function softDeleteExpense() {
     if (!editingExpenseId) return;
       // [新增] 刪除確認視窗
     // 如果使用者按「取消」，程式就會在這裡停止，不會執行刪除
-    const isConfirmed = confirm("確定要刪除此項目嗎？\n刪除後將無法復原。");
+    const isConfirmed = confirm("確定要刪除此項目嗎？");
     if (!isConfirmed) return;
 	const item = EXPENSE[curDay].find(e => e.id === editingExpenseId);
     
@@ -4820,10 +4824,17 @@ function softDeleteExpense() {
         renderExpense();
         renderExpenseCategories();
         updateExpenseStats();
-    
-	if (typeof syncExpenseToSheet === 'function') { syncExpenseToSheet(item); }
 	
 	}
+}
+
+// 關閉編輯視窗
+function closeEditModal() {
+    const overlay = document.getElementById('edit-expense-overlay');
+    if (overlay) {
+        overlay.classList.remove('open');
+    }
+    editingExpenseId = null; // 清空當前編輯 ID
 }
 
 
